@@ -1,0 +1,16 @@
+name: elmada
+channels:
+  - conda-forge
+  - anaconda
+dependencies:
+  - python=3.7
+  - scipy
+  - matplotlib
+  - seaborn
+  - pandas
+  - numpy
+  - pip
+  - pip:
+    - '--editable=.' # installs an editable version of elmada
+    - entsoe-py==0.2.*
+    - quandl
