@@ -1,15 +1,45 @@
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
+<img src="elmada_logo.svg" width="300" alt="elmada logo">
+
 # **el**ectricity **ma**rket **da**ta for the **d**emand **r**esponse **a**nalysis **f**ramework
 
-`elmada` is part of the [Draf Project](https://github.com/DrafProject) but can be used as a standalone package. `elmada` stands for **el**ectricity **ma**rket **da**ta and allows the approximation of up to quarterhourly carbon emission factors and the provision of historic wholesale prices for European national electricity grids.
+Elmada is part of the [Draf Project](https://github.com/DrafProject) but can be used as a standalone package. `elmada` stands for **el**ectricity **ma**rket **da**ta and allows the approximation of up to quarterhourly carbon emission factors and the provision of historic wholesale prices for European national electricity grids.
+
+# Installation
+
+## Conda environment with editable version Elmada
+
+The following code downloads the directory, creates a conda environment including all required packages, and runs all tests.
+
+```bash
+git clone https://github.com/DrafProject/elmada.git
+cd elmada
+
+# creates environment based on environment.yml and installs editable local version:
+conda env create
+
+# activate draf environment
+conda activate elmada
+
+# Run the tests and ensure that there are no errors
+pytest
+```
+
+## Install only Elmada
+
+Alternatively you can only install Elmada
+
+```bash
+pip install https://github.com/DrafProject/elmada.git
+```
 
 # Data
 
-`elmada` caches all data in a elmada subdirectory of the default temp folder of the operating system, e.g. `%TEMP%` in Windows.
+Elmada caches all data in a elmada subdirectory of the default temp folder of the operating system, e.g. `%TEMP%` in Windows.
 
-You can use `elmada` in two modes which can be set with `elmada.set_mode(mode=<MODE>)`:
+You can use Elmada in two modes which can be set with `elmada.set_mode(mode=<MODE>)`:
 
 * `mode="live"` (default):
   * Up-to-date data are retrieved on-demand.
@@ -27,10 +57,14 @@ You can use `elmada` in two modes which can be set with `elmada.set_mode(mode=<M
 | German fossil power plant list with efficiencies | <temp_dir> | [OPSD](https://open-power-system-data.org/)  | 🔌 on-demand-download from [here](https://data.open-power-system-data.org/conventional_power_plants/latest/) |
 | Transmission & distribution losses | [data/worldbank](elmada/data/worldbank) | [Worldbank](https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS) | 💾 manual download from [here](https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS)  |
 | Fuel price trends | [data/destatis](elmada/data/destatis) | [DESTATIS](https://www.destatis.de/) | 💾 manual download from [here](https://www.destatis.de/DE/Themen/Wirtschaft/Preise/Publikationen/Energiepreise/energiepreisentwicklung-xlsx-5619001.xlsx?__blob=publicationFile) |
-| Fuel prices for 2015 | In code | [Konstantin.2017](https://doi.org/10.1007/978-3-662-49823-1) | values |
-| Carbon emission intensities | In code ([data/tranberg](elmada/data/tranberg)) | [Quaschning](https://www.volker-quaschning.de/datserv/CO2-spez/index_e.ph) ([Tranberg.2019](https://doi.org/10.1016/j.esr.2019.100367)) | values |
+| Fuel prices for 2015 | in code | [Konstantin.2017](https://doi.org/10.1007/978-3-662-49823-1) | 🔢 values |
+| Carbon emission intensities | in code ([data/tranberg](elmada/data/tranberg)) | [Quaschning](https://www.volker-quaschning.de/datserv/CO2-spez/index_e.ph) ([Tranberg.2019](https://doi.org/10.1016/j.esr.2019.100367)) | 🔢 values |
 
-## License
+# Citing Elmada
+
+If you use Elmada for academic work please cite this [open access paper](https://doi.org/10.1016/j.apenergy.2021.117040).
+
+# License
 
 Copyright (c) 2021 Markus Fleschutz
 
