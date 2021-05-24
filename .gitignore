@@ -1,6 +1,3 @@
-# local directory for API keys
-elmada/api_keys/*
-
 conventional_power_plants_DE.xlsx
 conventional_power_plants_EU.xlsx
 national_generation_capacity.xlsx
