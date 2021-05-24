@@ -9,7 +9,7 @@ Elmada is part of the [Draf Project](https://github.com/DrafProject) but can be 
 
 # Installation
 
-## Conda environment with editable version Elmada
+## Conda environment with editable version of Elmada
 
 The following code downloads the directory, creates a conda environment including all required packages, and runs all tests.
 
@@ -32,7 +32,7 @@ pytest
 Alternatively you can only install Elmada
 
 ```bash
-pip install https://github.com/DrafProject/elmada.git
+python -m pip install git+https://github.com/DrafProject/elmada.git
 ```
 
 # Data
