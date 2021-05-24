@@ -15,8 +15,6 @@ setup(
     license="LGPLv3",
     packages=find_packages(),
     python_requires=">=3.6",
-    install_require=["scipy",
-                     "seaborn", "plotly",
-                     "entsoe", "requests", "bs4"],
-    tests_require=["pathlib", "pytest"]
+    install_require=["scipy", "seaborn", "plotly", "entsoe", "requests", "bs4"],
+    tests_require=["pathlib", "pytest"],
 )
