@@ -24,27 +24,24 @@ def plot_merit_order_plt(year=2019, variant=1, **kwargs) -> None:
 
     if variant == 1:
         # TODO: Probem: Tilted area under line.
-        df = prepare_merit_order_for_plt(year,
-                                         which="marginal_cost",
-                                         split_across_columns=True,
-                                         **kwargs)
+        df = prepare_merit_order_for_plt(
+            year, which="marginal_cost", split_across_columns=True, **kwargs
+        )
         colors = ep.get_colors(df)
         df.plot(kind="area", ax=ax_left, linewidth=0, color=colors)
 
     elif variant == 2:
         # TODO: Area must be colored according to fuel. Legend
-        df = prepare_merit_order_for_plt(year,
-                                         which="marginal_cost",
-                                         split_across_columns=False,
-                                         **kwargs)
+        df = prepare_merit_order_for_plt(
+            year, which="marginal_cost", split_across_columns=False, **kwargs
+        )
         df["marginal_cost"].plot(kind="area", ax=ax_left)
 
     elif variant == 3:
         # TODO: Problem: Gaps between the colored sections
-        df = prepare_merit_order_for_plt(year,
-                                         which="marginal_cost",
-                                         split_across_columns=True,
-                                         **kwargs)
+        df = prepare_merit_order_for_plt(
+            year, which="marginal_cost", split_across_columns=True, **kwargs
+        )
         for f in df:
             plt.fill_between(x=df.index, y1=df[f], step="post", interpolate=True, ax=ax_left)
 
@@ -54,17 +51,20 @@ def plot_merit_order_plt(year=2019, variant=1, **kwargs) -> None:
 
     df = prepare_merit_order_for_plt(year, which="marginal_emissions", **kwargs)
     df.plot(ax=ax_right, color="black", legend=None, linewidth=2)
-    df["nuclear"].plot(ax=ax_right,
-                       legend=True,
-                       color="black",
-                       linewidth=2,
-                       label=r"Marg. emissions $\varepsilon_p$")  # just to get legend
+    df["nuclear"].plot(
+        ax=ax_right,
+        legend=True,
+        color="black",
+        linewidth=2,
+        label=r"Marg. emissions $\varepsilon_p$",
+    )  # just to get legend
     ax_right.set_ylabel(r"Marginal emissions $\varepsilon_p$ [$t_{CO_{2}eq}$ / $MWh_{el}$]")
     ax_right.set_ylim(bottom=0, top=None)
 
 
 def plot_merit_order_plotly(year=2019, mo_P=None, **kwargs) -> "PlotlyPlot":
     import plotly.express as px
+
     if mo_P is None:
         mo_P = merit_order(year, **kwargs)
     return px.area(
@@ -78,11 +78,9 @@ def plot_merit_order_plotly(year=2019, mo_P=None, **kwargs) -> "PlotlyPlot":
 
 def plot_marginal_emissions_plotly(year=2019, mo_P=None, **kwargs) -> "PlotlyPlot":
     import plotly.express as px
+
     df = prep_CEFs(year=year, mo_P=mo_P, **kwargs)
-    return px.scatter(df,
-                      y="MEFs",
-                      color="marginal_fuel",
-                      color_discrete_map=mp.TECH_COLORS)
+    return px.scatter(df, y="MEFs", color="marginal_fuel", color_discrete_map=mp.TECH_COLORS)
 
 
 def plot_marginal_emissions_plt(year=2019, mo_P=None, **kwargs) -> None:
@@ -96,8 +94,9 @@ def plot_marginal_emissions_plt(year=2019, mo_P=None, **kwargs) -> None:
         df.marginal_emissions.where(df["marginal_fuel"] == f).plot(ax=ax, color=c)
 
 
-def prepare_merit_order_for_plt(year: int, which: str, split_across_columns=True,
-                                **kwargs) -> pd.DataFrame:
+def prepare_merit_order_for_plt(
+    year: int, which: str, split_across_columns=True, **kwargs
+) -> pd.DataFrame:
     df = merit_order(year, **kwargs)
     df = df[["fuel_draf", "cumsum_capa", which]]
     df["cumsum_capa"] /= 1000  # convert from kWh to MWh
@@ -124,13 +123,13 @@ def prep_CEFs(year=2019, freq="60min", country="DE", mo_P=None, **mo_kwargs) -> 
     return get_CEFs_from_merit_order(mo_P=mo_P, year=year, freq=freq, country=country)
 
 
-def get_CEFs_from_merit_order(mo_P: pd.DataFrame, year: int, freq: str,
-                              country: str, resi_T: Optional[pd.Series] = None) -> pd.DataFrame:
+def get_CEFs_from_merit_order(
+    mo_P: pd.DataFrame, year: int, freq: str, country: str, resi_T: Optional[pd.Series] = None
+) -> pd.DataFrame:
     if resi_T is None:
         resi_T = ep.prep_residual_load(year=year, freq=freq, country=country)
     _warn_if_not_enough_capa(mo_P, resi_T)
-    total_load_T = ep.load_el_national_generation(year=year, freq=freq,
-                                                  country=country).sum(axis=1)
+    total_load_T = ep.load_el_national_generation(year=year, freq=freq, country=country).sum(axis=1)
     cols = ["cumsum_capa", "marginal_emissions", "capa", "fuel_draf", "used_eff", "marginal_cost"]
     len_mo = len(mo_P)
     mo_P_arr = mo_P[cols].values
@@ -161,26 +160,30 @@ def get_CEFs_from_merit_order(mo_P: pd.DataFrame, year: int, freq: str,
         # if the following code is executed there is not enough generation capacity:
         return emissions
 
-    df = pd.DataFrame({
-        "residual_load": resi_T,
-        "total_load": total_load_T,
-        "marginal_fuel": resi_T.apply(get_data, what="fuel_draf"),
-        "efficiency": resi_T.apply(get_data, what="used_eff"),
-        "marginal_cost": resi_T.apply(get_data, what="marginal_cost"),
-        "MEFs": resi_T.apply(get_data, what="marginal_emissions") / transm_eff,
-        "XEFs": (resi_T.apply(get_emissions_for_xef)) / total_load_T / transm_eff,
-    })
+    df = pd.DataFrame(
+        {
+            "residual_load": resi_T,
+            "total_load": total_load_T,
+            "marginal_fuel": resi_T.apply(get_data, what="fuel_draf"),
+            "efficiency": resi_T.apply(get_data, what="used_eff"),
+            "marginal_cost": resi_T.apply(get_data, what="marginal_cost"),
+            "MEFs": resi_T.apply(get_data, what="marginal_emissions") / transm_eff,
+            "XEFs": (resi_T.apply(get_emissions_for_xef)) / total_load_T / transm_eff,
+        }
+    )
 
     df["XEFs"] *= 1000  # convert from t/MWh to g/kWh
     df["MEFs"] *= 1000  # convert from t/MWh to g/kWh
     return df
 
 
-def merit_order(year=2019,
-                efficiency_per_plant: bool = True,
-                emission_data_source: str = "quaschning",
-                overwrite_carbon_tax: Optional[float] = None,
-                **preprocess_kwargs) -> pd.DataFrame:
+def merit_order(
+    year=2019,
+    efficiency_per_plant: bool = True,
+    emission_data_source: str = "quaschning",
+    overwrite_carbon_tax: Optional[float] = None,
+    **preprocess_kwargs,
+) -> pd.DataFrame:
     """Prepares the merit order from the German power plant list."""
 
     df = get_current_active_power_plants(year)
@@ -219,11 +222,13 @@ def get_installed_generation_capacity(year=2019, country="DE") -> pd.Series:
     Source:
         (https://doi.org/10.25832/national_generation_capacity/2019-12-02)
     """
-    fp = paths.DATA_DIR / \
-        "opsd/opsd-national_generation_capacity-2019-12-02/national_generation_capacity_stacked.csv"
+    fp = (
+        paths.DATA_DIR
+        / "opsd/opsd-national_generation_capacity-2019-12-02/national_generation_capacity_stacked.csv"
+    )
     df = pd.read_csv(fp, index_col=0)
-    is_country = (df["country"] == country)
-    is_year = (df["year"] == year)
+    is_country = df["country"] == country
+    is_year = df["year"] == year
     in_technology = df.technology.isin(mp.OPSD_TO_DRAF.keys())
     ser = df.loc[is_country & is_year & in_technology, ["technology", "capacity"]]
     ser = ser.groupby("technology").last().capacity
@@ -235,9 +240,11 @@ def get_installed_generation_capacity(year=2019, country="DE") -> pd.Series:
 def get_summary(year=2019) -> pd.DataFrame:
     ca = get_current_active_power_plants(year)
     grouper = ca.groupby(["fuel", "technology"])
-    d = dict(counts=grouper.count().id,
-             efficiency=grouper.mean()["efficiency_estimate"],
-             sum_capa=grouper.sum()["capacity_net_bnetza"])
+    d = dict(
+        counts=grouper.count().id,
+        efficiency=grouper.mean()["efficiency_estimate"],
+        sum_capa=grouper.sum()["capacity_net_bnetza"],
+    )
     return pd.concat(d.values(), axis=1, keys=d.keys())
 
 
@@ -262,17 +269,20 @@ def get_current_active_power_plants(year=2019) -> pd.DataFrame:
     used_fuels = mp.OPSD_TO_DRAF.keys()
     other_fuels = set(df["fuel"]) - set(used_fuels)
     is_german = df["country_code"] == "DE"
-    after_commissioned = (df["commissioned"].notnull()
-                          & (df["commissioned"] < year)) | df["commissioned"].isna()
+    after_commissioned = (df["commissioned"].notnull() & (df["commissioned"] < year)) | df[
+        "commissioned"
+    ].isna()
     before_shutdown = (df["shutdown"].notnull() & (df["shutdown"] > year)) | df["shutdown"].isna()
     currently_active = after_commissioned & before_shutdown
     in_used_fuels = df["fuel"].isin(used_fuels)
     cond = is_german & currently_active & in_used_fuels
     ca = df[cond]
 
-    logger.info(f"{(cond.sum() / len(df)):.2%} of data rows were used "
-                f"({(~in_used_fuels).sum() / len(df):.2%} are not in used fuels). "
-                f"Other (discarded) fuels are {other_fuels}.")
+    logger.info(
+        f"{(cond.sum() / len(df)):.2%} of data rows were used "
+        f"({(~in_used_fuels).sum() / len(df):.2%} are not in used fuels). "
+        f"Other (discarded) fuels are {other_fuels}."
+    )
 
     # interesting_cols = ["id", "name_bnetza", "status", "fuel", "technology", "type", "efficiency_estimate", "capacity_net_bnetza"]
     return ca
@@ -287,17 +297,20 @@ def get_current_active_power_plants_EU(year=2019) -> pd.DataFrame:
     df = read_opsd_powerplant_list(which="EU")
     used_fuels = mp.OPSD_TO_DRAF.keys()
     other_fuels = df["energy_source_level_2"].unique().tolist()
-    after_commissioned = (df["commissioned"].notnull() & (
-        df["commissioned"] < year)) | df["commissioned"].isna()
+    after_commissioned = (df["commissioned"].notnull() & (df["commissioned"] < year)) | df[
+        "commissioned"
+    ].isna()
     has_capa_value = df["capacity"].notnull()
     currently_active = after_commissioned
     in_used_fuels = df["energy_source_level_2"].isin(used_fuels)
     cond = currently_active & has_capa_value & in_used_fuels
     ca = df[cond]
 
-    logger.info(f"{(cond.sum() / len(df)):.2%} of data rows were used "
-                f"({(~in_used_fuels).sum() / len(df):.2%} are not in used fuels). "
-                f"Other (discarded) fuels are {other_fuels}.")
+    logger.info(
+        f"{(cond.sum() / len(df)):.2%} of data rows were used "
+        f"({(~in_used_fuels).sum() / len(df):.2%} are not in used fuels). "
+        f"Other (discarded) fuels are {other_fuels}."
+    )
 
     # interesting_cols = ["country", "name", "energy_source_level_2", "technology", "type", "capacity"]
     return ca
@@ -314,21 +327,27 @@ def read_opsd_powerplant_list(which: str = "DE") -> pd.DataFrame:
 
 
 def download_powerplant_list(which: str, fp: Path):
-    url = (f"https://data.open-power-system-data.org/conventional_power_plants/latest/"
-           f"conventional_power_plants_{which}.csv")
+    url = (
+        f"https://data.open-power-system-data.org/conventional_power_plants/latest/"
+        f"conventional_power_plants_{which}.csv"
+    )
     response = requests.get(url, allow_redirects=True)
 
-    with open(fp, 'wb') as file:
+    with open(fp, "wb") as file:
         file.write(response.content)
 
     print(f"{fp.name} downloaded from OPSD.")
 
 
-def _rename_to_draf_fuels(df: pd.DataFrame,
-                          minimum_efficiency_for_gas_cc: float = .5) -> pd.DataFrame:
+def _rename_to_draf_fuels(
+    df: pd.DataFrame, minimum_efficiency_for_gas_cc: float = 0.5
+) -> pd.DataFrame:
     def my_rename(row):
-        if (row["fuel"] == "Natural gas") and (row["technology"] == "Combined cycle") and (
-                row["efficiency_estimate"] >= minimum_efficiency_for_gas_cc):
+        if (
+            (row["fuel"] == "Natural gas")
+            and (row["technology"] == "Combined cycle")
+            and (row["efficiency_estimate"] >= minimum_efficiency_for_gas_cc)
+        ):
             return "gas_cc"
         else:
             return mp.OPSD_TO_DRAF[row["fuel"]]
@@ -337,13 +356,15 @@ def _rename_to_draf_fuels(df: pd.DataFrame,
     return df
 
 
-def _preprocess_efficiencies(df: pd.DataFrame,
-                             efficiency_per_plant: bool = True,
-                             fill_missing_efficiencies: bool = True,
-                             fill_zscore_outlier: bool = True,
-                             zscore_threshold: float = 3,
-                             ensure_minimum_efficiency: bool = True,
-                             minimum_efficiency: float = .3) -> pd.DataFrame:
+def _preprocess_efficiencies(
+    df: pd.DataFrame,
+    efficiency_per_plant: bool = True,
+    fill_missing_efficiencies: bool = True,
+    fill_zscore_outlier: bool = True,
+    zscore_threshold: float = 3,
+    ensure_minimum_efficiency: bool = True,
+    minimum_efficiency: float = 0.3,
+) -> pd.DataFrame:
 
     filler_dic = df.groupby(by="fuel_draf").mean()["efficiency_estimate"].to_dict()
     df["filler"] = df["fuel_draf"].map(filler_dic)
@@ -357,7 +378,7 @@ def _preprocess_efficiencies(df: pd.DataFrame,
         for fuel in df["fuel_draf"].unique():
             ser = df["efficiency_estimate"]
             ser = ser[ser.notnull()]
-            cond_zscore = (np.abs(stats.zscore(ser)) > zscore_threshold)
+            cond_zscore = np.abs(stats.zscore(ser)) > zscore_threshold
             cond_fuel = df["fuel_draf"] == fuel
             number_of_nans = len(df[cond_zscore & cond_fuel])
             logger.info("f{number_of_nans} nans filled in fuel {fuel}.")
@@ -396,5 +417,7 @@ def _warn_if_not_enough_capa(mo_P: pd.DataFrame, resi_ser: pd.DataFrame) -> None
     mo_max = mo_P["cumsum_capa"].max() / 1e3
     min_resi = resi_ser.min() / 1e3
     if mo_max < min_resi:
-        logger.warning(f"Generation capacity ({mo_max:.2f} GW) is lower than "
-                       f"minimum residual load ({min_resi:.2f} GW).")
+        logger.warning(
+            f"Generation capacity ({mo_max:.2f} GW) is lower than "
+            f"minimum residual load ({min_resi:.2f} GW)."
+        )

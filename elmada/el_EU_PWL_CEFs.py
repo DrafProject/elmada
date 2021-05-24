@@ -19,6 +19,7 @@ logger.setLevel(level=logging.INFO)
 
 def plot_merit_order_plotly(year=2019, country="DE", mo_P=None, **kwargs):
     import plotly.express as px
+
     if mo_P is None:
         mo_P = merit_order(year=year, country=country, **kwargs)
     return px.area(
@@ -37,30 +38,24 @@ def plot_merit_order_plt(year=2019, country="DE", variant=1, **kwargs):
 
     if variant == 1:
         # TODO: Probem: Tilted area under line.
-        df = prepare_merit_order_for_plot(year,
-                                          country,
-                                          which="marginal_cost",
-                                          split_across_columns=True,
-                                          **kwargs)
+        df = prepare_merit_order_for_plot(
+            year, country, which="marginal_cost", split_across_columns=True, **kwargs
+        )
         colors = ep.get_colors(df)
         df.plot(kind="area", ax=ax_left, linewidth=0, color=colors)
 
     elif variant == 2:
         # TODO: Area must be colored according to fuel. Legend
-        df = prepare_merit_order_for_plot(year,
-                                          country,
-                                          which="marginal_cost",
-                                          split_across_columns=False,
-                                          **kwargs)
+        df = prepare_merit_order_for_plot(
+            year, country, which="marginal_cost", split_across_columns=False, **kwargs
+        )
         df["marginal_cost"].plot(kind="area", ax=ax_left)
 
     elif variant == 3:
         # TODO: Problem: Gaps between the colored sections
-        df = prepare_merit_order_for_plot(year,
-                                          country,
-                                          which="marginal_cost",
-                                          split_across_columns=True,
-                                          **kwargs)
+        df = prepare_merit_order_for_plot(
+            year, country, which="marginal_cost", split_across_columns=True, **kwargs
+        )
         for f in df:
             plt.fill_between(x=df.index, y1=df[f], step="post", interpolate=True, ax=ax_left)
 
@@ -69,27 +64,25 @@ def plot_merit_order_plt(year=2019, country="DE", variant=1, **kwargs):
     ax_left.set_xlabel(r"Net power [GW]")
     ax_left.set_ylim(0, 165)
 
-    df = prepare_merit_order_for_plot(year,
-                                      country,
-                                      which="marginal_emissions",
-                                      split_across_columns=False,
-                                      **kwargs)["marginal_emissions"]
-    df.plot(drawstyle="steps-post",
-            ax=ax_right,
-            color="black",
-            legend=True,
-            linewidth=2,
-            label=r"Marg. emissions $\varepsilon_p$")
+    df = prepare_merit_order_for_plot(
+        year, country, which="marginal_emissions", split_across_columns=False, **kwargs
+    )["marginal_emissions"]
+    df.plot(
+        drawstyle="steps-post",
+        ax=ax_right,
+        color="black",
+        legend=True,
+        linewidth=2,
+        label=r"Marg. emissions $\varepsilon_p$",
+    )
     ax_right.set_ylim(0, 1.8)
     ax_right.set_ylabel(r"Marginal emissions $\varepsilon_p$ [$t_{CO_{2}eq}$ / $MWh_{el}$]")
     ax_right.set_ylim(bottom=0, top=None)
 
 
-def prepare_merit_order_for_plot(year: int,
-                                 country: str,
-                                 which: str,
-                                 split_across_columns=True,
-                                 **kwargs) -> pd.DataFrame:
+def prepare_merit_order_for_plot(
+    year: int, country: str, which: str, split_across_columns=True, **kwargs
+) -> pd.DataFrame:
     df = merit_order(year=year, country=country, **kwargs)
     df = df[["fuel_draf", "cumsum_capa", which]]
     df["cumsum_capa"] /= 1000  # convert from MW to GW
@@ -107,38 +100,36 @@ def prep_prices(year=2019, freq="60min", country="DE", **kwargs) -> pd.Series:
     return prep_CEFs(year=year, freq=freq, country=country, **kwargs)["marginal_cost"]
 
 
-def prep_CEFs(year: int = 2019,
-              freq: str = "60min",
-              country: str = "DE",
-              validation_mode: bool = False,
-              mo_P: Optional[pd.DataFrame] = None,
-              **mo_kwargs) -> pd.DataFrame:
+def prep_CEFs(
+    year: int = 2019,
+    freq: str = "60min",
+    country: str = "DE",
+    validation_mode: bool = False,
+    mo_P: Optional[pd.DataFrame] = None,
+    **mo_kwargs,
+) -> pd.DataFrame:
     """Prepares XEFs for European countries with piece-wise-linear approximation method"""
 
     if mo_P is None:
-        mo_P = merit_order(year=year,
-                           country=country,
-                           validation_mode=validation_mode,
-                           **mo_kwargs)
+        mo_P = merit_order(year=year, country=country, validation_mode=validation_mode, **mo_kwargs)
     return od.get_CEFs_from_merit_order(mo_P=mo_P, year=year, freq=freq, country=country)
 
 
-def merit_order(year: int = 2019,
-                country: str = "DE",
-                approx_method: str = "regr",
-                validation_mode: bool = False,
-                overwrite_carbon_tax: Optional[float] = None,
-                pp_size_method: str = "geo_scraper") -> pd.DataFrame:
+def merit_order(
+    year: int = 2019,
+    country: str = "DE",
+    approx_method: str = "regr",
+    validation_mode: bool = False,
+    overwrite_carbon_tax: Optional[float] = None,
+    pp_size_method: str = "geo_scraper",
+) -> pd.DataFrame:
     """Return a merit-order list. Virtual power plants are constructed through discretization."""
 
-    mo_f = merit_order_per_fuel(year=year,
-                                country=country,
-                                approx_method=approx_method,
-                                validation_mode=validation_mode)
+    mo_f = merit_order_per_fuel(
+        year=year, country=country, approx_method=approx_method, validation_mode=validation_mode
+    )
 
-    df = discretize_merit_order_per_fuel(mo_f,
-                                         pp_size_method=pp_size_method,
-                                         country=country)
+    df = discretize_merit_order_per_fuel(mo_f, pp_size_method=pp_size_method, country=country)
 
     df["x_k"] = df["fuel_draf"].map(ot.get_fuel_prices(year=year, country=country))
 
@@ -158,10 +149,12 @@ def merit_order(year: int = 2019,
     return df.copy()
 
 
-def merit_order_per_fuel(year: int = 2019,
-                         country: str = "DE",
-                         approx_method: str = "regr",
-                         validation_mode: bool = False) -> pd.DataFrame:
+def merit_order_per_fuel(
+    year: int = 2019,
+    country: str = "DE",
+    approx_method: str = "regr",
+    validation_mode: bool = False,
+) -> pd.DataFrame:
     """Returns a non-discretized merit order on fuel-type level."""
     eff_min, eff_max, __, __ = approximate_min_max_values(method=approx_method)
 
@@ -173,7 +166,9 @@ def merit_order_per_fuel(year: int = 2019,
             eff_max=eff_max,
             fuel_price=ot.get_fuel_prices(year=year, country=country),
             emissions_for_gen=ot.get_emissions_per_fuel_quaschning(),  # in t_CO2eq / MWh_el
-            capa=prep_installed_generation_capacity(year=year, country=country, source=source)))
+            capa=prep_installed_generation_capacity(year=year, country=country, source=source),
+        )
+    )
 
     logger.info(f"Available fuels for {year}, {country}: {list(df.index)}")
 
@@ -211,7 +206,8 @@ def approximate_min_max_values(method="regr") -> Tuple[Dict, Dict]:
         for fuel in mo["fuel_draf"].unique():
             mo_ = mo[mo["fuel_draf"] == fuel]
             slope, intercept, r_value, p_value, std_err = stats.linregress(
-                mo_["cumsum_capa"], mo_["used_eff"])
+                mo_["cumsum_capa"], mo_["used_eff"]
+            )
 
             cumsum_capa_LHS[fuel] = mo_["cumsum_capa"].min()
             cumsum_capa_RHS[fuel] = mo_["cumsum_capa"].max()
@@ -294,9 +290,9 @@ def get_share_cc(country: str, share_cc_method: str = "cascade") -> float:
         return ccgt.get_ccgt_DE()
 
 
-def discretize_merit_order_per_fuel(mo_f: pd.DataFrame,
-                                    country: str,
-                                    pp_size_method: str = "geo_scraper") -> pd.DataFrame:
+def discretize_merit_order_per_fuel(
+    mo_f: pd.DataFrame, country: str, pp_size_method: str = "geo_scraper"
+) -> pd.DataFrame:
 
     concat_list = []
     # if country=="DE":
@@ -308,8 +304,9 @@ def discretize_merit_order_per_fuel(mo_f: pd.DataFrame,
         capa_of_last_powerplant = row["capa"] % pp_size
         df = pd.DataFrame({"capa": [pp_size] * number_of_powerplants + [capa_of_last_powerplant]})
         cumsum_capa_in_f = df["capa"].cumsum()
-        df["used_eff"] = row["eff_max"] - (cumsum_capa_in_f / row["capa"]) * (row["eff_max"] -
-                                                                              row["eff_min"])
+        df["used_eff"] = row["eff_max"] - (cumsum_capa_in_f / row["capa"]) * (
+            row["eff_max"] - row["eff_min"]
+        )
         df["fuel_draf"] = fuel
         concat_list.append(df)
     df = pd.concat(concat_list, ignore_index=True)

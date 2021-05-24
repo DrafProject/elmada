@@ -1,7 +1,6 @@
 import logging
 from pathlib import Path
-from typing import (Any, Callable, Dict, Iterable, List, Optional, Set, Tuple,
-                    Union)
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Union
 
 import entsoe
 import numpy as np
@@ -9,7 +8,7 @@ import pandas as pd
 from entsoe import EntsoePandasClient
 from entsoe import mappings as entsoe_mp
 
-from elmada import el_opsd, exceptions
+from elmada import exceptions
 from elmada import helper as hp
 from elmada import mappings as mp
 from elmada import paths
@@ -48,11 +47,13 @@ def _get_timestamps(year: int, tz: str) -> Tuple:
     return start, end
 
 
-def load_imports(year: int = 2019,
-                 country: str = "DE",
-                 freq: Optional[str] = "15min",
-                 cache: bool = True,
-                 ensure_std_index: bool = True) -> pd.DataFrame:
+def load_imports(
+    year: int = 2019,
+    country: str = "DE",
+    freq: Optional[str] = "15min",
+    cache: bool = True,
+    ensure_std_index: bool = True,
+) -> pd.DataFrame:
 
     # see visualization of the ENTSO-E data under: https://www.energy-charts.de/exchange.htm
 
@@ -62,7 +63,7 @@ def load_imports(year: int = 2019,
     aggregations = {
         "DK": ["DK-1", "DK-2"],
         "NO": ["NO-1", "NO-2", "NO-3", "NO-4", "NO-5"],
-        "SE": ["SE-1", "SE-2", "SE-3", "SE-4"]
+        "SE": ["SE-1", "SE-2", "SE-3", "SE-4"],
     }
 
     if country in aggregations:
@@ -94,12 +95,12 @@ def load_imports(year: int = 2019,
 
 
 def load_crossborder_flows(
-        country_from: str,
-        country_to: str,
-        year: int = 2019,
-        #    freq: Optional[str] = "15min",
-        cache: bool = True,
-        #    ensure_std_index: bool = True
+    country_from: str,
+    country_to: str,
+    year: int = 2019,
+    #    freq: Optional[str] = "15min",
+    cache: bool = True,
+    #    ensure_std_index: bool = True
 ) -> pd.DataFrame:
 
     assert year in range(2000, 2100), f"{year} is not a valid year"
@@ -128,11 +129,13 @@ def load_crossborder_flows(
     return ser
 
 
-def load_exports(year: int = 2019,
-                 country: str = "DE",
-                 freq: Optional[str] = "15min",
-                 cache: bool = True,
-                 ensure_std_index: bool = True) -> pd.DataFrame:
+def load_exports(
+    year: int = 2019,
+    country: str = "DE",
+    freq: Optional[str] = "15min",
+    cache: bool = True,
+    ensure_std_index: bool = True,
+) -> pd.DataFrame:
 
     assert year in range(2000, 2100), f"{year} is not a valid year"
     assert freq in [None, "15min", "30min", "60min"], f"{freq} is not a valid frequency"
@@ -151,11 +154,13 @@ def load_exports(year: int = 2019,
             tz = get_timezone(country=bzone_to)
             start, end = _get_timestamps(year=year, tz=tz)
             try:
-                export_dic[bzone_to] = client.query_crossborder_flows(country_code_from=bzone_from,
-                                                                      country_code_to=bzone_to,
-                                                                      start=start,
-                                                                      end=end,
-                                                                      lookup_bzones=True)
+                export_dic[bzone_to] = client.query_crossborder_flows(
+                    country_code_from=bzone_from,
+                    country_code_to=bzone_to,
+                    start=start,
+                    end=end,
+                    lookup_bzones=True,
+                )
             except entsoe.exceptions.NoMatchingDataError:
                 logger.warning(f"NoMatchingDataError: No data for export to {bzone_to}")
 
@@ -179,10 +184,9 @@ def _get_empty_installed_generation_capacity_df(ensure_std_techs: bool) -> pd.Da
         raise exceptions.NoDataError("no Data")
 
 
-def load_installed_generation_capacity(year: int = 2019,
-                                       country: str = "DE",
-                                       cache: bool = True,
-                                       ensure_std_techs: bool = False) -> pd.DataFrame:
+def load_installed_generation_capacity(
+    year: int = 2019, country: str = "DE", cache: bool = True, ensure_std_techs: bool = False
+) -> pd.DataFrame:
     """Returns a dataframe with installed generation capacity fuel type dependent on year and
     country.
     """
@@ -197,10 +201,9 @@ def load_installed_generation_capacity(year: int = 2019,
             client = _get_client()
             tz = get_timezone(country)
             start, end = _get_timestamps(year=year, tz=tz)
-            df = client.query_installed_generation_capacity(start=start,
-                                                            end=end,
-                                                            country_code=country,
-                                                            psr_type=None)
+            df = client.query_installed_generation_capacity(
+                start=start, end=end, country_code=country, psr_type=None
+            )
             if df.empty:
                 logger.warning(f"{warning}: Entsoe returned an empty dataframe.")
                 return _get_empty_installed_generation_capacity_df(ensure_std_techs)
@@ -235,17 +238,19 @@ def aggregate_to_standard_techs(df) -> pd.DataFrame:
     return df[order]
 
 
-def load_el_national_generation(year: int = 2019,
-                                country: str = "DE",
-                                freq: Optional[str] = "15min",
-                                cache: bool = True,
-                                split_queries: bool = True,
-                                ensure_std_techs: bool = True,
-                                ensure_std_index: bool = True,
-                                ensure_positive: bool = True,
-                                ensure_non_zero_sum: bool = True,
-                                fillna: bool = True,
-                                resample: bool = True) -> pd.DataFrame:
+def load_el_national_generation(
+    year: int = 2019,
+    country: str = "DE",
+    freq: Optional[str] = "15min",
+    cache: bool = True,
+    split_queries: bool = True,
+    ensure_std_techs: bool = True,
+    ensure_std_index: bool = True,
+    ensure_positive: bool = True,
+    ensure_non_zero_sum: bool = True,
+    fillna: bool = True,
+    resample: bool = True,
+) -> pd.DataFrame:
 
     assert year in range(2000, 2100), f"{year} is not a valid year"
     assert freq in [None, "15min", "30min", "60min"], f"{freq} is not a valid frequency"
@@ -267,7 +272,9 @@ def load_el_national_generation(year: int = 2019,
                 start, end = _get_timestamps(year=year, tz=tz)
                 df = client.query_generation(start=start, end=end, country_code=country)
             except (entsoe.exceptions.NoMatchingDataError, KeyError) as e:
-                err_message = f"{e}: entsoe-client has no geneneration data found for {year, country}"
+                err_message = (
+                    f"{e}: entsoe-client has no geneneration data found for {year, country}"
+                )
                 logger.error(err_message)
                 raise exceptions.NoDataError(err_message)
         if cache:
@@ -288,7 +295,7 @@ def load_el_national_generation(year: int = 2019,
         df[df < 0] = np.nan
 
     if ensure_non_zero_sum:
-        df[df.sum(1) == 0.] = np.nan
+        df[df.sum(1) == 0.0] = np.nan
 
     if fillna:
         df = fill_special_missing_data_points_for_gen(df=df, country=country, year=year)
@@ -300,16 +307,16 @@ def load_el_national_generation(year: int = 2019,
     return df
 
 
-def fill_special_missing_data_points_for_gen(df: pd.DataFrame, country: str, year: int) -> pd.DataFrame:
+def fill_special_missing_data_points_for_gen(
+    df: pd.DataFrame, country: str, year: int
+) -> pd.DataFrame:
     if year == 2019 and country == "NL":
-        logger.warning(
-            f"No Data for 2019-01-01, NL. --> Data of next sunday 2019-01-06 is given.")
+        logger.warning(f"No Data for 2019-01-01, NL. --> Data of next sunday 2019-01-06 is given.")
         st = hp.datetime_to_int("15min", 2019, 1, 6)
-        df.iloc[:96] = df.iloc[st:st + 96].values
+        df.iloc[:96] = df.iloc[st : st + 96].values
 
     if year == 2018 and country == "NL":
-        logger.warning(
-            f"No Data after 2018-12-31 23:00, NL. --> Data of previous hour is given.")
+        logger.warning(f"No Data after 2018-12-31 23:00, NL. --> Data of previous hour is given.")
         df.iloc[35036:35040] = df.iloc[35032:35036].values
 
     if year == 2018 and country == "LT":
@@ -350,16 +357,19 @@ def _query_generation_monthwise(client, year, country, tz) -> pd.DataFrame:
             d[month] = client.query_generation(start=start, end=end, country_code=country)
         except (entsoe.exceptions.NoMatchingDataError, KeyError) as e:
             raise exceptions.NoDataError(
-                f"entsoe-client has no geneneration data found for {year, country}: {e}")
+                f"entsoe-client has no geneneration data found for {year, country}: {e}"
+            )
     return pd.concat(d.values(), sort=True)
 
 
-def load_el_national_load(year: int = 2019,
-                          freq: str = "15min",
-                          country: str = "DE",
-                          cache: bool = True,
-                          ensure_std_index: bool = True,
-                          resample: bool = True) -> pd.Series:
+def load_el_national_load(
+    year: int = 2019,
+    freq: str = "15min",
+    country: str = "DE",
+    cache: bool = True,
+    ensure_std_index: bool = True,
+    resample: bool = True,
+) -> pd.Series:
     assert year in range(2000, 2100), f"{year} is not a valid year"
     assert freq in [None, "15min", "30min", "60min"], f"{freq} is not a valid freq"
     assert country in mp.EUROPE_COUNTRIES or country in entsoe_mp.BIDDING_ZONES
@@ -371,8 +381,8 @@ def load_el_national_load(year: int = 2019,
 
     else:
         if country == "DE" and year == 2018:
-            a = load_el_national_load(year=year, freq=freq, country='DE-AT-LU')
-            b = load_el_national_load(year=year, freq=freq, country='DE-LU')
+            a = load_el_national_load(year=year, freq=freq, country="DE-AT-LU")
+            b = load_el_national_load(year=year, freq=freq, country="DE-LU")
             idx = hp.make_datetimeindex(year=year, freq=freq, tz=a.index.tz)
             ser = pd.concat([a, b], axis=1).mean(1)
 
@@ -384,7 +394,8 @@ def load_el_national_load(year: int = 2019,
                 ser = client.query_load(start=start, end=end, country_code=country)
             except entsoe.exceptions.NoMatchingDataError as e:
                 raise exceptions.NoDataError(
-                    f"Entsoe-client has no load-data found for {year, country}: {e}")
+                    f"Entsoe-client has no load-data found for {year, country}: {e}"
+                )
 
         if cache:
             hp.write_array(ser, fp)
@@ -399,12 +410,14 @@ def load_el_national_load(year: int = 2019,
     return ser
 
 
-def prep_residual_load(year: int = 2019,
-                       freq: str = "15min",
-                       country: str = "DE",
-                       method: str = "all_conv",
-                       easy_approach: bool = True,
-                       **kwargs) -> pd.Series:
+def prep_residual_load(
+    year: int = 2019,
+    freq: str = "15min",
+    country: str = "DE",
+    method: str = "all_conv",
+    easy_approach: bool = True,
+    **kwargs,
+) -> pd.Series:
     config = dict(year=year, freq=freq, country=country)
 
     if method == "all_conv":
@@ -458,20 +471,24 @@ def load_el_national_specific_emissions() -> pd.DataFrame:
     """
     fp = paths.DATA_DIR / f"tranberg/specific_emission_factors.csv"
     df = pd.read_csv(fp, header=0, index_col=0, comment="#").T
-    return pd.DataFrame({"wind_offshore": df["wind"],
-                         "wind_onshore": df["wind"],
-                         "nuclear": df["nuclear"],
-                         "other_RES": df["geothermal"],
-                         "biomass": df["biomass_cogeneration"],
-                         "pumped_hydro": df["hydropower_pumped_storage"],
-                         "hydro": df["hydropower_run-of-river"],
-                         "lignite": df["coal"],
-                         "other_conv": df["coal"],
-                         "coal": df["coal"],
-                         "gas": df["gas"],
-                         "oil": df["oil"],
-                         "solar": df["solar"]},
-                        index=df.index).T
+    return pd.DataFrame(
+        {
+            "wind_offshore": df["wind"],
+            "wind_onshore": df["wind"],
+            "nuclear": df["nuclear"],
+            "other_RES": df["geothermal"],
+            "biomass": df["biomass_cogeneration"],
+            "pumped_hydro": df["hydropower_pumped_storage"],
+            "hydro": df["hydropower_run-of-river"],
+            "lignite": df["coal"],
+            "other_conv": df["coal"],
+            "coal": df["coal"],
+            "gas": df["gas"],
+            "oil": df["oil"],
+            "solar": df["solar"],
+        },
+        index=df.index,
+    ).T
 
 
 def prep_shares(year: int = 2019, freq: str = "60min", country: str = "DE") -> pd.DataFrame:
@@ -491,9 +508,7 @@ def prep_shares(year: int = 2019, freq: str = "60min", country: str = "DE") -> p
     return hp.resample(shares_TF, year=year, start_freq=gen_freq, target_freq=freq)
 
 
-def prep_XEFs(year: int = 2019,
-              freq: str = "60min",
-              country: str = "DE") -> pd.DataFrame:
+def prep_XEFs(year: int = 2019, freq: str = "60min", country: str = "DE") -> pd.DataFrame:
     assert year in range(2000, 2100), f"{year} is not a valid year"
     assert freq in ["15min", "60min"], f"{freq} is not a valid freq"
     assert country in mp.EUROPE_COUNTRIES
@@ -510,14 +525,14 @@ def prep_XEFs(year: int = 2019,
 
 
 def prep_dayahead_prices(
-        year: int = 2019,
-        freq: str = "60min",
-        country: str = "DE",
-        cache: bool = True,
-        ensure_std_index: bool = True,
-        fillna: bool = True,
-        fill_outlier: bool = True,
-        resample: bool = True,
+    year: int = 2019,
+    freq: str = "60min",
+    country: str = "DE",
+    cache: bool = True,
+    ensure_std_index: bool = True,
+    fillna: bool = True,
+    fill_outlier: bool = True,
+    resample: bool = True,
 ) -> pd.Series:
 
     assert year in range(2000, 2100), f"{year} is not a valid year"
@@ -542,7 +557,8 @@ def prep_dayahead_prices(
 
         except entsoe.exceptions.NoMatchingDataError as e:
             raise exceptions.NoDataError(
-                f"Entsoe-client has no price-data found for {year, bidding_zone}: {e}")
+                f"Entsoe-client has no price-data found for {year, bidding_zone}: {e}"
+            )
 
     if ensure_std_index:
         idx = hp.make_datetimeindex(year, hp.estimate_freq(ser), tz=ser.index.tz)

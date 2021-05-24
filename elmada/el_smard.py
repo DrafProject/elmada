@@ -45,18 +45,17 @@ def load_el_national_generation(year):
 
     converters = {i: converter_func for i in range(len(row1))}
 
-    el_generation = pd.read_csv(fp_raw, converters=converters, usecols=range(2,
-                                                                             len(row1)))  # in [MWh]
+    el_generation = pd.read_csv(
+        fp_raw, converters=converters, usecols=range(2, len(row1))
+    )  # in [MWh]
     el_generation = el_generation.rename(columns=FUEL_RENAME_SMARD)
 
     return el_generation
 
 
-def load_el_national_load(year: int,
-                          freq: str = "15min",
-                          country: str = "DE",
-                          cache: bool = True,
-                          filetype: str = "h5") -> pd.Series:
+def load_el_national_load(
+    year: int, freq: str = "15min", country: str = "DE", cache: bool = True, filetype: str = "h5"
+) -> pd.Series:
 
     assert year in range(2000, 2100), f"{year} is not a valid year"
     assert freq in ["15min"], f"{freq} is not a valid freq"
@@ -88,9 +87,7 @@ def load_el_national_load(year: int,
     return ser
 
 
-def prep_XEFs(year: int,
-              freq: str = "60min",
-              country: str = "DE") -> pd.DataFrame:
+def prep_XEFs(year: int, freq: str = "60min", country: str = "DE") -> pd.DataFrame:
 
     assert year in range(2000, 2100), f"{year} is not a valid year"
     assert freq in ["15min", "60min"], f"{freq} is not a valid freq"
@@ -123,8 +120,9 @@ def prep_XEFs(year: int,
     return df
 
 
-def prep_dayahead_prices(year: int, freq: str = "60min", country: str = "DE",
-                         cache: bool = True) -> pd.Series:
+def prep_dayahead_prices(
+    year: int, freq: str = "60min", country: str = "DE", cache: bool = True
+) -> pd.Series:
 
     assert year in range(2000, 2100), f"{year} is not a valid year"
     assert country == "DE", "smard provides only for DE!"
@@ -136,6 +134,7 @@ def prep_dayahead_prices(year: int, freq: str = "60min", country: str = "DE",
 
     else:
         import re
+
         fp_raw = paths.DATA_DIR / f"smard/DE_Grosshandelspreise_{year}_SMARD.csv"
 
         with open(fp_raw, "r") as f:
@@ -149,8 +148,9 @@ def prep_dayahead_prices(year: int, freq: str = "60min", country: str = "DE",
 
         converter = {i: convert for i in range(len(row1))}
 
-        df = pd.read_csv(fp_raw, sep=";", converters=converter,
-                         usecols=range(2, len(row1)))  # in [MWh]
+        df = pd.read_csv(
+            fp_raw, sep=";", converters=converter, usecols=range(2, len(row1))
+        )  # in [MWh]
         df.reset_index(drop=True, inplace=True)
         df.fillna(df.mean(), inplace=True)
 
@@ -162,9 +162,11 @@ def prep_dayahead_prices(year: int, freq: str = "60min", country: str = "DE",
 
         elif year == 2018:
             import warnings
+
             warnings.filterwarnings(
                 "ignore",
-                message="A value is trying to be set on a copy of a slice from a DataFrame")
+                message="A value is trying to be set on a copy of a slice from a DataFrame",
+            )
             df.loc[:6552, "DE_merged"] = df.loc[:6552, "Deutschland/Österreich/Luxemburg[Euro/MWh]"]
             df.loc[6552:, "DE_merged"] = df.loc[6552:, "Deutschland/Luxemburg[Euro/MWh]"]
 

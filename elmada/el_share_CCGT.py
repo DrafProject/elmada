@@ -2,8 +2,7 @@
 import collections
 import logging
 from functools import lru_cache
-from typing import (Any, Callable, Dict, Iterable, List, Optional, Set, Tuple,
-                    Union)
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -96,7 +95,7 @@ def get_rich_geo_shares_overview():
     df = pd.DataFrame(index=valid_countries.keys(), columns=header)
 
     for cy_short, cy_long in valid_countries.items():
-        is_country = (geo.country == cy_long)
+        is_country = geo.country == cy_long
         df.loc[cy_short, "cy_long"] = cy_long
         df.loc[cy_short, "nplants"] = is_country.sum()
         df.loc[cy_short, "cc_capa"] = geo.loc[is_country, "capa"] @ geo.loc[is_country, "cc_weight"]
@@ -106,9 +105,9 @@ def get_rich_geo_shares_overview():
     return df
 
 
-def get_rich_geo_list(country_long: Optional[str] = None,
-                      filter: Optional[str] = None,
-                      cache: bool = True):
+def get_rich_geo_list(
+    country_long: Optional[str] = None, filter: Optional[str] = None, cache: bool = True
+):
     fp = paths.CACHE_DIR / f"geo_list_rich.h5"
 
     if cache and fp.exists():
@@ -119,25 +118,26 @@ def get_rich_geo_list(country_long: Optional[str] = None,
         in_valid_countries = df["country"].isin(get_valid_countries().values())
         df["type"] = np.nan
         df.loc[in_valid_countries, "type"] = df.loc[in_valid_countries, "geoid"].apply(
-            get_geo_plant_type)
+            get_geo_plant_type
+        )
         if cache:
             hp.write_array(df, fp)
 
-    df.type.replace('Please Select', np.nan, inplace=True)
+    df.type.replace("Please Select", np.nan, inplace=True)
 
     cc_weighting = {
-        'Thermal and CCGT': 1,
-        'Power and Heat Combined Cycle Gas Turbine': 1,
-        'Sub-critical Thermal': 0,
-        'Combined Cycle Gas Turbine': 1,
-        'Power and Heat Open Cycle Gas Turbine': 0,
-        'Open Cycle Gas Turbine': 0,
-        'Heat and Power Steam Turbine': 0,
-        'Super-critical Thermal': 0,
-        'Combined Cycle Gas Engine (CCGE)': 1,
-        'Gas Engines': 0,
-        'OCGT and CCGT': .49,
-        np.nan: 0
+        "Thermal and CCGT": 1,
+        "Power and Heat Combined Cycle Gas Turbine": 1,
+        "Sub-critical Thermal": 0,
+        "Combined Cycle Gas Turbine": 1,
+        "Power and Heat Open Cycle Gas Turbine": 0,
+        "Open Cycle Gas Turbine": 0,
+        "Heat and Power Steam Turbine": 0,
+        "Super-critical Thermal": 0,
+        "Combined Cycle Gas Engine (CCGE)": 1,
+        "Gas Engines": 0,
+        "OCGT and CCGT": 0.49,
+        np.nan: 0,
     }
 
     df["cc_weight"] = df["type"].map(cc_weighting)
@@ -180,7 +180,7 @@ def get_geo_shares_overview():
     df = pd.DataFrame(index=valid_countries.keys(), columns=header)
 
     for cy_short, cy_long in valid_countries.items():
-        is_country = (geo.country == cy_long)
+        is_country = geo.country == cy_long
         df.loc[cy_short, "cy_long"] = cy_long
         df.loc[cy_short, "nplants"] = is_country.sum()
         df.loc[cy_short, "cc_capa"] = geo.loc[is_country & geo.is_ccgt, "capa"].sum()
@@ -212,10 +212,9 @@ def get_geo_plant_type(geoid):
             return x.get_text()
 
 
-def get_geo_list(country_long: Optional[str] = None,
-                 filter: Optional[str] = None,
-                 fuel="gas",
-                 cache: bool = True):
+def get_geo_list(
+    country_long: Optional[str] = None, filter: Optional[str] = None, fuel="gas", cache: bool = True
+):
     """possible conventional fuels are: gas, coal, nuclear, oil
     """
     fp = paths.CACHE_DIR / f"geo_list_{fuel}.h5"
@@ -234,16 +233,18 @@ def get_geo_list(country_long: Optional[str] = None,
         ncols = len(headers)
         entries = my_table.findAll("td")
 
-        df = pd.DataFrame({
-            "name": [x.get_text() for x in entries[ncols + 0::4]],
-            "geoid": [
-                x.find("a").get_attribute_list("href")[0].split("/")[1].strip()
-                for x in entries[ncols + 0::4]
-            ],
-            "capa": [cell.get_text().strip() for cell in entries[ncols + 1::4]],
-            "country": [cell.get_text().strip() for cell in entries[ncols + 2::4]],
-            "state": [cell.get_text().strip() for cell in entries[ncols + 3::4]]
-        })
+        df = pd.DataFrame(
+            {
+                "name": [x.get_text() for x in entries[ncols + 0 :: 4]],
+                "geoid": [
+                    x.find("a").get_attribute_list("href")[0].split("/")[1].strip()
+                    for x in entries[ncols + 0 :: 4]
+                ],
+                "capa": [cell.get_text().strip() for cell in entries[ncols + 1 :: 4]],
+                "country": [cell.get_text().strip() for cell in entries[ncols + 2 :: 4]],
+                "state": [cell.get_text().strip() for cell in entries[ncols + 3 :: 4]],
+            }
+        )
         # df.loc[df["country"] == "Czech Republic", "country"] = "Czechia"
         df.loc[df.capa == ""] = np.nan
         df["is_ccgt"] = df.name.str.contains("CCGT").astype(bool)
@@ -281,7 +282,7 @@ def get_wiki_shares(cache: bool = True):
             "DK": get_ccgt_DK(),
             "IE": get_ccgt_IE(),
             "IT": get_ccgt_IT(),
-            "RS": get_ccgt_RS()
+            "RS": get_ccgt_RS(),
         }
         ser = pd.Series(shares)
         if cache:
@@ -350,7 +351,7 @@ def get_ccgt_AT():
         "Gas- und Dampfkraftwerk Leopoldau": True,
         "Heizkraftwerk Salzburg Mitte": False,
         "Heizkraftwerk Salzburg Nord": False,
-        "Müllverbrennungsanlage Spittelau": False
+        "Müllverbrennungsanlage Spittelau": False,
     }
 
     df["is_ccgt"] = df.Name.map(is_ccgt)
@@ -411,8 +412,9 @@ def get_ccgt_IT():
         "Vado Ligure": [1, geo_url + "42714"],
     }
 
-    df2 = pd.DataFrame.from_dict(is_ccgt, "index", columns=["is_ccgt",
-                                                            "source"]).reset_index(drop=True)
+    df2 = pd.DataFrame.from_dict(is_ccgt, "index", columns=["is_ccgt", "source"]).reset_index(
+        drop=True
+    )
     df = pd.concat([df, df2], 1)
     df["is_ccgt"] = df["is_ccgt"].astype("float")
 
@@ -423,14 +425,17 @@ def get_ccgt_DK():
     # manually entered by research on http://globalenergyobservatory.org/ pages on 2020-04-28:
     geo_url = "http://globalenergyobservatory.org/"
     df = pd.DataFrame(
-        [["HC Orsted CHP Power Plant Denmark", 185, True, geo_url + "form.php?pid=44235"],
-         ["Skaerbaek CHP Power Plant Denmark", 392, False, geo_url + "form.php?pid=44237"],
-         ["Svanemolle CHP Power Plant Denmark", 81, False, geo_url + "form.php?pid=44234"]],
-        columns=["name", "capa", "is_ccgt", "source"])
+        [
+            ["HC Orsted CHP Power Plant Denmark", 185, True, geo_url + "form.php?pid=44235"],
+            ["Skaerbaek CHP Power Plant Denmark", 392, False, geo_url + "form.php?pid=44237"],
+            ["Svanemolle CHP Power Plant Denmark", 81, False, geo_url + "form.php?pid=44234"],
+        ],
+        columns=["name", "capa", "is_ccgt", "source"],
+    )
     return df.loc[df["is_ccgt"], "capa"].sum() / df["capa"].sum()
 
 
 def get_ccgt_RS():
     # 2020-04-29 manually entered by research wiki on https://en.wikipedia.org/w/index.php?oldid=944728190
     # : There is only one Gas-power plant in Serbia (Panonske TE-TO) which is not an CCGT.
-    return 0.
+    return 0.0

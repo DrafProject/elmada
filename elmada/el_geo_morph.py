@@ -6,8 +6,7 @@ import sqlite3
 from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
-from typing import (Any, Callable, Dict, Iterable, List, Optional, Set, Tuple,
-                    Union)
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -24,18 +23,18 @@ DB_DIR = paths.CACHE_DIR
 DB_FILE_FORMAT = "GEO-database.{filetype}"
 
 CC_WEIGHTING = {
-    'Thermal and CCGT': 1,
-    'Power and Heat Combined Cycle Gas Turbine': 1,
-    'Combined Cycle Gas Engine (CCGE)': 1,
-    'Combined Cycle Gas Turbine': 1,
-    'OCGT and CCGT': .49,
-    'Sub-critical Thermal': 0,
-    'Power and Heat Open Cycle Gas Turbine': 0,
-    'Open Cycle Gas Turbine': 0,
-    'Heat and Power Steam Turbine': 0,
-    'Super-critical Thermal': 0,
-    'Gas Engines': 0,
-    None: 0
+    "Thermal and CCGT": 1,
+    "Power and Heat Combined Cycle Gas Turbine": 1,
+    "Combined Cycle Gas Engine (CCGE)": 1,
+    "Combined Cycle Gas Turbine": 1,
+    "OCGT and CCGT": 0.49,
+    "Sub-critical Thermal": 0,
+    "Power and Heat Open Cycle Gas Turbine": 0,
+    "Open Cycle Gas Turbine": 0,
+    "Heat and Power Steam Turbine": 0,
+    "Super-critical Thermal": 0,
+    "Gas Engines": 0,
+    None: 0,
 }
 
 COLS = {
@@ -46,7 +45,7 @@ COLS = {
     "Type_of_Fuel_rng1_Primary": "primary_fuel",
     "Design_Capacity_MWe_nbr": "capa",
     "GEO_Assigned_Identification_Number": "id",
-    "Status_of_Plant_itf": "status"
+    "Status_of_Plant_itf": "status",
 }
 
 NON_OPERATIONAL_STATUSES = [
@@ -57,8 +56,7 @@ NON_OPERATIONAL_STATUSES = [
     "Final Bid and Approval Stage",
     "Mothballed Full",
     "Mothballed Partial",
-    "Shutdown"
-    "Under Construction",
+    "Shutdown" "Under Construction",
 ]
 
 
@@ -149,7 +147,7 @@ def set_gasCC_plants(df: pd.DataFrame) -> pd.DataFrame:
     df["cc_weight"] = np.nan
     df.loc[is_gas, "cc_weight"] = df.loc[is_gas, "plant_type"].map(CC_WEIGHTING)
     # is_cc = df["cc_weight"][is_gas].apply(round).astype("bool")
-    is_cc = df["cc_weight"] >= .5
+    is_cc = df["cc_weight"] >= 0.5
     df.loc[is_gas & is_cc, "fuel"] = "Gas_cc"
     return df
 
@@ -211,7 +209,7 @@ def download_database() -> None:
 
     print(f"{fp.name} downloaded from GEO via Morph.")
 
-    with open(fp, 'wb') as file:
+    with open(fp, "wb") as file:
         file.write(response.content)
 
 

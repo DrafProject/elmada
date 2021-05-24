@@ -57,7 +57,7 @@ def get_units_of_geo_list(cache: bool = True) -> pd.DataFrame:
         "Capacity (MWe)": "capa",
         "Unit Efficiency (%)": "eff",
         "Date Commissioned (yyyy-mm-dd)": "commissioned",
-        "Unit #": "unit_no"
+        "Unit #": "unit_no",
     }
     df.rename(columns=col_dic, inplace=True)
 

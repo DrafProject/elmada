@@ -6,6 +6,7 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
+
 # from scipy import stats
 
 logger = logging.getLogger(__name__)
@@ -19,8 +20,9 @@ def datetime_to_int(freq: str, year: int, month: int, day: int) -> int:
     return dtindex.get_loc(i)
 
 
-def read_array(fp: Path, col: int = 0, asType: str = "a", verbose: bool = False,
-               **kwargs) -> Union[np.ndarray, pd.Series, pd.DataFrame]:
+def read_array(
+    fp: Path, col: int = 0, asType: str = "a", verbose: bool = False, **kwargs
+) -> Union[np.ndarray, pd.Series, pd.DataFrame]:
     """Standardized way of reading arrays in draf.
 
     Args:
@@ -107,7 +109,9 @@ def write_array(data: Union[np.ndarray, pd.Series, pd.DataFrame], fp: Path) -> N
         raise RuntimeError(f"suffix {fp.suffix} not supported")
 
 
-def warn_if_incorrect_index_length(df: Union[pd.DataFrame, pd.Series], year: int, freq: str) -> None:
+def warn_if_incorrect_index_length(
+    df: Union[pd.DataFrame, pd.Series], year: int, freq: str
+) -> None:
     len_dt = len(make_datetimeindex(year=year, freq=freq))
     len_inp = len(df)
     match = len_dt == len_inp
@@ -123,11 +127,13 @@ def make_datetimeindex(year: int = 2019, freq: str = "60min", tz: str = None) ->
     return pd.date_range(date_start, date_end, freq=freq, tz=tz)
 
 
-def resample(df: Union[pd.Series, pd.DataFrame],
-             year: int,
-             start_freq: str,
-             target_freq: Optional[str],
-             aggfunc: str = "mean") -> Union[pd.Series, pd.DataFrame]:
+def resample(
+    df: Union[pd.Series, pd.DataFrame],
+    year: int,
+    start_freq: str,
+    target_freq: Optional[str],
+    aggfunc: str = "mean",
+) -> Union[pd.Series, pd.DataFrame]:
     """Resamples data from a start frequency to a target frequency."""
     if (target_freq is None) or (start_freq == target_freq):
         return df
@@ -137,18 +143,18 @@ def resample(df: Union[pd.Series, pd.DataFrame],
         else:
             func = downsample
 
-        return func(df=df,
-                    year=year,
-                    start_freq=start_freq,
-                    target_freq=target_freq,
-                    aggfunc=aggfunc)
+        return func(
+            df=df, year=year, start_freq=start_freq, target_freq=target_freq, aggfunc=aggfunc
+        )
 
 
-def downsample(df: Union[pd.Series, pd.DataFrame],
-               year: int,
-               start_freq: str = "15min",
-               target_freq: str = "60min",
-               aggfunc: str = "mean") -> Union[pd.Series, pd.DataFrame]:
+def downsample(
+    df: Union[pd.Series, pd.DataFrame],
+    year: int,
+    start_freq: str = "15min",
+    target_freq: str = "60min",
+    aggfunc: str = "mean",
+) -> Union[pd.Series, pd.DataFrame]:
     """Downsampling for cases where start frequency is higher then target frequency.
 
     Args:
@@ -180,11 +186,13 @@ def downsample(df: Union[pd.Series, pd.DataFrame],
     return df
 
 
-def upsample(df: Union[pd.Series, pd.DataFrame],
-             year: int,
-             start_freq: str = "60min",
-             target_freq: str = "15min",
-             aggfunc: str = "mean") -> Union[pd.Series, pd.DataFrame]:
+def upsample(
+    df: Union[pd.Series, pd.DataFrame],
+    year: int,
+    start_freq: str = "60min",
+    target_freq: str = "15min",
+    aggfunc: str = "mean",
+) -> Union[pd.Series, pd.DataFrame]:
     """Upsampling for cases where start frequency is lower then target frequency.
 
     Args:
@@ -211,8 +219,9 @@ def upsample(df: Union[pd.Series, pd.DataFrame],
     return df
 
 
-def _append_rows(df: Union[pd.Series, pd.DataFrame],
-                 convert_factor: float) -> Union[pd.Series, pd.DataFrame]:
+def _append_rows(
+    df: Union[pd.Series, pd.DataFrame], convert_factor: float
+) -> Union[pd.Series, pd.DataFrame]:
     length = len(df)
     if isinstance(df, pd.DataFrame):
         addon_data = [df.iloc[length - 1]]
@@ -238,8 +247,9 @@ def z_score(df: Union[pd.Series, pd.DataFrame]) -> Union[pd.Series, pd.DataFrame
     return (df - df.mean()) / df.std(ddof=0)
 
 
-def remove_outlier(df: Union[pd.Series, pd.DataFrame],
-                   zscore_threshold: float = 2.698) -> Union[pd.Series, pd.DataFrame]:
+def remove_outlier(
+    df: Union[pd.Series, pd.DataFrame], zscore_threshold: float = 2.698
+) -> Union[pd.Series, pd.DataFrame]:
     """Detects and removes outliers of Dataframes or Series.
 
     Note: The default z-score of 2.698 complies to the boxplot standard (1,5*IQR-rule).
@@ -263,17 +273,20 @@ def remove_outlier(df: Union[pd.Series, pd.DataFrame],
         outlier_treshold = 0.1
         if outlier_share > outlier_treshold:
             logger.warning(
-                f"{outlier_share:.2%} (more than {outlier_treshold:.0%}) of the data were outliers")
+                f"{outlier_share:.2%} (more than {outlier_treshold:.0%}) of the data were outliers"
+            )
         logger.info(f"{n_outliers} datapoints where removed in {df.name}")
         # df[(np.abs(stats.zscore(df)) > zscore_threshold)] = np.nan
 
     return df
 
 
-def fill_outlier_and_nan(df: Union[pd.Series, pd.DataFrame],
-                         zscore_threshold: int = 3,
-                         method: str = "linear",
-                         inplace: bool = False) -> Union[pd.Series, pd.DataFrame]:
+def fill_outlier_and_nan(
+    df: Union[pd.Series, pd.DataFrame],
+    zscore_threshold: int = 3,
+    method: str = "linear",
+    inplace: bool = False,
+) -> Union[pd.Series, pd.DataFrame]:
     if not inplace:
         df = df.copy()
 

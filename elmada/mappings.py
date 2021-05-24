@@ -1,4 +1,3 @@
-
 import collections
 
 """Various mappings including countries, fuel types, colors.
@@ -109,45 +108,44 @@ EXCLUDED = {
 
 EUROPE_COUNTRIES = {**EU, **OTHER}
 
-EUROPE_COUNTRIES_LONG_TO_SHORT = {
-    long: short for short, long in EUROPE_COUNTRIES.items()}
+EUROPE_COUNTRIES_LONG_TO_SHORT = {long: short for short, long in EUROPE_COUNTRIES.items()}
 
 d = {k: v for k, v in EUROPE_COUNTRIES.items() if k not in EXCLUDED}
 COUNTRIES_FOR_ANALYSIS = collections.OrderedDict(sorted(d.items()))
 
 #
 NEIGHBOURS_CY = {
-    'AT': ['CH', 'CZ', 'DE', 'HU', 'IT', 'SI'],
-    'BA': ['HR', 'ME', 'RS'],
-    'BE': ['NL', 'DE', 'FR', 'GB'],
-    'BG': ['GR', 'MK', 'RO', 'RS', 'TR'],
-    'CH': ['AT', 'DE', 'FR', 'IT'],
-    'CZ': ['AT', 'DE', 'PL', 'SK'],
-    'DE': ['AT', 'BE', 'CH', 'CZ', 'DK', 'FR', 'IT', 'NL', 'PL', 'SE', 'SI'],
-    'DK': ['DE', 'NO', 'SE'],
-    'EE': ['FI', 'LV', 'RU'],
-    'ES': ['FR', 'PT'],
-    'FI': ['EE', 'NO', 'RU', 'SE', 'SE'],
-    'FR': ['BE', 'CH', 'DE', 'ES', 'GB', 'IT'],
-    'GB': ['BE', 'FR', 'IE', 'NL'],
-    'GR': ['AL', 'BG', 'IT', 'MK', 'TR'],
-    'HU': ['AT', 'HR', 'RO', 'RS', 'SK', 'UA'],
-    'IE': ['GB'],
-    'IT': ['AT', 'FR', 'DE', 'GR', 'MT', 'ME', 'SI', 'CH'],
-    'LT': ['BY', 'LV', 'PL', 'RU', 'SE'],
-    'LV': ['EE', 'LT', 'RU'],
-    'ME': ['AL', 'BA', 'RS'],
-    'MK': ['BG', 'GR', 'RS'],
-    'MT': ['IT'],
-    'NL': ['BE', 'DE', 'DE', 'GB', 'NO'],
-    'NO': ['SE', 'FI', 'DK', 'NL'],
-    'PL': ['CZ', 'DE', 'DE', 'LT', 'SE', 'SK', 'UA'],
-    'PT': ['ES'],
-    'RO': ['BG', 'HU', 'RS', 'UA'],
-    'RS': ['AL', 'BA', 'BG', 'HR', 'HU', 'ME', 'MK', 'RO'],
-    'SE': ['FI', 'NO', 'DE', 'DK', 'LT', 'PL'],
-    'SI': ['AT', 'DE', 'HR', 'IT'],
-    'SK': ['CZ', 'HU', 'PL', 'UA'],
+    "AT": ["CH", "CZ", "DE", "HU", "IT", "SI"],
+    "BA": ["HR", "ME", "RS"],
+    "BE": ["NL", "DE", "FR", "GB"],
+    "BG": ["GR", "MK", "RO", "RS", "TR"],
+    "CH": ["AT", "DE", "FR", "IT"],
+    "CZ": ["AT", "DE", "PL", "SK"],
+    "DE": ["AT", "BE", "CH", "CZ", "DK", "FR", "IT", "NL", "PL", "SE", "SI"],
+    "DK": ["DE", "NO", "SE"],
+    "EE": ["FI", "LV", "RU"],
+    "ES": ["FR", "PT"],
+    "FI": ["EE", "NO", "RU", "SE", "SE"],
+    "FR": ["BE", "CH", "DE", "ES", "GB", "IT"],
+    "GB": ["BE", "FR", "IE", "NL"],
+    "GR": ["AL", "BG", "IT", "MK", "TR"],
+    "HU": ["AT", "HR", "RO", "RS", "SK", "UA"],
+    "IE": ["GB"],
+    "IT": ["AT", "FR", "DE", "GR", "MT", "ME", "SI", "CH"],
+    "LT": ["BY", "LV", "PL", "RU", "SE"],
+    "LV": ["EE", "LT", "RU"],
+    "ME": ["AL", "BA", "RS"],
+    "MK": ["BG", "GR", "RS"],
+    "MT": ["IT"],
+    "NL": ["BE", "DE", "DE", "GB", "NO"],
+    "NO": ["SE", "FI", "DK", "NL"],
+    "PL": ["CZ", "DE", "DE", "LT", "SE", "SK", "UA"],
+    "PT": ["ES"],
+    "RO": ["BG", "HU", "RS", "UA"],
+    "RS": ["AL", "BA", "BG", "HR", "HU", "ME", "MK", "RO"],
+    "SE": ["FI", "NO", "DE", "DK", "LT", "PL"],
+    "SI": ["AT", "DE", "HR", "IT"],
+    "SK": ["CZ", "HU", "PL", "UA"],
 }
 
 
@@ -200,7 +198,7 @@ TECH_COLORS = {
     "gas_cc": "lightgreen",
     "oil": "darkgrey",
     "other_conv": "lightgray",
-    "nan": "red"
+    "nan": "red",
 }
 
 ORDERED_ENTSOE_FUELS = [
@@ -224,7 +222,8 @@ ORDERED_ENTSOE_FUELS = [
     "Fossil Oil shale",
     "Fossil Coal-derived gas",
     "Fossil Peat",
-    "Hydro Pumped Storage"]
+    "Hydro Pumped Storage",
+]
 
 
 FUEL_AGGREGATION = {
@@ -252,7 +251,7 @@ FUEL_RENAME = {
     "Nuclear": "nuclear",
     "Solar": "solar",
     "Wind Offshore": "wind_offshore",
-    "Wind Onshore": "wind_onshore"
+    "Wind Onshore": "wind_onshore",
 }
 
 OPSD_TO_DRAF = {
@@ -260,14 +259,12 @@ OPSD_TO_DRAF = {
     "Lignite": "lignite",
     "Natural gas": "gas",
     "Nuclear": "nuclear",
-    "Oil": "oil"
+    "Oil": "oil",
 }
 
 # Fuels after aggregation
-RES = ["hydro", "biomass", "solar",
-       "wind_offshore", "wind_onshore", "other_RES"]
-CONV = ["nuclear", "lignite", "coal",
-        "pumped_hydro", "gas", "oil", "other_conv"]
+RES = ["hydro", "biomass", "solar", "wind_offshore", "wind_onshore", "other_RES"]
+CONV = ["nuclear", "lignite", "coal", "pumped_hydro", "gas", "oil", "other_conv"]
 DRAF_FUELS = RES + CONV
 
 # Fuels for calculation of residual load (simplified merit order simulation)

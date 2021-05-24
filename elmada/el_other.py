@@ -1,4 +1,3 @@
-
 import logging
 from io import StringIO
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
@@ -50,6 +49,7 @@ def get_ice_eua_prices(cache=True) -> Dict:
         ser = pd.read_hdf(fp)
     else:
         import quandl
+
         quandl_api_key = paths.KEYS_DIR / "quandl.txt"
         quandl.ApiConfig.api_key = quandl_api_key.read_text().strip()
         df = quandl.get("CHRIS/ICE_C1")
@@ -88,11 +88,12 @@ def _get_light_oil_conversion_factor(source=2):
         return 0.980
 
     if source == 2:
-        return (42.6  # MJ/kg
-                * 860  # kg/m³ ==> MJ/m³
-                / 3600  # MJ/MWh ==> MWh/m³
-                / 10  # Hektoliter/m³ ==> MWh/Hektoliter
-                )
+        return (
+            42.6  # MJ/kg
+            * 860  # kg/m³ ==> MJ/m³
+            / 3600  # MJ/MWh ==> MWh/m³
+            / 10  # Hektoliter/m³ ==> MWh/Hektoliter
+        )
 
 
 def _get_light_oil_price(year=2019):
@@ -100,26 +101,28 @@ def _get_light_oil_price(year=2019):
 
     Source: StatistischeBundesamt.2020 (https://www.destatis.de/DE/Themen/Wirtschaft/Preise/Publikationen/Energiepreise/energiepreisentwicklung-pdf-5619001.html)
     """
-    data = pd.Series({
-        2005: 42.42,
-        2006: 47.58,
-        2007: 46.83,
-        2008: 61.76,
-        2009: 40.81,
-        2010: 52.31,
-        2011: 66.51,
-        2012: 72.94,
-        2013: 67.96,
-        2014: 61.88,
-        2015: 46.19,
-        2016: 38.40,
-        2017: 45.05,
-        2018: 55.27,
-        2019: 53.69
-    })
-    return (data[year]  # €/Hektoliter
-            / _get_light_oil_conversion_factor()  # MWh/Hektoliter ==> €/MWh
-            )
+    data = pd.Series(
+        {
+            2005: 42.42,
+            2006: 47.58,
+            2007: 46.83,
+            2008: 61.76,
+            2009: 40.81,
+            2010: 52.31,
+            2011: 66.51,
+            2012: 72.94,
+            2013: 67.96,
+            2014: 61.88,
+            2015: 46.19,
+            2016: 38.40,
+            2017: 45.05,
+            2018: 55.27,
+            2019: 53.69,
+        }
+    )
+    return (
+        data[year] / _get_light_oil_conversion_factor()  # €/Hektoliter  # MWh/Hektoliter ==> €/MWh
+    )
 
 
 def _get_lignite_price(year=2019, base_price=6.3) -> float:
@@ -132,8 +135,9 @@ def _get_lignite_price(year=2019, base_price=6.3) -> float:
     """
     fp = paths.DATA_DIR / "destatis/energiepreisentwicklung-xlsx-5619001.xls"
     xl = pd.ExcelFile(fp)
-    df = xl.parse(sheet_name=7, skiprows=28, header=None, skipfooter=0, index_col=0,
-                  na_values="-").dropna(axis=0, how="all")[13]
+    df = xl.parse(
+        sheet_name=7, skiprows=28, header=None, skipfooter=0, index_col=0, na_values="-"
+    ).dropna(axis=0, how="all")[13]
 
     df.index = df.index.str.slice(0, 5).astype(int)
     return df[year] * base_price / 100
@@ -149,8 +153,9 @@ def _get_coal_price(year=2019, base_price=10.12) -> float:
     """
     fp = paths.DATA_DIR / "destatis/energiepreisentwicklung-xlsx-5619001.xls"
     xl = pd.ExcelFile(fp)
-    df = xl.parse(sheet_name=7, skiprows=7, header=None, skipfooter=21, index_col=0,
-                  na_values="-").dropna(axis=0, how="all")[13]
+    df = xl.parse(
+        sheet_name=7, skiprows=7, header=None, skipfooter=21, index_col=0, na_values="-"
+    ).dropna(axis=0, how="all")[13]
 
     df.index = df.index.str.slice(0, 5).astype(int)
     return df[year] * base_price / 100
@@ -169,20 +174,19 @@ def _get_gas_price(year=2019, country="DE") -> float:
     block_list = []
     for i in range(nblocks):
         block_list.append(
-            xl.parse(sheet_name=11,
-                     skiprows=4 + i * blocksize,
-                     skipfooter=blocksize * (nblocks - 1 - i) + 2,
-                     index_col=0,
-                     na_values="-").dropna(axis=0, how="all"))
-    df = pd.concat(block_list, sort=False, join="outer",
-                   axis=1).dropna(axis=1, how="all")
+            xl.parse(
+                sheet_name=11,
+                skiprows=4 + i * blocksize,
+                skipfooter=blocksize * (nblocks - 1 - i) + 2,
+                index_col=0,
+                na_values="-",
+            ).dropna(axis=0, how="all")
+        )
+    df = pd.concat(block_list, sort=False, join="outer", axis=1).dropna(axis=1, how="all")
     df["year"] = df.index.str.slice(5).astype(int)
     df = df.groupby("year").mean()  # get mean between year-halfs
 
-    df = (df  # cent/kWh
-          / 100  # cent/kWh ==> €/kWh
-          * 1000  # €/kWh ==> €/MWh
-          )
+    df = df / 100 * 1000  # convert cent/kWh into €/MWh
 
     default_value = df.mean().mean()
     warn_message = f"No data for gas price for {year},{country} ==> Default value {default_value:.2f} €/MWh is given."
@@ -211,12 +215,14 @@ def get_fuel_prices(year=2019, country="DE") -> Dict:
     """
     gas_price = _get_gas_price(year=year, country=country)
     try:
-        return dict(oil=_get_light_oil_price(year=year),
-                    gas_cc=gas_price,
-                    gas=gas_price,
-                    coal=_get_coal_price(year=year),
-                    lignite=_get_lignite_price(year=year),
-                    nuclear=4.18)
+        return dict(
+            oil=_get_light_oil_price(year=year),
+            gas_cc=gas_price,
+            gas=gas_price,
+            coal=_get_coal_price(year=year),
+            lignite=_get_lignite_price(year=year),
+            nuclear=4.18,
+        )
     except KeyError:  # if values for future years are missing
         return get_fuel_prices(year=2019)
 
@@ -233,23 +239,26 @@ def get_baumgaertner_data() -> Dict:
     Source: Baumgärtner.2019 (https://doi.org/10.1016/j.apenergy.2019.04.029)
         fuel prices: Konstantin.2017 (https://doi.org/10.1007/978-3-662-49823-1)
     """
-    return dict(x_k=dict(oil=38.63, gas_cc=26.71, gas=29.81, coal=10.12, lignite=6.3, nuclear=4.18),
-                mu_co2_k=dict(oil=3.15, gas_cc=1.93, gas=1.93,
-                              coal=2.6, lignite=1.39, nuclear=0.0),
-                H_u_k=dict(oil=42.6 / 3.6,
-                           gas_cc=38.27 / 3.6,
-                           gas=38.27 / 3.6,
-                           coal=26.47 / 3.6,
-                           lignite=14.99 / 3.6,
-                           nuclear=41667.0),
-                eta_k=dict(oil=.373, gas_cc=.50, gas=.349, coal=.377, lignite=.356, nuclear=.32))
+    return dict(
+        x_k=dict(oil=38.63, gas_cc=26.71, gas=29.81, coal=10.12, lignite=6.3, nuclear=4.18),
+        mu_co2_k=dict(oil=3.15, gas_cc=1.93, gas=1.93, coal=2.6, lignite=1.39, nuclear=0.0),
+        H_u_k=dict(
+            oil=42.6 / 3.6,
+            gas_cc=38.27 / 3.6,
+            gas=38.27 / 3.6,
+            coal=26.47 / 3.6,
+            lignite=14.99 / 3.6,
+            nuclear=41667.0,
+        ),
+        eta_k=dict(oil=0.373, gas_cc=0.50, gas=0.349, coal=0.377, lignite=0.356, nuclear=0.32),
+    )
 
 
 def get_emissions_per_fuel_quaschning() -> Dict:
     """Carbon emissions per fuel type [t_CO2eq / MWh]
 
     Source: Quaschning.2015 (https://www.volker-quaschning.de/datserv/CO2-spez/index_e.php)"""
-    return dict(oil=.28, gas_cc=.25, gas=.25, coal=.34, lignite=.36, nuclear=0.0)
+    return dict(oil=0.28, gas_cc=0.25, gas=0.25, coal=0.34, lignite=0.36, nuclear=0.0)
 
 
 def prepare_transmission_losses() -> pd.DataFrame:
@@ -260,7 +269,7 @@ def prepare_transmission_losses() -> pd.DataFrame:
     to_drop = ["Series Name", "Series Code", "Country Code"]
     df.drop(to_drop, axis=1, inplace=True)
     df = df.rename(columns={k: k[:4] for k in df.keys()})
-    df["mean"] = df.loc[:, "2010": "2014"].mean(1)
+    df["mean"] = df.loc[:, "2010":"2014"].mean(1)
     return df
 
 
