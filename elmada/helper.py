@@ -6,11 +6,102 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
+from elmada import paths
 
 # from scipy import stats
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.CRITICAL)
+
+
+def make_symlink_to_cache(where: Optional[Path] = None):
+    """Creates a symbolic link to the cache directory for easy access."""
+
+    parent_dir_for_link = paths.BASE_DIR if where is None else Path(where)
+
+    link_dir = parent_dir_for_link / "cache"
+
+    cache_dir = paths.CACHE_DIR
+    link_dir.symlink_to(target=cache_dir, target_is_directory=True)
+    print(f"Symbolic link created: {link_dir} --> {cache_dir}")
+
+
+def delete_cache(filter_str: Optional[str] = None) -> None:
+    """Deletes parts or all of the cache."""
+
+    if filter_str is None:
+        filter_str = input("Please, give a string of the files you want to delete:")
+
+    if filter_str == "":
+        print("In order to to delete all, please type '*'.")
+        return None
+
+    if filter_str == "*":
+        s = "*"
+
+    else:
+        s = f"*{filter_str}*"
+
+    files = list(paths.CACHE_DIR.glob(f"{s}"))
+    lenf = len(files)
+
+    if lenf == 0 or filter_str == "":
+        print(f"No file found containing {filter_str}.")
+
+    else:
+        print(f"{lenf} files containing {filter_str}:")
+
+        for f in files:
+            size = sizeof_fmt(f.stat().st_size)
+            print("\t", size, f.name)
+        inp = input(f"Do you really want to delete these {lenf} files? (y/n)")
+
+        if inp == "y":
+            for f in files:
+                f.unlink()
+            print(f"{lenf} files deleted")
+
+        else:
+            print(f"No files deleted")
+
+
+def print_error(series1: pd.Series, series2: pd.Series) -> None:
+    err = abs(series1 - series2)
+    err_rel = err / series1
+    print(f"relative error = {err_rel.mean():.2%}, absolute error= {err.mean():.2f} t CO2/MWh.")
+
+
+def add_row_for_steps(ser: pd.Series) -> pd.Series:
+    """Adds an initial row in the Series for plotting steps. This way the first step does not
+     disappear when choosing option `pre`.
+    """
+    return ser.append(pd.Series({-1: 0})).sort_index()
+
+
+def sizeof_fmt(num: float, suffix: str = "B") -> str:
+    """Returns the short version of the storage size of e.g. digital information.
+
+    Idea from https://stackoverflow.com/questions/1094841
+    """
+    for unit in ["", "K", "M", "G", "T", "P", "E", "Z"]:
+        if abs(num) < 1000.0:
+            return f"{num:>5.1f} {unit}{suffix}"
+        num /= 1000.0
+    return f"{num:>5.1f} Y{suffix}"
+
+
+def freq_to_hours(freq: str) -> float:
+    """E.g.:
+        '60min' -> 1.0
+        '30min' -> 0.5
+    """
+    assert freq in ["60min", "30min", "15min"]
+    return float(freq[:2]) / 60
+
+
+def int_to_datetime(freq: str, year: int, pos: int) -> "datetime":
+    dtindex = make_datetimeindex(year=year, freq=freq)
+    return dtindex[pos]
 
 
 def datetime_to_int(freq: str, year: int, month: int, day: int) -> int:
@@ -23,7 +114,7 @@ def datetime_to_int(freq: str, year: int, month: int, day: int) -> int:
 def read_array(
     fp: Path, col: int = 0, asType: str = "a", verbose: bool = False, **kwargs
 ) -> Union[np.ndarray, pd.Series, pd.DataFrame]:
-    """Standardized way of reading arrays in draf.
+    """Standardized way of reading arrays in the draf project.
 
     Args:
         fp: Filepath
@@ -55,35 +146,36 @@ def read_array(
 
     if isinstance(data, pd.Series):
         if asType == "a":
-            return data.values
+            x = data.values
 
         elif asType == "s":
-            return data
+            x = data
 
         elif asType == "df":
-            return pd.DataFrame(data)
+            x = pd.DataFrame(data)
 
     elif isinstance(data, pd.DataFrame):
         if asType == "a":
-            return data.values
+            x = data.values
 
         elif asType == "s":
-            return data.stack()
+            x = data.stack()
 
         elif asType == "df":
-            return pd.DataFrame(data)
+            x = pd.DataFrame(data)
 
     elif isinstance(data, np.ndarray):
         if asType == "a":
-            return data
+            x = data
 
         elif asType == "s":
-            return data.stack()
+            x = data.stack()
 
         elif asType == "df":
-            return pd.DataFrame(data)
+            x = pd.DataFrame(data)
     else:
         raise RuntimeError(f"The data cannot be converted into the type {asType}")
+    return x
 
 
 def write_array(data: Union[np.ndarray, pd.Series, pd.DataFrame], fp: Path) -> None:

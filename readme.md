@@ -37,7 +37,7 @@ python -m pip install git+https://github.com/DrafProject/elmada.git
 
 # Data
 
-Elmada caches all data in a elmada subdirectory of the default temp folder of the operating system, e.g. `%TEMP%` in Windows.
+Elmada caches all data in a OS-specific temp directory. In windows, e.g., this is `%TEMP%/elmada`. Hint: It might be convenient to create a symbolic link to it with `elmada.helper.make_symlink_to_cache()`.
 
 You can use Elmada in two modes which can be set with `elmada.set_mode(mode=<MODE>)`:
 

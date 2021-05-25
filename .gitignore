@@ -3,6 +3,9 @@ conventional_power_plants_EU.xlsx
 national_generation_capacity.xlsx
 eua-price.xls
 
+# symlink to cache directory
+cache
+
 # jupyter notebooks
 notebooks/
 
