@@ -1,13 +1,15 @@
 import pandas as pd
 import pytest  # pylint: disable=unused-import
 
+import draf
+import elmada
 from elmada import helper as hp
 from elmada import el_opsd as od
 
 
 @pytest.fixture
 def merit_order():
-    return draf.io.get_merit_order(year=2019, method="PWL")
+    return elmada.get_merit_order(year=2019, method="PWL")
 
 
 def test_get_CEFs_from_merit_oder(merit_order):

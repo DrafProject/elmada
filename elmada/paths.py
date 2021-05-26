@@ -1,10 +1,10 @@
-import tempfile
+from appdirs import user_cache_dir
 from pathlib import Path
 
 
 def get_cache_directory() -> Path:
     """Returns the path to cache directory and creates it, if not yet existing."""
-    fp = Path(tempfile.gettempdir()) / "elmada"
+    fp = Path(user_cache_dir(appname="Elmada", appauthor="DrafProject"))
     fp.mkdir(parents=True, exist_ok=True)
     return fp
 
