@@ -111,6 +111,12 @@ def datetime_to_int(freq: str, year: int, month: int, day: int) -> int:
     return dtindex.get_loc(i)
 
 
+def is_correct_length(df: Union[pd.DataFrame, pd.Series], year: int, freq: str):
+    len_dt = len(make_datetimeindex(year=year, freq=freq))
+    len_inp = len(df)
+    return len_dt == len_inp
+
+
 def read_array(
     fp: Path, col: int = 0, asType: str = "a", verbose: bool = False, **kwargs
 ) -> Union[np.ndarray, pd.Series, pd.DataFrame]:

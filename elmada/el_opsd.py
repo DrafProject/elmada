@@ -1,3 +1,5 @@
+"""Reads power plant list from Open Power System Data (OPSD)."""
+
 import logging
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
@@ -12,6 +14,7 @@ from elmada import el_entsoepy as ep
 from elmada import el_other as ot
 from elmada import mappings as mp
 from elmada import paths
+import elmada
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARN)
@@ -188,7 +191,9 @@ def merit_order(
 
     df = get_current_active_power_plants(year)
     df = _rename_to_draf_fuels(df)
-    df = _preprocess_efficiencies(df, **preprocess_kwargs)
+    df = _preprocess_efficiencies(
+        df, efficiency_per_plant=efficiency_per_plant, **preprocess_kwargs
+    )
     df = _add_marginal_emissions_for_gen(df, emission_data_source)
 
     carbon_price = ot.get_ETS_price(year) if overwrite_carbon_tax is None else overwrite_carbon_tax
@@ -249,6 +254,7 @@ def get_summary(year=2019) -> pd.DataFrame:
 
 
 def get_summary_EU(year=2019) -> pd.DataFrame:
+    """[NOT USED]"""
     ca = get_current_active_power_plants_EU(year)
     grouper = ca.groupby(["country", "energy_source", "energy_source_level_2", "technology"])
     d = dict(counts=grouper.count()["name"], sum_capa=grouper.sum()["capacity"])
@@ -265,7 +271,9 @@ def get_summary_of_opsd_raw() -> pd.DataFrame:
 
 
 def get_current_active_power_plants(year=2019) -> pd.DataFrame:
+    """Returns a Dataframe with all active power plants for a specific year."""
     df = read_opsd_powerplant_list(which="DE")
+
     used_fuels = mp.OPSD_TO_DRAF.keys()
     other_fuels = set(df["fuel"]) - set(used_fuels)
     is_german = df["country_code"] == "DE"
@@ -318,12 +326,22 @@ def get_current_active_power_plants_EU(year=2019) -> pd.DataFrame:
 
 def read_opsd_powerplant_list(which: str = "DE") -> pd.DataFrame:
     assert which in ("DE", "EU"), f"`{which}` is no valid value for `which`."
-    fp = paths.CACHE_DIR / f"OPSD_conventional_power_plants_{which}.csv"
+    mode = elmada.get_mode()
+    fps = {
+        "live": f"OPSD_conventional_power_plants_{which}.csv",
+        "safe": f"OPSD_conventional_power_plants_{which}[safe].csv",
+    }
+
+    fp = paths.CACHE_DIR / fps[mode]
 
     if not fp.exists():
         download_powerplant_list(which=which, fp=fp)
+    df = pd.read_csv(fp)
 
-    return pd.read_csv(fp)
+    if mode == "live":
+        df = df.rename(columns={"energy_source": "fuel", "country": "country_code"})
+
+    return df
 
 
 def download_powerplant_list(which: str, fp: Path):

@@ -5,7 +5,7 @@
 
 # **el**ectricity **ma**rket **da**ta for the **d**emand **r**esponse **a**nalysis **f**ramework
 
-Elmada is part of the [Draf Project](https://github.com/DrafProject) but can be used as a standalone package. `elmada` stands for **el**ectricity **ma**rket **da**ta and allows the approximation of up to quarterhourly carbon emission factors and the provision of historic wholesale prices for European national electricity grids.
+Elmada is part of the [Draf Project](https://github.com/DrafProject) but can be used as a standalone package. Elmada stands for **el**ectricity **ma**rket **da**ta and allows the approximation of up to quarterhourly carbon emission factors and the provision of historic wholesale prices for European national electricity grids.
 
 # Installation
 

@@ -16,7 +16,7 @@ def get_pp_sizes_for_pwl() -> pd.DataFrame:
     return df
 
 
-def get_pp_sizes(minimum_count_per_fuel_type=2) -> pd.DataFrame:
+def get_pp_sizes() -> pd.DataFrame:
     geo = get_units_of_geo_list()
 
     grouper = geo.groupby(["cy", "fuel"])["capa"]
@@ -27,7 +27,7 @@ def get_pp_sizes(minimum_count_per_fuel_type=2) -> pd.DataFrame:
 
 
 def get_units_of_geo_list(cache: bool = True) -> pd.DataFrame:
-    fp = paths.CACHE_DIR / "/units_of_geo_list.h5"
+    fp = paths.CACHE_DIR / "units_of_geo_list.h5"
 
     if fp.exists() and cache:
         df = pd.read_hdf(fp)
@@ -50,24 +50,22 @@ def get_units_of_geo_list(cache: bool = True) -> pd.DataFrame:
             concat_list.append(df)
 
         df = pd.concat(concat_list)
-        if cache:
-            hp.write_array(df, fp)
+        hp.write_array(df, fp)
 
-    col_dic = {
-        "Capacity (MWe)": "capa",
-        "Unit Efficiency (%)": "eff",
-        "Date Commissioned (yyyy-mm-dd)": "commissioned",
-        "Unit #": "unit_no",
-    }
-    df.rename(columns=col_dic, inplace=True)
+    df = df.rename(
+        columns={
+            "Capacity (MWe)": "capa",
+            "Unit Efficiency (%)": "eff",
+            "Date Commissioned (yyyy-mm-dd)": "commissioned",
+            "Unit #": "unit_no",
+        },
+    )
 
     interesting_cols = ["cy", "fuel", "geoid", "capa", "eff", "commissioned", "unit_no"]
     df = df.loc[df.capa != "", interesting_cols]
 
     df["capa"] = df["capa"].astype(float).astype(int)
-    df.reset_index(inplace=True, drop=True)
-
-    return df
+    return df.reset_index(drop=True)
 
 
 def get_df_from_geo_id(geo_id: int) -> pd.DataFrame:
