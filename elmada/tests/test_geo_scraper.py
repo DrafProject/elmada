@@ -16,10 +16,10 @@ def test_get_pp_sizes():
 
 def test_get_units_of_geo_list():
     df = gs.get_units_of_geo_list()
-    target = pd.Index(
+    expected = pd.Index(
         ["cy", "fuel", "geoid", "capa", "eff", "commissioned", "unit_no"], dtype="object"
     )
-    assert df.keys().equals(target)
+    assert df.keys().equals(expected)
 
 
 def test_get_df_from_geo_id():

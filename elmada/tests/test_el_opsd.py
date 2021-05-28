@@ -1,15 +1,15 @@
+import elmada
 import pandas as pd
-import pytest  # pylint: disable=unused-import
-
 from elmada import el_opsd as od
 from elmada import helper as hp
-import elmada
+from pytest_mock import MockerFixture
+from elmada.mode import ConfigUtil
 
 
 def test_prep_CEFs():
     cefs = od.prep_CEFs(year=2019, freq="60min", country="DE")
 
-    target = pd.Index(
+    expected = pd.Index(
         data=[
             "residual_load",
             "total_load",
@@ -21,23 +21,18 @@ def test_prep_CEFs():
         ],
         dtype="object",
     )
-    assert cefs.keys().equals(target)
+    assert cefs.keys().equals(expected)
 
     assert hp.is_correct_length(cefs, year=2019, freq="60min")
 
     assert isinstance(cefs, pd.DataFrame)
 
 
-def test_read_opsd_powerplant_list():
-    tmp_mode = elmada.get_mode()
+def test_read_opsd_powerplant_list(mocker: MockerFixture):
+    mocker.patch.object(ConfigUtil, "mode", "safe")
+    assert elmada.get_mode() == "safe"
+    assert len(od.read_opsd_powerplant_list()) == 893
 
-    elmada.set_mode("safe")
-    df = od.read_opsd_powerplant_list()
-    assert len(df) == 893
-
-    elmada.set_mode("live")
-    df = od.read_opsd_powerplant_list()
-    assert len(df) != 893
-
-    elmada.set_mode(tmp_mode)
-
+    mocker.patch.object(ConfigUtil, "mode", "live")
+    assert elmada.get_mode() == "live"
+    assert len(od.read_opsd_powerplant_list()) != 893

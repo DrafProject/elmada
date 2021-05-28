@@ -30,7 +30,6 @@ FUELS_SMARD = set(FUEL_RENAME_SMARD.values())
 
 
 def load_el_national_generation(year):
-
     assert year in range(2000, 2100), f"{year} is not a valid year"
 
     fp_raw = paths.DATA_DIR / f"smard/DE_Realisierte Erzeugung_{year}_SMARD.csv"

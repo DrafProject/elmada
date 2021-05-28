@@ -11,10 +11,10 @@ setup(
     description="Electricity market data",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/mfleschutz/elmada",
+    url="https://github.com/drafproject/elmada",
     license="LGPLv3",
     packages=find_packages(),
     python_requires=">=3.6",
     install_require=["scipy", "seaborn", "plotly", "entsoe", "requests", "bs4"],
-    tests_require=["pathlib", "pytest"],
+    tests_require=["pathlib", "pytest", "pytest-mock"],
 )

@@ -7,39 +7,50 @@ import elmada
 import pandas as pd
 from elmada import mappings as mp
 
-DATA_HASH_TABLE_PATH = Path(__file__).resolve().parent / "data_hashes.csv"
+HASH_DIR = Path(__file__).resolve().parent
+FILE_FMT = "{which}_hashes.csv"
 
 
-def read_target_cef_hashes() -> pd.Series:
-    return pd.read_csv(DATA_HASH_TABLE_PATH, index_col=[0, 1], squeeze=True)
+def read_expected_hashes(which: str) -> pd.Series:
+    fp = HASH_DIR / FILE_FMT.format(which=which)
+    return pd.read_csv(fp, index_col=[0, 1], squeeze=True)
 
 
-def save_target_cef_hashes() -> None:
+def save_expected_hashes(which: str) -> None:
+    fp = HASH_DIR / FILE_FMT.format(which=which)
     if input("Do you really want to overwrite the data hash table? (y/n)") == "y":
-        make_cef_hashes().to_csv(DATA_HASH_TABLE_PATH, header=True)
+        make_hashes(which=which).to_csv(fp, header=True)
     else:
         print("Aborted.")
 
 
-def make_cef_hashes() -> pd.Series:
+def make_hashes(which) -> pd.Series:
+
+    if which == "CEF":
+        func = elmada.get_emissions
+        kwargs = dict(freq="60min", method="_PWL")
+
+    elif which == "GEN":
+        func = elmada.get_el_national_generation
+        kwargs = dict(freq="60min")
+
+    else:
+        raise ValueError("which must be 'CEF' or 'GEN'.")
+
+    return make_year_country_hashes(func=func, kwargs=kwargs)
+
+
+def make_year_country_hashes(func, kwargs) -> pd.Series:
     ser = pd.Series(
         {
-            (year, country): get_cef_hash(year, country)
+            (year, country): get_hash(func(year=year, country=country, **kwargs))
             for year in range(2017, 2021)
             for country in mp.COUNTRIES_FOR_ANALYSIS
         },
         name="hash",
     )
-
     ser.index.names = ["year", "country"]
     return ser
-
-
-def get_cef_hash(year, country) -> str:
-    df = elmada.get_emissions(
-        year=year, freq="60min", country=country, additional_info=True, method="_PWL"
-    )
-    return get_hash(df)
 
 
 def get_hash(df) -> str_format:

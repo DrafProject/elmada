@@ -17,7 +17,7 @@ The following code downloads the directory, creates a conda environment includin
 git clone https://github.com/DrafProject/elmada.git
 cd elmada
 
-# creates environment based on environment.yml and installs editable local version:
+# creates environment based on environment.yml and installs editable local version
 conda env create
 
 # activate draf environment
