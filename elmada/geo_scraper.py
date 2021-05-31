@@ -2,7 +2,6 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from IPython.display import display
-from ipywidgets import IntProgress
 
 from elmada import helper as hp
 from elmada import mappings as mp
@@ -35,12 +34,11 @@ def get_units_of_geo_list(cache: bool = True) -> pd.DataFrame:
     else:
         geo = gm.get_geo_list()
         max_count = len(geo)
-        progress_bar = IntProgress(min=0, max=max_count)
-        display(progress_bar)
+        print(f"Download {max_count} items:", end="")
         concat_list = []
 
         for _, ser in geo.iterrows():
-            progress_bar.value += 1
+            print(".", end="")
             geo_id = ser["id"]
             print(geo_id, end=", ")
             df = get_df_from_geo_id(geo_id)

@@ -3,6 +3,32 @@ from setuptools import find_packages, setup
 with open("README.md", "r") as fh:
     long_description = fh.read().strip()
 
+
+# As proposed by Han Xiao in https://hanxiao.io/2019/11/07/A-Better-Practice-for-Managing-extras-require-Dependencies-in-Python
+def get_extra_requires(path, add_all=True):
+    """Parse extra-requirements.txt for a {feature: requirements} map."""
+    import re
+    from collections import defaultdict
+
+    with open(path) as fp:
+        extra_deps = defaultdict(set)
+        for k in fp:
+            if k.strip() and not k.startswith("#"):
+                tags = set()
+                if ":" in k:
+                    k, v = k.split(":")
+                    tags.update(vv.strip() for vv in v.split(","))
+                tags.add(re.split("[<=>]", k)[0])
+                for t in tags:
+                    extra_deps[t].add(k)
+
+        # add tag `all` at the end
+        if add_all:
+            extra_deps["all"] = {vv for v in extra_deps.values() for vv in v}
+
+    return extra_deps
+
+
 setup(
     name="elmada",
     version="0.0.1",
@@ -14,7 +40,20 @@ setup(
     url="https://github.com/drafproject/elmada",
     license="LGPLv3",
     packages=find_packages(),
-    python_requires=">=3.6",
-    install_require=["scipy", "seaborn", "plotly", "entsoe", "requests", "bs4"],
-    tests_require=["pathlib", "pytest", "pytest-mock"],
+    python_requires=">=3.7",
+    install_require=["scipy", "entsoe-py", "requests", "bs4"],
+    extras_require=get_extra_requires("extra-requirements.txt"),
+    classifiers=[
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+        "Natural Language :: English",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Topic :: Scientific/Engineering",
+    ],
+    keywords=["energy market data", "energy systems", "carbon emission factors", "demand response"],
 )

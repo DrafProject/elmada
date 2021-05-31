@@ -1,0 +1,9 @@
+# additional requirements and features that use them
+# package: feature1, feature2, ...
+
+matplotlib: visualization
+seaborn: visualization
+pytest: dev, test
+pytest-cov: dev, test
+pytest-mock: dev, test
+mypy: dev
