@@ -1,7 +1,6 @@
 import elmada
 import pandas as pd
 import pytest
-from elmada import mappings as mp
 
 from .common import hasher
 
@@ -12,8 +11,25 @@ def make_and_check_hashes(which: str):
     assert current.equals(expected)
 
 
-def test_get_emissions():
+def test_get_emissions_data():
     make_and_check_hashes("CEF")
+
+
+def test_get_emissions(mocker):
+    config = dict(year=2019, freq="60min", country="DE")
+
+    tl = [
+        ("_EP", "elmada.el_entsoepy.prep_XEFs", config),
+        ("_PP", "elmada.el_opsd.prep_CEFs", config),
+        ("_PWL", "elmada.el_EU_PWL_CEFs.prep_CEFs", dict(**config, validation_mode=False)),
+        ("_PWLv", "elmada.el_EU_PWL_CEFs.prep_CEFs", dict(**config, validation_mode=True)),
+    ]
+
+    for (method, func, kwargs) in tl:
+        print(method, func, kwargs)
+        mock = mocker.patch(func)
+        elmada.get_emissions(**config, cache=False, method=method)
+        mock.assert_called_once_with(**kwargs)
 
 
 pp_keys = pd.Index(

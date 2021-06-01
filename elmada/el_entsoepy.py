@@ -22,11 +22,28 @@ entsoe_mp.TIMEZONE_MAPPINGS["IT-NORD-FR"] = "Europe/Rome"
 entsoe_mp.TIMEZONE_MAPPINGS["IT-GR"] = "Europe/Rome"
 
 
+def prep_XEFs(year: int = 2019, freq: str = "60min", country: str = "DE") -> pd.DataFrame:
+    """Prepare grid mix emission factors from historic generation."""
+    assert year in range(2000, 2100), f"{year} is not a valid year"
+    assert freq in ["15min", "60min"], f"{freq} is not a valid freq"
+    assert country in mp.EUROPE_COUNTRIES
+
+    shares_TF = prep_shares(year, freq, country)
+    ce_F = load_el_national_specific_emissions()[country]
+    x = set(shares_TF.keys()) & set(ce_F.keys())
+    ce_T = shares_TF[x] @ ce_F[x]
+    ce_T.fillna(ce_T.mean(), inplace=True)
+
+    hp.warn_if_incorrect_index_length(ce_T, year, freq)
+    df = ce_T.rename("XEFs").to_frame()
+    return df
+
+
 def _get_client() -> EntsoePandasClient:
     return EntsoePandasClient(api_key=get_entsoe_api_key())
 
 
-def get_entsoe_api_key(fp: str = None):
+def get_entsoe_api_key(fp: str = None) -> str:
     """Get ENTSO-E API-key for the python package entsoe-py to access the ENTSO-E database."""
 
     fp = paths.KEYS_DIR / "entsoe.txt" if fp is None else Path(fp)
@@ -34,7 +51,7 @@ def get_entsoe_api_key(fp: str = None):
     try:
         return fp.read_text().strip()
     except FileNotFoundError as e:
-        print("entsoe.txt file not found", e)
+        raise RuntimeError("entsoe.txt file not found", e)
 
 
 def get_colors(iterable: Iterable) -> List:
@@ -45,136 +62,6 @@ def _get_timestamps(year: int, tz: str) -> Tuple:
     start = pd.Timestamp(f"{year}0101", tz=tz)
     end = pd.Timestamp(f"{year+1}0101", tz=tz)
     return start, end
-
-
-def load_imports(
-    year: int = 2019,
-    country: str = "DE",
-    freq: Optional[str] = "15min",
-    cache: bool = True,
-    ensure_std_index: bool = True,
-) -> pd.DataFrame:
-
-    # see visualization of the ENTSO-E data under: https://www.energy-charts.de/exchange.htm
-
-    assert year in range(2000, 2100), f"{year} is not a valid year"
-    assert freq in [None, "15min", "30min", "60min"], f"{freq} is not a valid frequency"
-
-    aggregations = {
-        "DK": ["DK-1", "DK-2"],
-        "NO": ["NO-1", "NO-2", "NO-3", "NO-4", "NO-5"],
-        "SE": ["SE-1", "SE-2", "SE-3", "SE-4"],
-    }
-
-    if country in aggregations:
-        config = dict(year=year, freq=freq, ensure_std_index=ensure_std_index)
-        return sum([load_imports(country=region, **config) for region in aggregations[country]])
-
-    fp = paths.CACHE_DIR / f"{year}_{country}_import_entsoe.h5"
-
-    bidding_zone = get_bidding_zone(country=country, year=year)
-
-    if cache and fp.exists():
-        df = pd.read_hdf(fp)
-
-    else:
-        client = _get_client()
-        tz = get_timezone(bidding_zone)
-        start, end = _get_timestamps(year=year, tz=tz)
-        df = client.query_import(start=start, end=end, country_code=bidding_zone)
-        if cache:
-            hp.write_array(df, fp)
-
-    if ensure_std_index:
-        idx = hp.make_datetimeindex(year, hp.estimate_freq(df), tz=df.index.tz)
-        df = df.reindex(idx).fillna(method="ffill").fillna(method="bfill")
-
-    df = hp.resample(df, year=year, start_freq=hp.estimate_freq(df), target_freq=freq)
-
-    return df
-
-
-def load_crossborder_flows(
-    country_from: str,
-    country_to: str,
-    year: int = 2019,
-    #    freq: Optional[str] = "15min",
-    cache: bool = True,
-    #    ensure_std_index: bool = True
-) -> pd.DataFrame:
-
-    assert year in range(2000, 2100), f"{year} is not a valid year"
-    # assert freq in [None, "15min", "30min", "60min"], f"{freq} is not a valid frequency"
-
-    fp = paths.CACHE_DIR / f"{year}_crossborder_{country_from}--{country_to}_entsoe.h5"
-
-    if cache and fp.exists():
-        ser = pd.read_hdf(fp)
-
-    else:
-        client = _get_client()
-        tz = get_timezone(get_bidding_zone(country=country_from, year=year))
-        start, end = _get_timestamps(year=year, tz=tz)
-
-        ser = client.query_crossborder_flows(country_from, country_to, start=start, end=end)
-        if cache:
-            hp.write_array(ser, fp)
-
-    # if ensure_std_index:
-    #     idx = hp.make_datetimeindex(year, hp.estimate_freq(ser), tz=ser.index.tz)
-    #     ser = ser.reindex(idx).fillna(method="ffill").fillna(method="bfill")
-
-    # ser = hp.resample(ser, year=year, start_freq=hp.estimate_freq(ser), target_freq=freq)
-
-    return ser
-
-
-def load_exports(
-    year: int = 2019,
-    country: str = "DE",
-    freq: Optional[str] = "15min",
-    cache: bool = True,
-    ensure_std_index: bool = True,
-) -> pd.DataFrame:
-
-    assert year in range(2000, 2100), f"{year} is not a valid year"
-    assert freq in [None, "15min", "30min", "60min"], f"{freq} is not a valid frequency"
-
-    fp = paths.CACHE_DIR / f"{year}_{country}_export_entsoe.h5"
-
-    bzone_from = get_bidding_zone(country=country, year=year)
-
-    if cache and fp.exists():
-        df = pd.read_hdf(fp)
-
-    else:
-        client = _get_client()
-        export_dic = {}
-        for bzone_to in entsoe_mp.NEIGHBOURS[bzone_from]:
-            tz = get_timezone(country=bzone_to)
-            start, end = _get_timestamps(year=year, tz=tz)
-            try:
-                export_dic[bzone_to] = client.query_crossborder_flows(
-                    country_code_from=bzone_from,
-                    country_code_to=bzone_to,
-                    start=start,
-                    end=end,
-                    lookup_bzones=True,
-                )
-            except entsoe.exceptions.NoMatchingDataError:
-                logger.warning(f"NoMatchingDataError: No data for export to {bzone_to}")
-
-        df = pd.concat(export_dic, axis=1)
-        if cache:
-            hp.write_array(df, fp)
-
-    if ensure_std_index:
-        idx = hp.make_datetimeindex(year, hp.estimate_freq(df), tz=df.index.tz)
-        df = df.reindex(idx).fillna(method="ffill").fillna(method="bfill")
-
-    df = hp.resample(df, year=year, start_freq=hp.estimate_freq(df), target_freq=freq)
-
-    return df
 
 
 def _get_empty_installed_generation_capacity_df(ensure_std_techs: bool) -> pd.DataFrame:
@@ -291,7 +178,7 @@ def load_el_national_generation(
         df = aggregate_to_standard_techs(df)
 
     if ensure_positive:
-        # get rid of negative values e.g. for HU, NL 2019
+        # set negative values as missing values e.g. for HU and NL in 2019
         df[df < 0] = np.nan
 
     if ensure_non_zero_sum:
@@ -337,8 +224,8 @@ def fill_special_missing_data_points_for_gen(
 
 
 def _query_generation_monthwise(client, year, country, tz) -> pd.DataFrame:
-    logger.warning(f"querying generation data from entsoe for {country}: this may take minutes.")
-    logger.warning(f"loading 12 month of el. generation individually:")
+    logger.warning(f"Querying generation data from entsoe for {country}: this may take minutes.")
+    logger.info(f"Loading 12 month of electrcity generation individually:")
 
     d = {}
     for month in range(1, 13):
@@ -357,7 +244,7 @@ def _query_generation_monthwise(client, year, country, tz) -> pd.DataFrame:
             d[month] = client.query_generation(start=start, end=end, country_code=country)
         except (entsoe.exceptions.NoMatchingDataError, KeyError) as e:
             raise exceptions.NoDataError(
-                f"entsoe-client has no geneneration data found for {year, country}: {e}"
+                f"Entsoe-client has no geneneration data found for {year, country}: {e}"
             )
     return pd.concat(d.values(), sort=True)
 
@@ -402,8 +289,7 @@ def load_el_national_load(
 
     if ensure_std_index:
         idx = hp.make_datetimeindex(year, hp.estimate_freq(ser), tz=ser.index.tz)
-        ser = ser.reindex(idx).fillna(method="ffill").fillna(method="bfill")
-        ser.reset_index(drop=True, inplace=True)
+        ser = ser.reindex(idx).fillna(method="ffill").fillna(method="bfill").reset_index(drop=True)
 
     if resample:
         ser = hp.resample(ser, year=year, start_freq=hp.estimate_freq(ser), target_freq=freq)
@@ -411,12 +297,7 @@ def load_el_national_load(
 
 
 def prep_residual_load(
-    year: int = 2019,
-    freq: str = "15min",
-    country: str = "DE",
-    method: str = "all_conv",
-    easy_approach: bool = True,
-    **kwargs,
+    year: int = 2019, freq: str = "15min", country: str = "DE", method: str = "all_conv",
 ) -> pd.Series:
     config = dict(year=year, freq=freq, country=country)
 
@@ -426,12 +307,12 @@ def prep_residual_load(
     elif method == "conv2":
         return get_conv2_generation(**config)
 
-    elif method == "complex":
-        load = load_el_national_load(**config).fillna(0)
-        imports = load_imports(**config).sum(1).fillna(0)
-        exports = load_exports(**config).sum(1).fillna(0)
-        res_ser = get_renewable_generation(**config).fillna(0)
-        return load - imports + exports - res_ser
+    # elif method == "complex":
+    #     load = load_el_national_load(**config).fillna(0)
+    #     imports = load_imports(**config).sum(1).fillna(0)
+    #     exports = load_exports(**config).sum(1).fillna(0)
+    #     res_ser = get_renewable_generation(**config).fillna(0)
+    #     return load - imports + exports - res_ser
 
     else:
         raise RuntimeError(f"Method {method} not implemented.")
@@ -508,22 +389,6 @@ def prep_shares(year: int = 2019, freq: str = "60min", country: str = "DE") -> p
     return hp.resample(shares_TF, year=year, start_freq=gen_freq, target_freq=freq)
 
 
-def prep_XEFs(year: int = 2019, freq: str = "60min", country: str = "DE") -> pd.DataFrame:
-    assert year in range(2000, 2100), f"{year} is not a valid year"
-    assert freq in ["15min", "60min"], f"{freq} is not a valid freq"
-    assert country in mp.EUROPE_COUNTRIES
-
-    shares_TF = prep_shares(year, freq, country)
-    ce_F = load_el_national_specific_emissions()[country]
-    x = set(shares_TF.keys()) & set(ce_F.keys())
-    ce_T = shares_TF[x] @ ce_F[x]
-    ce_T.fillna(ce_T.mean(), inplace=True)
-
-    hp.warn_if_incorrect_index_length(ce_T, year, freq)
-    df = ce_T.rename("XEFs").to_frame()
-    return df
-
-
 def prep_dayahead_prices(
     year: int = 2019,
     freq: str = "60min",
@@ -534,7 +399,6 @@ def prep_dayahead_prices(
     fill_outlier: bool = True,
     resample: bool = True,
 ) -> pd.Series:
-
     assert year in range(2000, 2100), f"{year} is not a valid year"
     assert country in entsoe_mp.BIDDING_ZONES
 
@@ -600,3 +464,133 @@ def get_bidding_zone(country: str, year: int) -> str:
 
 def get_timezone(country: str) -> str:
     return entsoe_mp.TIMEZONE_MAPPINGS.get(country, "Europe/Brussels")
+
+
+# def load_imports(
+#     year: int = 2019,
+#     country: str = "DE",
+#     freq: Optional[str] = "15min",
+#     cache: bool = True,
+#     ensure_std_index: bool = True,
+# ) -> pd.DataFrame:
+
+#     # see visualization of the ENTSO-E data under: https://www.energy-charts.de/exchange.htm
+
+#     assert year in range(2000, 2100), f"{year} is not a valid year"
+#     assert freq in [None, "15min", "30min", "60min"], f"{freq} is not a valid frequency"
+
+#     aggregations = {
+#         "DK": ["DK-1", "DK-2"],
+#         "NO": ["NO-1", "NO-2", "NO-3", "NO-4", "NO-5"],
+#         "SE": ["SE-1", "SE-2", "SE-3", "SE-4"],
+#     }
+
+#     if country in aggregations:
+#         config = dict(year=year, freq=freq, ensure_std_index=ensure_std_index)
+#         return sum([load_imports(country=region, **config) for region in aggregations[country]])
+
+#     fp = paths.CACHE_DIR / f"{year}_{country}_import_entsoe.h5"
+
+#     bidding_zone = get_bidding_zone(country=country, year=year)
+
+#     if cache and fp.exists():
+#         df = pd.read_hdf(fp)
+
+#     else:
+#         client = _get_client()
+#         tz = get_timezone(bidding_zone)
+#         start, end = _get_timestamps(year=year, tz=tz)
+#         df = client.query_import(start=start, end=end, country_code=bidding_zone)
+#         if cache:
+#             hp.write_array(df, fp)
+
+#     if ensure_std_index:
+#         idx = hp.make_datetimeindex(year, hp.estimate_freq(df), tz=df.index.tz)
+#         df = df.reindex(idx).fillna(method="ffill").fillna(method="bfill")
+
+#     df = hp.resample(df, year=year, start_freq=hp.estimate_freq(df), target_freq=freq)
+
+#     return df
+
+
+# def load_crossborder_flows(
+#     country_from: str,
+#     country_to: str,
+#     year: int = 2019,
+#     #    freq: Optional[str] = "15min",
+#     cache: bool = True,
+#     #    ensure_std_index: bool = True
+# ) -> pd.DataFrame:
+
+#     assert year in range(2000, 2100), f"{year} is not a valid year"
+#     # assert freq in [None, "15min", "30min", "60min"], f"{freq} is not a valid frequency"
+
+#     fp = paths.CACHE_DIR / f"{year}_crossborder_{country_from}--{country_to}_entsoe.h5"
+
+#     if cache and fp.exists():
+#         ser = pd.read_hdf(fp)
+
+#     else:
+#         client = _get_client()
+#         tz = get_timezone(get_bidding_zone(country=country_from, year=year))
+#         start, end = _get_timestamps(year=year, tz=tz)
+
+#         ser = client.query_crossborder_flows(country_from, country_to, start=start, end=end)
+#         if cache:
+#             hp.write_array(ser, fp)
+
+#     # if ensure_std_index:
+#     #     idx = hp.make_datetimeindex(year, hp.estimate_freq(ser), tz=ser.index.tz)
+#     #     ser = ser.reindex(idx).fillna(method="ffill").fillna(method="bfill")
+
+#     # ser = hp.resample(ser, year=year, start_freq=hp.estimate_freq(ser), target_freq=freq)
+
+#     return ser
+
+
+# def load_exports(
+#     year: int = 2019,
+#     country: str = "DE",
+#     freq: Optional[str] = "15min",
+#     cache: bool = True,
+#     ensure_std_index: bool = True,
+# ) -> pd.DataFrame:
+
+#     assert year in range(2000, 2100), f"{year} is not a valid year"
+#     assert freq in [None, "15min", "30min", "60min"], f"{freq} is not a valid frequency"
+
+#     fp = paths.CACHE_DIR / f"{year}_{country}_export_entsoe.h5"
+
+#     bzone_from = get_bidding_zone(country=country, year=year)
+
+#     if cache and fp.exists():
+#         df = pd.read_hdf(fp)
+
+#     else:
+#         client = _get_client()
+#         export_dic = {}
+#         for bzone_to in entsoe_mp.NEIGHBOURS[bzone_from]:
+#             tz = get_timezone(country=bzone_to)
+#             start, end = _get_timestamps(year=year, tz=tz)
+#             try:
+#                 export_dic[bzone_to] = client.query_crossborder_flows(
+#                     country_code_from=bzone_from,
+#                     country_code_to=bzone_to,
+#                     start=start,
+#                     end=end,
+#                     lookup_bzones=True,
+#                 )
+#             except entsoe.exceptions.NoMatchingDataError:
+#                 logger.warning(f"NoMatchingDataError: No data for export to {bzone_to}")
+
+#         df = pd.concat(export_dic, axis=1)
+#         if cache:
+#             hp.write_array(df, fp)
+
+#     if ensure_std_index:
+#         idx = hp.make_datetimeindex(year, hp.estimate_freq(df), tz=df.index.tz)
+#         df = df.reindex(idx).fillna(method="ffill").fillna(method="bfill")
+
+#     df = hp.resample(df, year=year, start_freq=hp.estimate_freq(df), target_freq=freq)
+
+#     return df

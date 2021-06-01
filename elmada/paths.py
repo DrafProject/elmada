@@ -9,13 +9,11 @@ def get_cache_directory() -> Path:
     return fp
 
 
-CACHE_DIR = get_cache_directory()
-
-
 def get_base_dir():
     return Path(__file__).resolve().parent
 
 
+CACHE_DIR = get_cache_directory()
 BASE_DIR = get_base_dir()
 KEYS_DIR = BASE_DIR / "api_keys"
 DATA_DIR = BASE_DIR / "data"
