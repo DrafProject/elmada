@@ -103,7 +103,7 @@ def prepare_merit_order_for_plt(
     df = merit_order(year, **kwargs)
     df = df[["fuel_draf", "cumsum_capa", which]]
     df["cumsum_capa"] /= 1000  # convert from kWh to MWh
-    df.set_index("cumsum_capa", inplace=True, drop=True)
+    df = df.set_index("cumsum_capa", drop=True)
     fuels = list(df["fuel_draf"].unique())
     if split_across_columns:
         for f in fuels:
@@ -204,10 +204,9 @@ def merit_order(
     df["marginal_cost"] = df["fuel_cost"] + df["GHG_cost"]
 
     # to be consistent with the PWL merit_order:
-    df.rename(columns={"capacity_net_bnetza": "capa"}, inplace=True)
+    df = df.rename(columns={"capacity_net_bnetza": "capa"})
 
-    df.sort_values("marginal_cost", inplace=True)
-    df.reset_index(drop=True, inplace=True)
+    df = df.sort_values("marginal_cost").reset_index(drop=True)
     df["cumsum_capa"] = df["capa"].cumsum()
     return df
 

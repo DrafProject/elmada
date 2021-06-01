@@ -70,7 +70,7 @@ def get_sandbag_eua_prices() -> Dict:
     df = pd.read_csv(StringIO(s), sep=";", decimal=",", index_col=0, comment="#")
     df.index = pd.to_datetime(df.index)
     df = df.resample("Y").mean()
-    df.set_index(df.index.year, drop=True, inplace=True)
+    df = df.set_index(df.index.year, drop=True)
     return df.squeeze().to_dict()
 
 
@@ -267,7 +267,7 @@ def prepare_transmission_losses() -> pd.DataFrame:
     fp = paths.DATA_DIR / "worldbank/Data_Extract_From_World_Development_Indicators/Data.csv"
     df = pd.read_csv(fp, nrows=58, na_values="..", index_col=2)
     to_drop = ["Series Name", "Series Code", "Country Code"]
-    df.drop(to_drop, axis=1, inplace=True)
+    df = df.drop(to_drop, axis=1)
     df = df.rename(columns={k: k[:4] for k in df.keys()})
     df["mean"] = df.loc[:, "2010":"2014"].mean(1)
     return df

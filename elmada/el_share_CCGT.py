@@ -79,7 +79,7 @@ def get_ccgt_shares():
     df["source"] = df.apply(select_source, 1)
     df["selected"] = df.apply(get_selected, 1)
     # df.reindex(mp.COUNTRIES_FOR_ANALYSIS.keys())
-    df.sort_index(inplace=True)
+    df = df.sort_index()
     return df
 
 

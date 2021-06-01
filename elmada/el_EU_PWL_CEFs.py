@@ -86,7 +86,7 @@ def prepare_merit_order_for_plot(
     df = merit_order(year=year, country=country, **kwargs)
     df = df[["fuel_draf", "cumsum_capa", which]]
     df["cumsum_capa"] /= 1000  # convert from MW to GW
-    df.set_index("cumsum_capa", inplace=True, drop=True)
+    df = df.set_index("cumsum_capa", drop=True)
     fuels = list(df["fuel_draf"].unique())
     if split_across_columns:
         for f in fuels:
@@ -142,10 +142,9 @@ def merit_order(
     df["marginal_emissions"] = marginal_emissions_of_gen
     df["marginal_cost"] = df["fuel_cost"] + df["GHG_cost"]
 
-    df.sort_values("marginal_cost", inplace=True)
-    df.reset_index(drop=True, inplace=True)
+    df = df.sort_values("marginal_cost").reset_index(drop=True)
     df["cumsum_capa"] = df["capa"].cumsum()
-    df.dropna(inplace=True)
+    df = df.dropna()
     return df.copy()
 
 
@@ -176,7 +175,7 @@ def merit_order_per_fuel(
     df["fuel_cost"] = df["fuel_price"] / df["eff_mean"]
     df["GHG_cost"] = df["emissions_for_gen"] / df["eff_mean"]
     df["marginal_cost"] = df["fuel_cost"] + df["GHG_cost"]
-    df.sort_values("marginal_cost", inplace=True)
+    df = df.sort_values("marginal_cost")
     df["cumsum_capa"] = df["capa"].cumsum()
     return df.copy()
 

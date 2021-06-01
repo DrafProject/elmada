@@ -275,7 +275,7 @@ def downsample(
     else:
         raise RuntimeError(f"aggfunc {aggfunc} not valid")
 
-    df.reset_index(drop=True, inplace=True)
+    df = df.reset_index(drop=True)
 
     if isinstance(df, pd.Series) and isinstance(df.name, str):
         df.name = df.name.replace(start_freq, target_freq)
@@ -307,7 +307,7 @@ def upsample(
     if aggfunc == "sum":
         df /= convert_factor
 
-    df.reset_index(drop=True, inplace=True)
+    df = df.reset_index(drop=True)
     df = _append_rows(df, convert_factor=convert_factor)
 
     if isinstance(df, pd.Series) and isinstance(df.name, str):
@@ -380,21 +380,15 @@ def remove_outlier(
 
 
 def fill_outlier_and_nan(
-    df: Union[pd.Series, pd.DataFrame],
-    zscore_threshold: int = 3,
-    method: str = "linear",
-    inplace: bool = False,
+    df: Union[pd.Series, pd.DataFrame], zscore_threshold: int = 3, method: str = "linear",
 ) -> Union[pd.Series, pd.DataFrame]:
-    if not inplace:
-        df = df.copy()
 
     df = remove_outlier(df, zscore_threshold)
 
     if method is "linear":
-        df.interpolate(method="linear", inplace=True)
+        df = df.interpolate(method="linear")
     elif method == "fill":
-        df.fillna(method="bfill")
-        df.fillna(method="ffill")
+        df = df.fillna(method="bfill").fillna(method="ffill")
 
     return df
 

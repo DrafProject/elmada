@@ -150,8 +150,8 @@ def prep_dayahead_prices(
         df = pd.read_csv(
             fp_raw, sep=";", converters=converter, usecols=range(2, len(row1))
         )  # in [MWh]
-        df.reset_index(drop=True, inplace=True)
-        df.fillna(df.mean(), inplace=True)
+        df = df.reset_index(drop=True)
+        df = df.fillna(df.mean())
 
         # add a merged column
         df["DE_merged"] = 0

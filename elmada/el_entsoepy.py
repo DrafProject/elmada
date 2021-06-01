@@ -32,7 +32,7 @@ def prep_XEFs(year: int = 2019, freq: str = "60min", country: str = "DE") -> pd.
     ce_F = load_el_national_specific_emissions()[country]
     x = set(shares_TF.keys()) & set(ce_F.keys())
     ce_T = shares_TF[x] @ ce_F[x]
-    ce_T.fillna(ce_T.mean(), inplace=True)
+    ce_T = ce_T.fillna(ce_T.mean())
 
     hp.warn_if_incorrect_index_length(ce_T, year, freq)
     df = ce_T.rename("XEFs").to_frame()
@@ -430,7 +430,7 @@ def prep_dayahead_prices(
         ser = ser.reset_index(drop=True)
 
     if fillna:
-        ser.fillna(ser.mean(), inplace=True)
+        ser = ser.fillna(ser.mean())
 
     if fill_outlier:
         ser = hp.fill_outlier_and_nan(ser, zscore_threshold=50)
