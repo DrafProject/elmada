@@ -1,7 +1,8 @@
+from pathlib import Path
+
 from setuptools import find_packages, setup
 
-with open("README.md", "r") as fh:
-    long_description = fh.read().strip()
+long_description = Path("README.md").read_text().strip()
 
 
 # As proposed by Han Xiao in https://hanxiao.io/2019/11/07/A-Better-Practice-for-Managing-extras-require-Dependencies-in-Python
@@ -41,19 +42,17 @@ setup(
     license="LGPLv3",
     packages=find_packages(),
     python_requires=">=3.7",
-    install_require=["scipy", "entsoe-py", "requests", "bs4"],
+    install_requires=["scipy", "entsoe-py", "requests", "bs4"],
     extras_require=get_extra_requires("extra-requirements.txt"),
     classifiers=[
         "Intended Audience :: Science/Research",
         "Intended Audience :: Developers",
+        "Topic :: Scientific/Engineering",
         "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
         "Natural Language :: English",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Topic :: Scientific/Engineering",
+        "Programming Language :: Python :: 3 :: Only",
     ],
     keywords=["energy market data", "energy systems", "carbon emission factors", "demand response"],
 )

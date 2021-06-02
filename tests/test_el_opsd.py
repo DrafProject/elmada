@@ -2,8 +2,8 @@ import elmada
 import pandas as pd
 from elmada import el_opsd as od
 from elmada import helper as hp
-from pytest_mock import MockerFixture
 from elmada.mode import ConfigUtil
+from pytest_mock import MockerFixture
 
 
 def test_prep_CEFs():

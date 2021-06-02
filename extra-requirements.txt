@@ -3,6 +3,7 @@
 
 matplotlib: visualization
 seaborn: visualization
+plotly: visualization
 pytest: dev, test
 pytest-cov: dev, test
 pytest-mock: dev, test

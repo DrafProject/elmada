@@ -1,6 +1,7 @@
 import elmada
 import pandas as pd
 from elmada import geo_scraper as gs
+
 from .common.hasher import get_hash
 
 
@@ -23,5 +24,6 @@ def test_get_units_of_geo_list():
 
 
 def test_get_df_from_geo_id():
+    # NOTE: Requires internet connection
     df = gs.get_df_from_geo_id(45151)
     assert get_hash(df) == "f6be9a1b2b"
