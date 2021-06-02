@@ -249,53 +249,6 @@ def _query_generation_monthwise(client, year, country, tz) -> pd.DataFrame:
     return pd.concat(d.values(), sort=True)
 
 
-def load_el_national_load(
-    year: int = 2019,
-    freq: str = "15min",
-    country: str = "DE",
-    cache: bool = True,
-    ensure_std_index: bool = True,
-    resample: bool = True,
-) -> pd.Series:
-    assert year in range(2000, 2100), f"{year} is not a valid year"
-    assert freq in [None, "15min", "30min", "60min"], f"{freq} is not a valid freq"
-    assert country in mp.EUROPE_COUNTRIES or country in entsoe_mp.BIDDING_ZONES
-
-    fp = paths.CACHE_DIR / f"{year}_{country}_load_entsoe.h5"
-
-    if cache and fp.exists():
-        ser = pd.read_hdf(fp)
-
-    else:
-        if country == "DE" and year == 2018:
-            a = load_el_national_load(year=year, freq=freq, country="DE-AT-LU")
-            b = load_el_national_load(year=year, freq=freq, country="DE-LU")
-            idx = hp.make_datetimeindex(year=year, freq=freq, tz=a.index.tz)
-            ser = pd.concat([a, b], axis=1).mean(1)
-
-        else:
-            client = _get_client()
-            tz = get_timezone(country)
-            try:
-                start, end = _get_timestamps(year=year, tz=tz)
-                ser = client.query_load(start=start, end=end, country_code=country)
-            except entsoe.exceptions.NoMatchingDataError as e:
-                raise exceptions.NoDataError(
-                    f"Entsoe-client has no load-data found for {year, country}: {e}"
-                )
-
-        if cache:
-            hp.write_array(ser, fp)
-
-    if ensure_std_index:
-        idx = hp.make_datetimeindex(year, hp.estimate_freq(ser), tz=ser.index.tz)
-        ser = ser.reindex(idx).fillna(method="ffill").fillna(method="bfill").reset_index(drop=True)
-
-    if resample:
-        ser = hp.resample(ser, year=year, start_freq=hp.estimate_freq(ser), target_freq=freq)
-    return ser
-
-
 def prep_residual_load(
     year: int = 2019, freq: str = "15min", country: str = "DE", method: str = "all_conv",
 ) -> pd.Series:
@@ -465,6 +418,9 @@ def get_bidding_zone(country: str, year: int) -> str:
 def get_timezone(country: str) -> str:
     return entsoe_mp.TIMEZONE_MAPPINGS.get(country, "Europe/Brussels")
 
+###########################
+# DEPRECATED FUNCTIONS
+###########################
 
 # def load_imports(
 #     year: int = 2019,
@@ -594,3 +550,50 @@ def get_timezone(country: str) -> str:
 #     df = hp.resample(df, year=year, start_freq=hp.estimate_freq(df), target_freq=freq)
 
 #     return df
+
+
+# def load_el_national_load(
+#     year: int = 2019,
+#     freq: str = "15min",
+#     country: str = "DE",
+#     cache: bool = True,
+#     ensure_std_index: bool = True,
+#     resample: bool = True,
+# ) -> pd.Series:
+#     assert year in range(2000, 2100), f"{year} is not a valid year"
+#     assert freq in [None, "15min", "30min", "60min"], f"{freq} is not a valid freq"
+#     assert country in mp.EUROPE_COUNTRIES or country in entsoe_mp.BIDDING_ZONES
+
+#     fp = paths.CACHE_DIR / f"{year}_{country}_load_entsoe.h5"
+
+#     if cache and fp.exists():
+#         ser = pd.read_hdf(fp)
+
+#     else:
+#         if country == "DE" and year == 2018:
+#             a = load_el_national_load(year=year, freq=freq, country="DE-AT-LU")
+#             b = load_el_national_load(year=year, freq=freq, country="DE-LU")
+#             idx = hp.make_datetimeindex(year=year, freq=freq, tz=a.index.tz)
+#             ser = pd.concat([a, b], axis=1).mean(1)
+
+#         else:
+#             client = _get_client()
+#             tz = get_timezone(country)
+#             try:
+#                 start, end = _get_timestamps(year=year, tz=tz)
+#                 ser = client.query_load(start=start, end=end, country_code=country)
+#             except entsoe.exceptions.NoMatchingDataError as e:
+#                 raise exceptions.NoDataError(
+#                     f"Entsoe-client has no load-data found for {year, country}: {e}"
+#                 )
+
+#         if cache:
+#             hp.write_array(ser, fp)
+
+#     if ensure_std_index:
+#         idx = hp.make_datetimeindex(year, hp.estimate_freq(ser), tz=ser.index.tz)
+#         ser = ser.reindex(idx).fillna(method="ffill").fillna(method="bfill").reset_index(drop=True)
+
+#     if resample:
+#         ser = hp.resample(ser, year=year, start_freq=hp.estimate_freq(ser), target_freq=freq)
+#     return ser

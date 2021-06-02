@@ -111,12 +111,6 @@ def get_merit_order(year: int, country: str = "DE", method: str = "PP", **kwargs
         raise RuntimeError("`method` needs to be one of 'PP', 'PWL', 'PWLv'.")
 
 
-def get_el_national_load(
-    year: int, freq: str = "60min", country: str = "DE", **kwargs
-) -> pd.Series:
-    return elmada.el_entsoepy.load_el_national_load(year=year, freq=freq, country=country, **kwargs)
-
-
 def get_residual_load(year: int, freq: str = "60min", country: str = "DE", **kwargs) -> pd.Series:
     return elmada.el_entsoepy.prep_residual_load(year=year, freq=freq, country=country, **kwargs)
 

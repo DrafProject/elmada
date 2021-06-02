@@ -11,21 +11,22 @@ def make_and_check_hashes(which: str):
     assert current.equals(expected)
 
 
-def test_get_emissions_data():
+@pytest.mark.slow
+def test_emissions_data():
     make_and_check_hashes("CEF")
 
 
 def test_get_emissions(mocker):
     config = dict(year=2019, freq="60min", country="DE")
 
-    tl = [
+    methodtuples = [
         ("_EP", "elmada.el_entsoepy.prep_XEFs", config),
         ("_PP", "elmada.el_opsd.prep_CEFs", config),
         ("_PWL", "elmada.el_EU_PWL_CEFs.prep_CEFs", dict(**config, validation_mode=False)),
         ("_PWLv", "elmada.el_EU_PWL_CEFs.prep_CEFs", dict(**config, validation_mode=True)),
     ]
 
-    for (method, func, kwargs) in tl:
+    for (method, func, kwargs) in methodtuples:
         print(method, func, kwargs)
         mock = mocker.patch(func)
         elmada.get_emissions(**config, cache=False, method=method)
@@ -113,67 +114,16 @@ def test_get_merit_order(method, expected_keys):
     df.keys().equals(expected_keys)
 
 
-country_load_means = [
-    ("AT", 7201),
-    ("BE", 9697),
-    ("CZ", 7554),
-    ("DE", 56424),
-    ("DK", 3828),
-    ("ES", 28537),
-    ("FI", 9525),
-    ("FR", 53379),
-    ("GB", 34018),
-    ("GR", 5899),
-    ("HU", 4970),
-    ("IE", 3317),
-    ("IT", 33578),
-    ("LT", 1389),
-    ("NL", 12405),
-    ("PL", 19282),
-    ("PT", 5745),
-    ("RO", 6859),
-    ("RS", 4490),
-    ("SI", 1496),
-]
-
-
-@pytest.mark.parametrize("country,mean", country_load_means)
-def test_get_el_national_load(country, mean):
-    assert int(elmada.get_el_national_load(year=2019, country=country).mean()) == mean
-
-
-country_resi_means = [
-    ("AT", 1791),
-    ("BE", 8285),
-    ("CZ", 8143),
-    ("DE", 31805),
-    ("DK", 764),
-    ("ES", 17111),
-    ("FI", 4181),
-    ("FR", 49036),
-    ("GB", 20016),
-    ("GR", 3244),
-    ("HU", 3157),
-    ("IE", 1560),
-    ("IT", 18920),
-    ("LT", 131),
-    ("NL", 9014),
-    ("PL", 14572),
-    ("PT", 2804),
-    ("RO", 3934),
-    ("RS", 2786),
-    ("SI", 1154),
-]
-
-
-@pytest.mark.parametrize("country,mean", country_resi_means)
-def test_get_residual_load(country, mean):
-    assert int(elmada.get_residual_load(year=2019, country=country).mean()) == mean
-
-
 @pytest.mark.slow
 def test_get_el_national_generation():
     make_and_check_hashes("GEN")
+
+
+def test_get_residual_load(mocker):
+    config = dict(year=2019, freq="60min", country="DE")
+    mock = mocker.patch("elmada.el_entsoepy.prep_residual_load", return_value=True)
+    assert elmada.el_entsoepy.prep_residual_load(**config)
+    mock.assert_called_once_with(**config)
 
 
 def test_get_prices(mocker):

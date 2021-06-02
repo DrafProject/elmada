@@ -26,15 +26,12 @@ def make_symlink_to_cache(where: Optional[Path] = None):
     print(f"Symbolic link created: {link_dir} --> {cache_dir}")
 
 
-def delete_cache(filter_str: Optional[str] = None) -> None:
-    """Deletes parts or all of the cache."""
+def delete_cache(filter_str: str = "*") -> None:
+    """Deletes parts or all of the cache directory.
 
-    if filter_str is None:
-        filter_str = input("Please, give a string of the files you want to delete:")
-
-    if filter_str == "":
-        print("In order to to delete all, please type '*'.")
-        return None
+    Unless `filter_str` is '*' only files are selected that contain the `filter_string` somewhere
+    in the filename.
+    """
 
     if filter_str == "*":
         s = "*"
@@ -45,24 +42,27 @@ def delete_cache(filter_str: Optional[str] = None) -> None:
     files = list(paths.CACHE_DIR.glob(f"{s}"))
     lenf = len(files)
 
-    if lenf == 0 or filter_str == "":
-        print(f"No file found containing {filter_str}.")
+    if lenf == 0:
+        print(f"No file found containing '{filter_str}'.")
 
     else:
-        print(f"{lenf} files containing {filter_str}:")
+        print(f"{lenf} files containing '{filter_str}':")
 
         for f in files:
             size = sizeof_fmt(f.stat().st_size)
-            print("\t", size, f.name)
-        inp = input(f"Do you really want to delete these {lenf} files? (y/n)")
+            print(f"\t{size:>5}{f.name}")
 
-        if inp == "y":
+        if confirm_deletion(lenf):
             for f in files:
                 f.unlink()
             print(f"{lenf} files deleted")
 
         else:
-            print(f"No files deleted")
+            print("No files deleted")
+
+
+def confirm_deletion(nfiles: int) -> bool:
+    return input(f"Do you really want to delete these {nfiles} files? (y/n)") == "y"
 
 
 def print_error(series1: pd.Series, series2: pd.Series) -> None:
@@ -81,13 +81,16 @@ def add_row_for_steps(ser: pd.Series) -> pd.Series:
 def sizeof_fmt(num: float, suffix: str = "B") -> str:
     """Returns the short version of the storage size of e.g. digital information.
 
+    Example:
+        sizeof_fmt(5000) -> 5.0 KB
+
     Idea from https://stackoverflow.com/questions/1094841
     """
     for unit in ["", "K", "M", "G", "T", "P", "E", "Z"]:
         if abs(num) < 1000.0:
-            return f"{num:>5.1f} {unit}{suffix}"
+            return f"{num:.1f} {unit}{suffix}"
         num /= 1000.0
-    return f"{num:>5.1f} Y{suffix}"
+    return f"{num:.1f} Y{suffix}"
 
 
 def freq_to_hours(freq: str) -> float:
@@ -117,85 +120,15 @@ def is_correct_length(df: Union[pd.DataFrame, pd.Series], year: int, freq: str):
     return len_dt == len_inp
 
 
-def read_array(
-    fp: Path, col: int = 0, asType: str = "a", verbose: bool = False, **kwargs
-) -> Union[np.ndarray, pd.Series, pd.DataFrame]:
-    """Standardized way of reading arrays in the draf project.
-
-    Args:
-        fp: Filepath
-        col: Columns can be passed to usecols, file is a csv.
-        asType: Specifies the return data format. Must be one of
-            'a': numpy.ndarray
-            's': pandas.Series
-            'df': pandas.DataFrame
-        verbose: If true, tries to print further information of the data.
-        kwargs: Kwargs for HDF or CSV reader
-    """
-
-    assert asType in {"a", "s", "df"}
-    suffix = Path(fp).suffix
-
-    if suffix == ".h5":
-        data = pd.read_hdf(fp, key="default", **kwargs)
-
-    elif suffix == ".csv":
-        data = pd.read_csv(fp, usecols=[col], squeeze=True, **kwargs)
-
-    if verbose:
-        try:
-            print(f"name\t {data.name}\nsum\t  {data.sum():>.6f}")
-            print(data.describe())
-            data.plot()
-        except BaseException:
-            pass
-
-    if isinstance(data, pd.Series):
-        if asType == "a":
-            x = data.values
-
-        elif asType == "s":
-            x = data
-
-        elif asType == "df":
-            x = pd.DataFrame(data)
-
-    elif isinstance(data, pd.DataFrame):
-        if asType == "a":
-            x = data.values
-
-        elif asType == "s":
-            x = data.stack()
-
-        elif asType == "df":
-            x = pd.DataFrame(data)
-
-    elif isinstance(data, np.ndarray):
-        if asType == "a":
-            x = data
-
-        elif asType == "s":
-            x = data.stack()
-
-        elif asType == "df":
-            x = pd.DataFrame(data)
-    else:
-        raise RuntimeError(f"The data cannot be converted into the type {asType}")
-    return x
-
-
-def write_array(data: Union[np.ndarray, pd.Series, pd.DataFrame], fp: Path) -> None:
+def write_array(data: Union[pd.Series, pd.DataFrame], fp: Union[Path, str]) -> None:
     """Standardized way of writing arrays in draf.
 
     Args:
-        data: One of numpy.ndarray, pandas.Series, pandas.DataFrame.
+        data: Must be either pandas.Series or pandas.DataFrame.
         fp: Filepath of a .h5 or .csv file.
     """
 
     fp = Path(fp)
-
-    if isinstance(data, np.ndarray):
-        data = pd.Series(data, name="data")
 
     if fp.suffix == ".h5":
         data.to_hdf(fp, key="default", mode="w")

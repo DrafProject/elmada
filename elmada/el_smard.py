@@ -53,14 +53,14 @@ def load_el_national_generation(year):
 
 
 def load_el_national_load(
-    year: int, freq: str = "15min", country: str = "DE", cache: bool = True, filetype: str = "h5"
+    year: int, freq: str = "15min", country: str = "DE", cache: bool = True
 ) -> pd.Series:
 
     assert year in range(2000, 2100), f"{year} is not a valid year"
     assert freq in ["15min"], f"{freq} is not a valid freq"
     assert country == "DE", "smard provides data only for DE!"
 
-    fp = paths.CACHE_DIR / f"{year}_{freq}_{country}_load_smard.{filetype}"
+    fp = paths.CACHE_DIR / f"{year}_{freq}_{country}_load_smard.h5"
 
     if cache and fp.exists():
         ser = pd.read_hdf(fp)

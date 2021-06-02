@@ -15,7 +15,6 @@ from . import (
 
 from .main import (
     get_el_national_generation,
-    get_el_national_load,
     get_emissions,
     get_merit_order,
     get_prices,
