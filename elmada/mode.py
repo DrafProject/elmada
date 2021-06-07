@@ -1,5 +1,5 @@
 class ConfigUtil:
-    mode = "live"
+    mode = "safe"
 
 
 def set_mode(mode: str):
@@ -9,3 +9,7 @@ def set_mode(mode: str):
 
 def get_mode() -> str:
     return ConfigUtil.mode
+
+
+def is_safe_mode() -> bool:
+    return get_mode() == "safe"

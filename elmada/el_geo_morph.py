@@ -19,8 +19,7 @@ from elmada import paths
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARN)
 
-DB_DIR = paths.CACHE_DIR
-DB_FILE_FORMAT = "GEO-database.{filetype}"
+DB_FILE_NAME = Path("GEO-database.suffix")
 
 CC_WEIGHTING = {
     "Thermal and CCGT": 1,
@@ -60,45 +59,45 @@ NON_OPERATIONAL_STATUSES = [
 ]
 
 
-@lru_cache(maxsize=1)
-def get_installed_capacity(cache: bool = False) -> pd.DataFrame:
-    fp = paths.CACHE_DIR / "geo_installed_capacity.h5"
+# @lru_cache(maxsize=1)
+# def get_installed_capacity(cache: bool = False) -> pd.DataFrame:
+#     fp = paths.CACHE_DIR / "geo_installed_capacity.h5"
 
-    if cache and fp.exists():
-        df = pd.read_hdf(fp)
+#     if cache and fp.exists():
+#         df = pd.read_hdf(fp)
 
-    else:
-        df = get_geo_list()
-        df = df.groupby(["cy", "fuel"])["capa"].sum().unstack()
-        if cache:
-            hp.write_array(df, fp)
+#     else:
+#         df = get_geo_list()
+#         df = df.groupby(["cy", "fuel"])["capa"].sum().unstack()
+#         if cache:
+#             hp.write(df, fp)
 
-    df.index.name = None
-    df.columns.name = None
-    return df[mp.PWL_FUELS]
+#     df.index.name = None
+#     df.columns.name = None
+#     return df[mp.PWL_FUELS]
 
 
-@lru_cache(maxsize=1)
-def get_pp_sizes(replace_nans_by_mean: bool = True, cache: bool = False) -> pd.DataFrame:
-    fp = paths.CACHE_DIR / "ppsizes.h5"
+# @lru_cache(maxsize=1)
+# def get_pp_sizes(replace_nans_by_mean: bool = True, cache: bool = False) -> pd.DataFrame:
+#     fp = paths.CACHE_DIR / "ppsizes.h5"
 
-    if cache and fp.exists():
-        df = pd.read_hdf(fp)
+#     if cache and fp.exists():
+#         df = pd.read_hdf(fp)
 
-    else:
-        df = get_geo_list()
-        df = df.groupby(["cy", "fuel"])["capa"].mean().unstack()
-        if cache:
-            hp.write_array(df, fp)
+#     else:
+#         df = get_geo_list()
+#         df = df.groupby(["cy", "fuel"])["capa"].mean().unstack()
+#         if cache:
+#             hp.write(df, fp)
 
-    if replace_nans_by_mean:
-        logger.info(f"Filled nan's with the following mean values:\n{df.mean()}")
-        df = df.fillna(df.mean())
-        # these values where filled with mean:
-        # df = pd.DataFrame({cy:pwl.prep_installed_generation_capacity(country=cy) for cy in mp.COUNTRIES_FOR_ANALYSIS}).T
-        # df[(ge.get_pp_sizes().isna()) & (df>0)].stack()
+#     if replace_nans_by_mean:
+#         logger.info(f"Filled nan's with the following mean values:\n{df.mean()}")
+#         df = df.fillna(df.mean())
+#         # these values where filled with mean:
+#         # df = pd.DataFrame({cy:pwl.prep_installed_generation_capacity(country=cy) for cy in mp.COUNTRIES_FOR_ANALYSIS}).T
+#         # df[(ge.get_pp_sizes().isna()) & (df>0)].stack()
 
-    return df.astype("int")
+#     return df.astype("int")
 
 
 def get_ccgt_shares() -> pd.DataFrame:
@@ -176,50 +175,32 @@ def filter_relevant_plants(df: pd.DataFrame) -> pd.DataFrame:
 
 def get_geo_full_list(cache: bool = True) -> pd.DataFrame:
 
-    fp_h5 = paths.CACHE_DIR / DB_FILE_FORMAT.format(filetype="h5")
+    fp = paths.mode_dependent_cache_dir() / DB_FILE_NAME.with_suffix(".parquet")
 
-    if cache and fp_h5.exists():
-        df = pd.read_hdf(fp_h5)
+    if cache and fp.exists():
+        df = hp.read(fp)
 
     else:
-        fp_db = DB_DIR / DB_FILE_FORMAT.format(filetype="db")
+        fp_db = paths.CACHE_DIR / DB_FILE_NAME.with_suffix(".db")
 
         if not fp_db.exists():
-            download_database()
+            download_database(fp=fp_db)
 
         conn = sqlite3.connect(fp_db)
         df = pd.read_sql_query("SELECT * FROM powerplants", conn)
         conn.close()
         if cache:
-            hp.write_array(df, fp_h5)
+            hp.write(df, fp)
 
     return df
 
 
-def download_database() -> None:
+def download_database(fp: Path) -> None:
     url_base = "https://morph.io/coroa/global_energy_observatory_power_plants/"
-    morph_api_key = get_morph_api_key()
+    morph_api_key = hp.get_api_key("morph")
     url_ending = f"data.sqlite?key={morph_api_key}"
     url = url_base + url_ending
 
-    date_time = datetime.now().strftime("%Y-%m-%d")
-    fp = DB_DIR / DB_FILE_FORMAT.format(filetype="db")
-
     response = requests.get(url)
-
-    print(f"{fp.name} downloaded from GEO via Morph.")
-
-    with open(fp, "wb") as file:
-        file.write(response.content)
-
-
-def get_morph_api_key(fp: str = None):
-    """Get Morph API-key."""
-
-    fp = paths.KEYS_DIR / "morph.txt" if fp is None else Path(fp)
-
-    try:
-        return fp.read_text().strip()
-
-    except FileNotFoundError as e:
-        print("morph.txt file not found", e)
+    logger.info(f"{fp.name} downloaded from GEO via Morph.")
+    fp.write_bytes(response.content)

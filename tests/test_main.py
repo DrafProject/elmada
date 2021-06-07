@@ -2,19 +2,6 @@ import elmada
 import pandas as pd
 import pytest
 
-from .common import hasher
-
-
-def make_and_check_hashes(which: str):
-    current = hasher.make_hashes(which=which)
-    expected = hasher.read_expected_hashes(which=which)
-    assert current.equals(expected)
-
-
-@pytest.mark.slow
-def test_emissions_data():
-    make_and_check_hashes("CEF")
-
 
 def test_get_emissions(mocker):
     config = dict(year=2019, freq="60min", country="DE")
@@ -104,7 +91,6 @@ pwl_keys = pd.Index(
 )
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     "method,expected_keys", [("PP", pp_keys), ("PWL", pwl_keys), ("PWLv", pwl_keys)]
 )
@@ -112,11 +98,6 @@ def test_get_merit_order(method, expected_keys):
     df = elmada.get_merit_order(year=2019, country="DE", method=method)
     assert isinstance(df, pd.DataFrame)
     df.keys().equals(expected_keys)
-
-
-@pytest.mark.slow
-def test_get_el_national_generation():
-    make_and_check_hashes("GEN")
 
 
 def test_get_residual_load(mocker):

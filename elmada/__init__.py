@@ -11,6 +11,7 @@ from . import (
     geo_scraper,
     helper,
     paths,
+    plots,
 )
 
 from .main import (

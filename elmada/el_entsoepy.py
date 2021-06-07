@@ -1,5 +1,4 @@
 import logging
-from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Union
 
 import entsoe
@@ -20,6 +19,7 @@ logger.setLevel(level=logging.WARN)
 entsoe_mp.TIMEZONE_MAPPINGS["IT-NORD-AT"] = "Europe/Rome"
 entsoe_mp.TIMEZONE_MAPPINGS["IT-NORD-FR"] = "Europe/Rome"
 entsoe_mp.TIMEZONE_MAPPINGS["IT-GR"] = "Europe/Rome"
+####################################################
 
 
 def prep_XEFs(year: int = 2019, freq: str = "60min", country: str = "DE") -> pd.DataFrame:
@@ -40,22 +40,7 @@ def prep_XEFs(year: int = 2019, freq: str = "60min", country: str = "DE") -> pd.
 
 
 def _get_client() -> EntsoePandasClient:
-    return EntsoePandasClient(api_key=get_entsoe_api_key())
-
-
-def get_entsoe_api_key(fp: str = None) -> str:
-    """Get ENTSO-E API-key for the python package entsoe-py to access the ENTSO-E database."""
-
-    fp = paths.KEYS_DIR / "entsoe.txt" if fp is None else Path(fp)
-
-    try:
-        return fp.read_text().strip()
-    except FileNotFoundError as e:
-        raise RuntimeError("entsoe.txt file not found", e)
-
-
-def get_colors(iterable: Iterable) -> List:
-    return [mp.TECH_COLORS[i] for i in iterable]
+    return EntsoePandasClient(api_key=hp.get_api_key("entsoe"))
 
 
 def _get_timestamps(year: int, tz: str) -> Tuple:
@@ -85,18 +70,14 @@ def load_installed_generation_capacity(
         df = pd.read_hdf(fp)
     else:
         try:
-            client = _get_client()
-            tz = get_timezone(country)
-            start, end = _get_timestamps(year=year, tz=tz)
-            df = client.query_installed_generation_capacity(
-                start=start, end=end, country_code=country, psr_type=None
-            )
+            df = _query_installed_generation_capacity(year, country)
+
             if df.empty:
                 logger.warning(f"{warning}: Entsoe returned an empty dataframe.")
                 return _get_empty_installed_generation_capacity_df(ensure_std_techs)
 
             if cache:
-                hp.write_array(df, fp)
+                hp.write(df, fp)
 
         except (entsoe.exceptions.NoMatchingDataError, KeyError) as e:
             logger.error(f"{e}: {warning}")
@@ -105,6 +86,16 @@ def load_installed_generation_capacity(
     if ensure_std_techs:
         df = aggregate_to_standard_techs(df)
 
+    return df
+
+
+def _query_installed_generation_capacity(year, country) -> pd.DataFrame:
+    client = _get_client()
+    tz = get_timezone(country)
+    start, end = _get_timestamps(year=year, tz=tz)
+    df = client.query_installed_generation_capacity(
+        start=start, end=end, country_code=country, psr_type=None
+    )
     return df
 
 
@@ -141,31 +132,18 @@ def load_el_national_generation(
 
     assert year in range(2000, 2100), f"{year} is not a valid year"
     assert freq in [None, "15min", "30min", "60min"], f"{freq} is not a valid frequency"
-    # assert country in mp.EUROPE_COUNTRIES
+    assert country in mp.EUROPE_COUNTRIES
 
-    fp = paths.CACHE_DIR / f"{year}_{country}_gen_entsoe.h5"
+    fp = paths.mode_dependent_cache_dir(year) / f"{year}_{country}_gen_entsoe.parquet"
 
     if cache and fp.exists():
-        df = pd.read_hdf(fp)
+        df = hp.read(fp)
 
     else:
-        client = _get_client()
-        tz = get_timezone(country)
+        df = _query_generation(year, country, split_queries)
 
-        if split_queries:
-            df = _query_generation_monthwise(client, year, country, tz)
-        else:
-            try:
-                start, end = _get_timestamps(year=year, tz=tz)
-                df = client.query_generation(start=start, end=end, country_code=country)
-            except (entsoe.exceptions.NoMatchingDataError, KeyError) as e:
-                err_message = (
-                    f"{e}: entsoe-client has no geneneration data found for {year, country}"
-                )
-                logger.error(err_message)
-                raise exceptions.NoDataError(err_message)
         if cache:
-            hp.write_array(df, fp)
+            hp.write(df, fp)
 
     data_freq = hp.estimate_freq(df)
 
@@ -191,6 +169,27 @@ def load_el_national_generation(
     if resample:
         df = hp.resample(df, year=year, start_freq=data_freq, target_freq=freq)
 
+    return df
+
+
+def _query_generation(year, country, split_queries) -> pd.DataFrame:
+    client = _get_client()
+    tz = get_timezone(country)
+    if split_queries:
+        df = _query_generation_monthly(year, country, client, tz)
+    else:
+        df = _query_generation_yearly(year, country, client, tz)
+    return df
+
+
+def _query_generation_yearly(year, country, client, tz) -> pd.DataFrame:
+    try:
+        start, end = _get_timestamps(year=year, tz=tz)
+        df = client.query_generation(start=start, end=end, country_code=country)
+    except (entsoe.exceptions.NoMatchingDataError, KeyError) as e:
+        err_message = f"{e}: entsoe-client has no geneneration data found for {year, country}"
+        logger.error(err_message)
+        raise exceptions.NoDataError(err_message)
     return df
 
 
@@ -223,30 +222,31 @@ def fill_special_missing_data_points_for_gen(
     return df
 
 
-def _query_generation_monthwise(client, year, country, tz) -> pd.DataFrame:
+def _query_generation_monthly(year, country, client, tz) -> pd.DataFrame:
     logger.warning(f"Querying generation data from entsoe for {country}: this may take minutes.")
     logger.info(f"Loading 12 month of electrcity generation individually:")
 
     d = {}
     for month in range(1, 13):
 
-        if month < 12:
-            start = pd.Timestamp(year=year, month=month, day=1, tz=tz)
-            end = pd.Timestamp(year=year, month=month + 1, day=1, tz=tz)
-
-        else:
-            start = pd.Timestamp(year=year, month=month, day=1, tz=tz)
-            end = pd.Timestamp(year=year + 1, month=1, day=1, tz=tz)
-
-        logger.warning(f"loading month {month} / 12")
+        start, end = _get_timestamps_for_month(year, tz, month)
 
         try:
+            logger.warning(f"Loading month {month} / 12")
             d[month] = client.query_generation(start=start, end=end, country_code=country)
         except (entsoe.exceptions.NoMatchingDataError, KeyError) as e:
             raise exceptions.NoDataError(
                 f"Entsoe-client has no geneneration data found for {year, country}: {e}"
             )
     return pd.concat(d.values(), sort=True)
+
+
+def _get_timestamps_for_month(year, tz, month):
+    start = pd.Timestamp(year=year, month=month, day=1, tz=tz)
+    _year = year if month < 12 else year + 1
+    _month = month + 1 if month < 12 else 1
+    end = pd.Timestamp(year=_year, month=_month, day=1, tz=tz)
+    return start, end
 
 
 def prep_residual_load(
@@ -268,7 +268,7 @@ def prep_residual_load(
     #     return load - imports + exports - res_ser
 
     else:
-        raise RuntimeError(f"Method {method} not implemented.")
+        raise ValueError(f"Method {method} not implemented.")
 
 
 def get_subset_of(df, subset: Union[List, Set]) -> Tuple[pd.Series, Set]:
@@ -355,27 +355,18 @@ def prep_dayahead_prices(
     assert year in range(2000, 2100), f"{year} is not a valid year"
     assert country in entsoe_mp.BIDDING_ZONES
 
-    fp = paths.CACHE_DIR / f"{year}_{freq}_{country}_dayahead_c_el_entsoe.h5"
+    fp = paths.CACHE_DIR / f"{year}_{freq}_{country}_dayahead_c_el_entsoe.parquet"
 
     bidding_zone = get_bidding_zone(country, year)
 
     if cache and fp.exists():
-        ser = pd.read_hdf(fp)
+        ser = hp.read(fp)
 
     else:
-        client = _get_client()
-        tz = get_timezone(bidding_zone)
+        ser = _query_day_ahead_prices(year, bidding_zone)
 
-        try:
-            start, end = _get_timestamps(year=year, tz=tz)
-            ser = client.query_day_ahead_prices(start=start, end=end, country_code=bidding_zone)
-            if cache:
-                hp.write_array(ser, fp)
-
-        except entsoe.exceptions.NoMatchingDataError as e:
-            raise exceptions.NoDataError(
-                f"Entsoe-client has no price-data found for {year, bidding_zone}: {e}"
-            )
+        if cache:
+            hp.write(ser, fp)
 
     if ensure_std_index:
         idx = hp.make_datetimeindex(year, hp.estimate_freq(ser), tz=ser.index.tz)
@@ -392,6 +383,19 @@ def prep_dayahead_prices(
         ser = hp.resample(ser, year=year, start_freq=hp.estimate_freq(ser), target_freq=freq)
 
     hp.warn_if_incorrect_index_length(ser, year, freq)
+    return ser
+
+
+def _query_day_ahead_prices(year, bidding_zone) -> pd.Series:
+    client = _get_client()
+    tz = get_timezone(bidding_zone)
+    try:
+        start, end = _get_timestamps(year=year, tz=tz)
+        ser = client.query_day_ahead_prices(start=start, end=end, country_code=bidding_zone)
+    except entsoe.exceptions.NoMatchingDataError as e:
+        raise exceptions.NoDataError(
+            f"Entsoe-client has no price-data found for {year, bidding_zone}: {e}"
+        )
     return ser
 
 
@@ -418,9 +422,10 @@ def get_bidding_zone(country: str, year: int) -> str:
 def get_timezone(country: str) -> str:
     return entsoe_mp.TIMEZONE_MAPPINGS.get(country, "Europe/Brussels")
 
-###########################
-# DEPRECATED FUNCTIONS
-###########################
+
+#############################
+# CURRENTLY UNUSED FUNCTIONS
+#############################
 
 # def load_imports(
 #     year: int = 2019,
@@ -458,7 +463,7 @@ def get_timezone(country: str) -> str:
 #         start, end = _get_timestamps(year=year, tz=tz)
 #         df = client.query_import(start=start, end=end, country_code=bidding_zone)
 #         if cache:
-#             hp.write_array(df, fp)
+#             hp.write(df, fp)
 
 #     if ensure_std_index:
 #         idx = hp.make_datetimeindex(year, hp.estimate_freq(df), tz=df.index.tz)
@@ -493,7 +498,7 @@ def get_timezone(country: str) -> str:
 
 #         ser = client.query_crossborder_flows(country_from, country_to, start=start, end=end)
 #         if cache:
-#             hp.write_array(ser, fp)
+#             hp.write(ser, fp)
 
 #     # if ensure_std_index:
 #     #     idx = hp.make_datetimeindex(year, hp.estimate_freq(ser), tz=ser.index.tz)
@@ -541,7 +546,7 @@ def get_timezone(country: str) -> str:
 
 #         df = pd.concat(export_dic, axis=1)
 #         if cache:
-#             hp.write_array(df, fp)
+#             hp.write(df, fp)
 
 #     if ensure_std_index:
 #         idx = hp.make_datetimeindex(year, hp.estimate_freq(df), tz=df.index.tz)
@@ -588,7 +593,7 @@ def get_timezone(country: str) -> str:
 #                 )
 
 #         if cache:
-#             hp.write_array(ser, fp)
+#             hp.write(ser, fp)
 
 #     if ensure_std_index:
 #         idx = hp.make_datetimeindex(year, hp.estimate_freq(ser), tz=ser.index.tz)

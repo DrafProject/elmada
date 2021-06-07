@@ -1,10 +1,13 @@
-import collections
-
 """Various mappings including countries, fuel types, colors.
 
 ISO 3166-1 alpha-2 country codes are used, see https://en.wikipedia.org/wiki/ISO_3166-1
-"""
+
 # TODO: there is a python module for ISO 3166-1, see https://github.com/deactivated/python-iso3166
+
+"""
+
+import collections
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Union
 
 
 # EU 27
@@ -113,7 +116,7 @@ EUROPE_COUNTRIES_LONG_TO_SHORT = {long: short for short, long in EUROPE_COUNTRIE
 d = {k: v for k, v in EUROPE_COUNTRIES.items() if k not in EXCLUDED}
 COUNTRIES_FOR_ANALYSIS = collections.OrderedDict(sorted(d.items()))
 
-#
+# Modified entsoe-py mapping to match whole countries
 NEIGHBOURS_CY = {
     "AT": ["CH", "CZ", "DE", "HU", "IT", "SI"],
     "BA": ["HR", "ME", "RS"],
@@ -273,3 +276,8 @@ RES2 = [f for f in DRAF_FUELS if f not in CONV2]
 
 # Fuels for simplified merit oder simulation
 PWL_FUELS = ["nuclear", "lignite", "coal", "gas_cc", "gas", "oil"]
+
+
+def get_tech_colors(technologies: Iterable[str]) -> List[str]:
+    """Returns list of colours for given list of technologies."""
+    return [TECH_COLORS[i] for i in technologies]

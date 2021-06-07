@@ -66,7 +66,7 @@ def get_emissions(
             year=year, freq=freq, country=country, method=last_method_part, **mo_kwargs
         )
         if cache:
-            hp.write_array(df, fp)
+            hp.write(df, fp)
 
     if additional_info:
         return df
@@ -84,15 +84,15 @@ def _make_emissions(year, freq, country, method, **mo_kwargs) -> pd.DataFrame:
 
     if method == "EP":
         return elmada.el_entsoepy.prep_XEFs(**config)
-    elif method == "SM":
-        return elmada.el_smard.prep_XEFs(**config)
+    # elif method == "SM":
+    #     return elmada.el_smard.prep_XEFs(**config)
     elif method == "PP":
         return elmada.el_opsd.prep_CEFs(**config, **mo_kwargs)
     elif method in ["PWL", "PWLv"]:
         is_vmode = bool(method == "PWLv")
         return elmada.el_EU_PWL_CEFs.prep_CEFs(validation_mode=is_vmode, **config, **mo_kwargs)
     else:
-        raise RuntimeError(f"Method {method} not implemented.")
+        raise ValueError(f"Method {method} not implemented.")
 
 
 def get_merit_order(year: int, country: str = "DE", method: str = "PP", **kwargs) -> pd.DataFrame:
@@ -108,7 +108,7 @@ def get_merit_order(year: int, country: str = "DE", method: str = "PP", **kwargs
             year=year, country=country, validation_mode=True, **kwargs
         )
     else:
-        raise RuntimeError("`method` needs to be one of 'PP', 'PWL', 'PWLv'.")
+        raise ValueError("`method` needs to be one of ['PP', 'PWL', 'PWLv'].")
 
 
 def get_residual_load(year: int, freq: str = "60min", country: str = "DE", **kwargs) -> pd.Series:
@@ -168,4 +168,4 @@ def get_prices(
         df = get_emissions(method=f"_{method}", **config, **mo_kwargs)
         return df["marginal_cost"]
     else:
-        logger.error(f"method {method} not implemented.")
+        raise ValueError(f"Method '{method}' not implemented.")

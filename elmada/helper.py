@@ -5,22 +5,22 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 import numpy as np
+from numpy.core.fromnumeric import squeeze
 import pandas as pd
 from elmada import paths
 
-# from scipy import stats
-
 logger = logging.getLogger(__name__)
-logger.setLevel(level=logging.CRITICAL)
+logger.setLevel(level=logging.WARN)
+
+DEFAULT_HEADER = "DEFAULT_HEADER"
 
 
-def make_symlink_to_cache(where: Optional[Path] = None):
-    """Creates a symbolic link to the cache directory for easy access."""
+def make_symlink_to_cache():
+    """Creates a symbolic link to the cache directory for easy access.
 
-    parent_dir_for_link = paths.BASE_DIR if where is None else Path(where)
-
-    link_dir = parent_dir_for_link / "cache"
-
+    Note: This function requires admin privileges.
+    """
+    link_dir = paths.BASE_DIR / "cache"
     cache_dir = paths.CACHE_DIR
     link_dir.symlink_to(target=cache_dir, target_is_directory=True)
     print(f"Symbolic link created: {link_dir} --> {cache_dir}")
@@ -33,11 +33,7 @@ def delete_cache(filter_str: str = "*") -> None:
     in the filename.
     """
 
-    if filter_str == "*":
-        s = "*"
-
-    else:
-        s = f"*{filter_str}*"
+    s = "*" if filter_str == "*" else f"*{filter_str}*"
 
     files = list(paths.CACHE_DIR.glob(f"{s}"))
     lenf = len(files)
@@ -120,24 +116,61 @@ def is_correct_length(df: Union[pd.DataFrame, pd.Series], year: int, freq: str):
     return len_dt == len_inp
 
 
-def write_array(data: Union[pd.Series, pd.DataFrame], fp: Union[Path, str]) -> None:
+def write(data: Union[pd.Series, pd.DataFrame], fp: Union[Path, str]) -> None:
     """Standardized way of writing arrays in draf.
 
     Args:
         data: Must be either pandas.Series or pandas.DataFrame.
-        fp: Filepath of a .h5 or .csv file.
+        fp: Filepath of a .parquet, .h5, or .csv file.
     """
 
     fp = Path(fp)
 
-    if fp.suffix == ".h5":
+    if fp.suffix == ".parquet":
+        if isinstance(data, pd.Series):
+            # NOTE: Parquet can only write dataframes, not series
+            if data.name is None:
+                data.name = DEFAULT_HEADER
+        pd.DataFrame(data).to_parquet(fp, index=True)
+    elif fp.suffix == ".h5":
         data.to_hdf(fp, key="default", mode="w")
-
     elif fp.suffix == ".csv":
-        data.to_csv(fp, header=True, index=False)
-
+        data.to_csv(fp, index=True)
     else:
-        raise RuntimeError(f"suffix {fp.suffix} not supported")
+        raise ValueError(f"Suffix {fp.suffix} not supported")
+
+
+def read(fp: Union[Path, str], squeeze: bool = True) -> Union[pd.Series, pd.DataFrame]:
+    """Standardized way of reading arrays in draf.
+
+    Args:
+        fp: Filepath of a .parquet, .h5, or .csv file.
+        squeeze: If DataFrames with one columns should be transformed into a series
+    """
+
+    fp = Path(fp)
+
+    if fp.suffix == ".parquet":
+        data = pd.read_parquet(fp)
+    elif fp.suffix == ".h5":
+        data = pd.read_hdf(fp)
+    elif fp.suffix == ".csv":
+        data = pd.read_csv(fp, index_col=0)
+    else:
+        raise ValueError(f"Suffix {fp.suffix} not supported")
+
+    if squeeze:
+        data = data.squeeze()
+
+        try:
+            if data.name == DEFAULT_HEADER:
+                data.name = None
+        except (AttributeError, ValueError):
+            # AttributeError raised if data is a DataFrame, except when also column 'name' exist,
+            # then a ValueError is raised
+            pass
+
+    return data
 
 
 def warn_if_incorrect_index_length(
@@ -206,7 +239,7 @@ def downsample(
     elif aggfunc == "mean":
         df = resampler.mean()
     else:
-        raise RuntimeError(f"aggfunc {aggfunc} not valid")
+        raise ValueError(f"Aggfunc '{aggfunc}' not valid")
 
     df = df.reset_index(drop=True)
 
@@ -259,7 +292,7 @@ def _append_rows(
     elif isinstance(df, pd.Series):
         addon_data = df.iloc[length - 1]
     else:
-        raise RuntimeError(f"unsupported type {type(df)}")
+        raise RuntimeError(f"Unsupported type {type(df)}")
 
     number_of_lines = int(convert_factor - 1)
     new_index = [length + i for i in range(number_of_lines)]
@@ -294,7 +327,6 @@ def remove_outlier(
     if isinstance(df, pd.DataFrame):
         for k in df:
             df[k] = remove_outlier(df[k], zscore_threshold)
-        # df[(np.abs(stats.zscore(df)) > zscore_threshold).any(axis=1)] = np.nan
 
     if isinstance(df, pd.Series):
         outliers = np.abs(z_score(df)) > zscore_threshold
@@ -307,7 +339,6 @@ def remove_outlier(
                 f"{outlier_share:.2%} (more than {outlier_treshold:.0%}) of the data were outliers"
             )
         logger.info(f"{n_outliers} datapoints where removed in {df.name}")
-        # df[(np.abs(stats.zscore(df)) > zscore_threshold)] = np.nan
 
     return df
 
@@ -343,3 +374,25 @@ def estimate_freq(data: Union[List, pd.Series, pd.DataFrame]) -> str:
 def int_from_freq(freq: str) -> int:
     """E.g. '15min' -> 15"""
     return int(freq[:2])
+
+
+def get_api_key(which: str = "entsoe"):
+    d = {
+        "entsoe": "ENTSO-E API key (see https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html )",
+        "morph": "Morph API key (see https://morph.io/documentation/api )",
+        "quandl": "Quandl API key (see https://docs.quandl.com/docs#section-authentication )",
+    }
+
+    fp = paths.KEYS_DIR / f"{which}.txt"
+
+    keys = list(d.keys())
+    assert which in d, f"`which` must be one of {keys}."
+
+    try:
+        return fp.read_text().strip()
+
+    except FileNotFoundError as e:
+        raise Exception(
+            f"`{which}.txt` file not found. "
+            f"Please get a valid {d[which]} and place it in `elmada/api_keys/{which}.txt`\n"
+        ) from e

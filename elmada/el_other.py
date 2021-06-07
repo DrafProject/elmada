@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARN)
 
 
-def get_ETS_price(year) -> float:
+def get_ETS_price(year: int) -> float:
     return get_ETS_prices()[year]
 
 
@@ -36,26 +36,25 @@ def get_ETS_prices() -> Dict:
         raise RuntimeError()
 
 
-def get_ice_eua_prices(cache=True) -> Dict:
+def get_ice_eua_prices(cache: bool = True) -> Dict:
     """Get EUA prices from ICE [1] via Quandl [2].
 
     Sources:
         [1] https://www.theice.com/
         [2] https://www.quandl.com/data/CHRIS/ICE_C1-ECX-EUA-Futures-Continuous-Contract-1-C1-Front-Month
     """
-    fp = paths.CACHE_DIR / "QUANDL_eua_prices.h5"
+    fp = paths.CACHE_DIR / "QUANDL_eua_prices.parquet"
 
     if cache and fp.exists():
-        ser = pd.read_hdf(fp)
+        ser = hp.read(fp)
     else:
         import quandl
 
-        quandl_api_key = paths.KEYS_DIR / "quandl.txt"
-        quandl.ApiConfig.api_key = quandl_api_key.read_text().strip()
+        quandl.ApiConfig.api_key = hp.get_api_key("quandl")
         df = quandl.get("CHRIS/ICE_C1")
         ser = df["Settle"].resample("y").mean().rename("Price")
         ser.index = ser.index.year
-        hp.write_array(ser, fp)
+        hp.write(ser, fp)
 
     return ser.to_dict()
 
@@ -74,7 +73,7 @@ def get_sandbag_eua_prices() -> Dict:
     return df.squeeze().to_dict()
 
 
-def _get_light_oil_conversion_factor(source=2):
+def _get_light_oil_conversion_factor(source: int = 2):
     """Get the calorific value for light oil in MWh/Hektoliter from different sources.
 
     Sources:
@@ -96,7 +95,7 @@ def _get_light_oil_conversion_factor(source=2):
         )
 
 
-def _get_light_oil_price(year=2019):
+def _get_light_oil_price(year: int = 2019):
     """Get light oil price in €/MWh.
 
     Source: StatistischeBundesamt.2020 (https://www.destatis.de/DE/Themen/Wirtschaft/Preise/Publikationen/Energiepreise/energiepreisentwicklung-pdf-5619001.html)
@@ -125,7 +124,7 @@ def _get_light_oil_price(year=2019):
     )
 
 
-def _get_lignite_price(year=2019, base_price=6.3) -> float:
+def _get_lignite_price(year: int = 2019, base_price: float = 6.3) -> float:
     """Get lignite price in €/MWh. Calculated as product of a destatis index and an baseprice for
     the year 2015.
 
@@ -143,7 +142,7 @@ def _get_lignite_price(year=2019, base_price=6.3) -> float:
     return df[year] * base_price / 100
 
 
-def _get_coal_price(year=2019, base_price=10.12) -> float:
+def _get_coal_price(year: int = 2019, base_price: float = 10.12) -> float:
     """Get coal price in €/MWh. Calculated as product of a destatis index and an baseprice for
     the year 2015.
 
@@ -161,7 +160,7 @@ def _get_coal_price(year=2019, base_price=10.12) -> float:
     return df[year] * base_price / 100
 
 
-def _get_gas_price(year=2019, country="DE") -> float:
+def _get_gas_price(year: int = 2019, country: str = "DE") -> float:
     """Get gas price in €/MWh. including excise taxes, without value-added tax.
     Data for most European countries in the years 2008 - 2019.
 
@@ -204,7 +203,7 @@ def _get_gas_price(year=2019, country="DE") -> float:
         return price
 
 
-def get_fuel_prices(year=2019, country="DE") -> Dict:
+def get_fuel_prices(year: int = 2019, country: str = "DE") -> Dict:
     """Get x_k: Fuel price [€ / MWh]
 
     Source:
@@ -276,22 +275,22 @@ def prepare_transmission_losses() -> pd.DataFrame:
 def get_transmission_efficiency_series(fillna: bool = True, cache: bool = True) -> pd.Series:
     """Returns a Series with transmission efficiencies and long country names in index."""
 
-    fp = paths.CACHE_DIR / "transmission_efficiencies.h5"
+    fp = paths.mode_dependent_cache_dir() / "transmission_efficiencies.parquet"
 
     if cache and fp.exists():
-        ser = pd.read_hdf(fp)
+        ser = hp.read(fp)
 
     else:
         df = prepare_transmission_losses()
         ser = df["mean"]
         if cache:
-            hp.write_array(ser, fp)
+            hp.write(ser, fp)
 
     if fillna:
         na_countries = list(ser[ser.isna()].index)
         filler = ser.mean()
         ser = ser.fillna(filler)
-        logger.warning(f"no data for transmission efficiency for {na_countries}")
+        logger.info(f"No data for transmission efficiency for {na_countries}")
 
     return 1 - (ser / 100)
 
@@ -306,5 +305,7 @@ def get_transmission_efficiency(country: str) -> float:
 
     except KeyError:
         default = ser.mean()
-        logger.warning(f"No transmission efficiency data for {country}. Mean(={default}) given.")
+        logger.warning(
+            f"No transmission efficiency data for {country}. European mean of {default} given."
+        )
         return default

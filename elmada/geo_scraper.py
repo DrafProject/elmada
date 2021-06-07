@@ -26,29 +26,15 @@ def get_pp_sizes() -> pd.DataFrame:
 
 
 def get_units_of_geo_list(cache: bool = True) -> pd.DataFrame:
-    fp = paths.CACHE_DIR / "units_of_geo_list.h5"
+    fp = paths.mode_dependent_cache_dir() / "units_of_geo_list.parquet"
 
     if fp.exists() and cache:
-        df = pd.read_hdf(fp)
+        df = hp.read(fp)
 
     else:
-        geo = gm.get_geo_list()
-        max_count = len(geo)
-        print(f"Download {max_count} items:", end="")
-        concat_list = []
-
-        for _, ser in geo.iterrows():
-            print(".", end="")
-            geo_id = ser["id"]
-            print(geo_id, end=", ")
-            df = get_df_from_geo_id(geo_id)
-            df["cy"] = ser["cy"]
-            df["fuel"] = ser["fuel"]
-            df["geoid"] = geo_id
-            concat_list.append(df)
-
-        df = pd.concat(concat_list)
-        hp.write_array(df, fp)
+        df = _query_geo_power_plant_data()
+        if cache:
+            hp.write(df, fp)
 
     df = df.rename(
         columns={
@@ -64,6 +50,24 @@ def get_units_of_geo_list(cache: bool = True) -> pd.DataFrame:
 
     df["capa"] = df["capa"].astype(float).astype(int)
     return df.reset_index(drop=True)
+
+
+def _query_geo_power_plant_data():
+    geo = gm.get_geo_list()
+    max_count = len(geo)
+    print(f"Download {max_count} items:", end="")
+    concat_list = []
+    for _, ser in geo.iterrows():
+        print(".", end="")
+        geo_id = ser["id"]
+        print(geo_id, end=", ")
+        df = get_df_from_geo_id(geo_id)
+        df["cy"] = ser["cy"]
+        df["fuel"] = ser["fuel"]
+        df["geoid"] = geo_id
+        concat_list.append(df)
+    df = pd.concat(concat_list)
+    return df
 
 
 def get_df_from_geo_id(geo_id: int) -> pd.DataFrame:

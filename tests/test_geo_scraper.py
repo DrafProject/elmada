@@ -16,11 +16,17 @@ def test_get_pp_sizes():
 
 
 def test_get_units_of_geo_list():
-    df = gs.get_units_of_geo_list()
+    df = gs.get_units_of_geo_list(cache=True)
     expected = pd.Index(
         ["cy", "fuel", "geoid", "capa", "eff", "commissioned", "unit_no"], dtype="object"
     )
     assert df.keys().equals(expected)
+
+
+def test__query_geo_power_plant_data(mocker):
+    mock = mocker.patch("elmada.geo_scraper.get_df_from_geo_id", return_value=pd.DataFrame())
+    gs._query_geo_power_plant_data()
+    mock.assert_called()
 
 
 def test_get_df_from_geo_id():

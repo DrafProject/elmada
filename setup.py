@@ -44,6 +44,7 @@ setup(
     python_requires=">=3.7",
     install_requires=["scipy", "entsoe-py", "requests", "bs4"],
     extras_require=get_extra_requires("extra-requirements.txt"),
+    include_package_data=True,
     classifiers=[
         "Intended Audience :: Science/Research",
         "Intended Audience :: Developers",

@@ -5,7 +5,7 @@
 
 # **el**ectricity **ma**rket **da**ta for the **d**emand **r**esponse **a**nalysis **f**ramework
 
-Elmada is part of the [Draf Project](https://github.com/DrafProject) but can be used as a standalone package. Elmada stands for **el**ectricity **ma**rket **da**ta and allows the approximation of up to quarterhourly carbon emission factors and the provision of historic wholesale prices for European national electricity grids.
+Elmada is part of the [Draf Project](https://github.com/DrafProject) but can be used as a standalone package. Elmada stands for **el**ectricity **ma**rket **da**ta and allows the calculation of temporally resolved carbon emission factors, namely grid mix emission factors (XEFs) and marginal emission factors (MEF), with different approximation methods. Additionally it provides data access to historic wholesale prices, fuel specific generation, and load for European national electricity grids.
 
 # Installation
 
@@ -17,7 +17,7 @@ The following code downloads the directory, creates a conda environment includin
 git clone https://github.com/DrafProject/elmada.git
 cd elmada
 
-# creates environment based on environment.yml and installs editable local version
+# creates environment based on environment.yml and installs an editable local Elmada version
 conda env create
 
 # activate draf environment
@@ -29,7 +29,7 @@ pytest
 
 ## Install only Elmada
 
-Alternatively you can only install Elmada
+Alternatively you can install pure Elmada:
 
 ```bash
 python -m pip install git+https://github.com/DrafProject/elmada.git
@@ -37,16 +37,19 @@ python -m pip install git+https://github.com/DrafProject/elmada.git
 
 # Data
 
-Data are cached to an OS-specific directory, see `elmada.paths.CACHE_DIR`. A symbolic link to it can be conveniently created by executing `elmada.helper.make_symlink_to_cache()`.
+Theoretically, all European countries are available, however only the following are tested:
 
 You can use Elmada in two modes which can be set with `elmada.set_mode(mode=<MODE>)`:
 
-* `mode="live"` (default):
-  * Up-to-date data are retrieved on-demand.
-  * Possible years are 2015 until present.
-* `mode="safe"`:
-  * Data from December 2020 are used which are used in the [paper](https://doi.org/10.1016/j.apenergy.2021.117040).
-  * Possible years are 2015 until 2020.
+* `mode="safe"` (default):
+  * Pre-cached data for 4 years and 20 countries are used. The data are described in the [paper](https://doi.org/10.1016/j.apenergy.2021.117040).
+  * The years are 2017 to 2020 and the countries AT, BE, CZ, DE, DK, ES, FI, FR, GB, GR, HU, IE, IT, LT, NL, PL, PT, RO, RS, SI.
+  * The data is available in the space-saving and quick-to-read [Parquet format](https://parquet.apache.org/) under [data/safe_cache](elmada/data/safe_cache).
+* `mode="live"`:
+  * Up-to-date data are retrieved on demand and are cached to an OS-specific directory, see `elmada.paths.CACHE_DIR`. A symbolic link to it can be conveniently created by executing `elmada.helper.make_symlink_to_cache()`.
+  * Available years are 2017 until present.
+  * Slow due to several API requests.
+  * Requires valid API keys of Entsoe, Morph, Quandl, see table below.
 
 | Description | Local data location | Source | Channel |
 |-|-|-|-|
@@ -55,19 +58,19 @@ You can use Elmada in two modes which can be set with `elmada.set_mode(mode=<MOD
 | Carbon prices (EUA)| <temp_dir> | [Sandbag](https://sandbag.org.uk/carbon-price-viewer/) / [ICE](https://www.theice.com/)| 🔌 on-demand-retrieval via [Quandl](https://www.quandl.com/) (requires valid [Quandl API key](https://docs.quandl.com/docs#section-authentication) in [elmada/api_keys](elmada/api_keys)`/quandl.txt`) |
 | (Average) fossil power plants sizes | <temp_dir> | [GEO](http://globalenergyobservatory.org/) | 🔌 on-demand-scraping via [BeautifulSoup4](https://pypi.org/project/beautifulsoup4/) |
 | German fossil power plant list with efficiencies | <temp_dir> | [OPSD](https://open-power-system-data.org/)  | 🔌 on-demand-download from [here](https://data.open-power-system-data.org/conventional_power_plants/latest/) |
-| Transmission & distribution losses | [data/worldbank](elmada/data/worldbank) | [Worldbank](https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS) | 💾 manual download from [here](https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS)  |
-| Fuel price trends | [data/destatis](elmada/data/destatis) | [DESTATIS](https://www.destatis.de/) | 💾 manual download from [here](https://www.destatis.de/DE/Themen/Wirtschaft/Preise/Publikationen/Energiepreise/energiepreisentwicklung-xlsx-5619001.xlsx?__blob=publicationFile) |
-| Fuel prices for 2015 | in code | [Konstantin.2017](https://doi.org/10.1007/978-3-662-49823-1) | 🔢 values |
-| Carbon emission intensities | in code ([data/tranberg](elmada/data/tranberg)) | [Quaschning](https://www.volker-quaschning.de/datserv/CO2-spez/index_e.ph) ([Tranberg.2019](https://doi.org/10.1016/j.esr.2019.100367)) | 🔢 values |
+| Transmission & distribution losses | [.../worldbank](elmada/data/raw/worldbank) | [Worldbank](https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS) | 💾 manual download from [here](https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS)  |
+| Fuel price trends | [.../destatis](elmada/data/raw/destatis) | [DESTATIS](https://www.destatis.de/) | 💾 manual download from [here](https://www.destatis.de/DE/Themen/Wirtschaft/Preise/Publikationen/Energiepreise/energiepreisentwicklung-xlsx-5619001.xlsx?__blob=publicationFile) |
+| Fuel prices for 2015 | in code | [Konstantin.2017](https://doi.org/10.1007/978-3-662-49823-1) | 🔢 hard-coded values |
+| Carbon emission intensities | in code ([.../tranberg](elmada/data/raw/tranberg)) | [Quaschning](https://www.volker-quaschning.de/datserv/CO2-spez/index_e.ph) ([Tranberg.2019](https://doi.org/10.1016/j.esr.2019.100367)) | 🔢 hard-coded values |
 
 # Citing Elmada
 
-If you use Elmada for academic work please cite this [open access paper](https://doi.org/10.1016/j.apenergy.2021.117040).
+If you use Elmada for academic work please consider citing [this open access paper](https://doi.org/10.1016/j.apenergy.2021.117040) published in Applied Energy in 2021.
 
 # License
 
 Copyright (c) 2021 Markus Fleschutz
 
-<https://www.gnu.org/licenses/lgpl-3.0.de.html>
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

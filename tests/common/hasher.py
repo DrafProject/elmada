@@ -28,14 +28,14 @@ def make_hashes(which) -> pd.Series:
 
     if which == "CEF":
         func = elmada.get_emissions
-        kwargs = dict(freq="60min", method="_PWL")
+        kwargs = dict(freq="60min", method="_PWL", cache=True)
 
     elif which == "GEN":
         func = elmada.get_el_national_generation
         kwargs = dict(freq="60min")
 
     else:
-        raise ValueError("which must be 'CEF' or 'GEN'.")
+        raise ValueError("`which` must be 'CEF' or 'GEN'.")
 
     return make_year_country_hashes(func=func, kwargs=kwargs)
 

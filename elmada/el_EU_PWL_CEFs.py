@@ -2,11 +2,9 @@ import logging
 from functools import lru_cache
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
-import matplotlib.pyplot as plt
 import pandas as pd
 
 from elmada import el_entsoepy as ep
-from elmada import el_geo_morph as gm
 from elmada import el_opsd as od
 from elmada import el_other as ot
 from elmada import el_share_CCGT as ccgt
@@ -14,86 +12,7 @@ from elmada import geo_scraper as gs
 from elmada import mappings as mp
 
 logger = logging.getLogger(__name__)
-logger.setLevel(level=logging.INFO)
-
-
-def plot_merit_order_plotly(year=2019, country="DE", mo_P=None, **kwargs):
-    import plotly.express as px
-
-    if mo_P is None:
-        mo_P = merit_order(year=year, country=country, **kwargs)
-    return px.area(
-        mo_P,
-        x="cumsum_capa",
-        y="marginal_cost",
-        color="fuel_draf",
-        color_discrete_map=mp.TECH_COLORS,
-    )
-
-
-def plot_merit_order_plt(year=2019, country="DE", variant=1, **kwargs):
-    plt.rcParams.update({"mathtext.default": "regular"})
-    fig, ax_left = plt.subplots(figsize=(7, 4))
-    ax_right = ax_left.twinx()
-
-    if variant == 1:
-        # TODO: Probem: Tilted area under line.
-        df = prepare_merit_order_for_plot(
-            year, country, which="marginal_cost", split_across_columns=True, **kwargs
-        )
-        colors = ep.get_colors(df)
-        df.plot(kind="area", ax=ax_left, linewidth=0, color=colors)
-
-    elif variant == 2:
-        # TODO: Area must be colored according to fuel. Legend
-        df = prepare_merit_order_for_plot(
-            year, country, which="marginal_cost", split_across_columns=False, **kwargs
-        )
-        df["marginal_cost"].plot(kind="area", ax=ax_left)
-
-    elif variant == 3:
-        # TODO: Problem: Gaps between the colored sections
-        df = prepare_merit_order_for_plot(
-            year, country, which="marginal_cost", split_across_columns=True, **kwargs
-        )
-        for f in df:
-            plt.fill_between(x=df.index, y1=df[f], step="post", interpolate=True, ax=ax_left)
-
-    plt.tight_layout()
-    ax_left.set_ylabel(r"Marginal cost $c_p^m$ [€ / $MWh_{el}$]")
-    ax_left.set_xlabel(r"Net power [GW]")
-    ax_left.set_ylim(0, 165)
-
-    df = prepare_merit_order_for_plot(
-        year, country, which="marginal_emissions", split_across_columns=False, **kwargs
-    )["marginal_emissions"]
-    df.plot(
-        drawstyle="steps-post",
-        ax=ax_right,
-        color="black",
-        legend=True,
-        linewidth=2,
-        label=r"Marg. emissions $\varepsilon_p$",
-    )
-    ax_right.set_ylim(0, 1.8)
-    ax_right.set_ylabel(r"Marginal emissions $\varepsilon_p$ [$t_{CO_{2}eq}$ / $MWh_{el}$]")
-    ax_right.set_ylim(bottom=0, top=None)
-
-
-def prepare_merit_order_for_plot(
-    year: int, country: str, which: str, split_across_columns=True, **kwargs
-) -> pd.DataFrame:
-    df = merit_order(year=year, country=country, **kwargs)
-    df = df[["fuel_draf", "cumsum_capa", which]]
-    df["cumsum_capa"] /= 1000  # convert from MW to GW
-    df = df.set_index("cumsum_capa", drop=True)
-    fuels = list(df["fuel_draf"].unique())
-    if split_across_columns:
-        for f in fuels:
-            df[f] = df.where(df["fuel_draf"] == f)[which]
-        return df[fuels]
-    else:
-        return df
+logger.setLevel(level=logging.WARN)
 
 
 def prep_prices(year=2019, freq="60min", country="DE", **kwargs) -> pd.Series:
@@ -181,7 +100,7 @@ def merit_order_per_fuel(
 
 
 @lru_cache(maxsize=2)
-def approximate_min_max_values(method="regr") -> Tuple[Dict, Dict]:
+def approximate_min_max_values(method="regr") -> Tuple[Dict, Dict, Dict, Dict]:
     """method = 'interp' or 'regr'"""
     mo = get_clean_merit_order_for_min_max_approximation(sort_by_fuel=True)
 
@@ -215,7 +134,7 @@ def approximate_min_max_values(method="regr") -> Tuple[Dict, Dict]:
             eff_max[fuel] = intercept + slope * cumsum_capa_LHS[fuel]
 
     else:
-        raise RuntimeError(f"Method must be either 'interp' or 'regr'. Given:'{method}'")
+        raise ValueError(f"Method must be either 'interp' or 'regr'. Given:'{method}'")
 
     return eff_min, eff_max, cumsum_capa_RHS, cumsum_capa_LHS
 
@@ -258,15 +177,15 @@ def prep_installed_generation_capacity(year=2019, country="DE", source="entsoe")
         ser.fillna(0, inplace=True)
         return ser
 
-    elif source == "opsd":
-        ser = od.get_installed_generation_capacity(year=year, country=country)
-        ser = pd.Series(index=mp.PWL_FUELS, data=ser)
-        ser.fillna(0, inplace=True)
-        ser = apply_share_cc_assumption(ser, country=country)
-        return ser
+    # elif source == "opsd":
+    #     ser = od.get_installed_generation_capacity(year=year, country=country)
+    #     ser = pd.Series(index=mp.PWL_FUELS, data=ser)
+    #     ser.fillna(0, inplace=True)
+    #     ser = apply_share_cc_assumption(ser, country=country)
+    #     return ser
 
     else:
-        raise RuntimeError("source must be either entsoe, opsd or power_plant_list")
+        raise ValueError("Source must be either 'entsoe' or 'power_plant_list'")
 
 
 def apply_share_cc_assumption(ser, country: str) -> pd.Series:
@@ -278,14 +197,11 @@ def apply_share_cc_assumption(ser, country: str) -> pd.Series:
     return ser
 
 
-def get_share_cc(country: str, share_cc_method: str = "cascade") -> float:
+def get_share_cc(country: str) -> float:
     try:
-        if share_cc_method == "cascade":
-            return ccgt.get_ccgt_shares().loc[country, "selected"]
-        else:
-            raise RuntimeError(f"invalid share_cc_method given: {share_cc_method}")
+        return ccgt.get_ccgt_shares_from_cascade().loc[country, "selected"]
     except KeyError:
-        logger.warning("unable to apply share_cc_method, German values returned")
+        logger.warning("Unable to apply cascade method, German values returned")
         return ccgt.get_ccgt_DE()
 
 
@@ -314,18 +230,18 @@ def discretize_merit_order_per_fuel(
 
 def get_pp_size(pp_size_method: str, country: str, fuel: str) -> int:
     try:
-        if pp_size_method == "from_Germany":
-            return get_pp_sizes_from_germany()[fuel]
-        elif pp_size_method == "from_geo":
-            return gm.get_pp_sizes().loc[country, fuel]
-        elif pp_size_method == "from_ccgt":
-            return ccgt.get_pp_sizes().loc[country, fuel]
-        elif pp_size_method == "geo_scraper":
+        if pp_size_method == "geo_scraper":
             return gs.get_pp_sizes_for_pwl().loc[country, fuel]
+        # elif pp_size_method == "from_Germany":
+        #     return get_pp_sizes_from_germany()[fuel]
+        # elif pp_size_method == "from_geo":
+        #     return gm.get_pp_sizes().loc[country, fuel]
+        # elif pp_size_method == "from_ccgt":
+        #     return ccgt.get_pp_sizes().loc[country, fuel]
         else:
-            raise RuntimeError(f"invalid pp_size_method given: {pp_size_method}")
+            raise ValueError(f"Invalid pp_size_method given: {pp_size_method}")
     except KeyError:
-        logger.warning("unable to apply pp-size, German values returned")
+        logger.warning("Unable to apply pp-size, German values returned")
         return get_pp_sizes_from_germany()[fuel]
 
 
