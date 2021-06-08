@@ -231,19 +231,14 @@ def get_current_active_power_plants(year=2019) -> pd.DataFrame:
 
 def read_opsd_powerplant_list(which: str = "DE") -> pd.DataFrame:
     assert which in ("DE", "EU"), f"`{which}` is no valid value for `which`."
-    mode = elmada.get_mode()
-    fps = {
-        "live": f"OPSD_conventional_power_plants_{which}.csv",
-        "safe": f"OPSD_conventional_power_plants_{which}[safe].csv",
-    }
 
-    fp = paths.CACHE_DIR / fps[mode]
+    fp = paths.mode_dependent_cache_dir() / f"OPSD_conventional_power_plants_{which}.csv"
 
     if not fp.exists():
         download_powerplant_list(which=which, fp=fp)
     df = pd.read_csv(fp)
 
-    if mode == "live":
+    if elmada.get_mode() == "live":
         df = df.rename(columns={"energy_source": "fuel", "country": "country_code"})
 
     return df
