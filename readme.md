@@ -5,7 +5,7 @@
 
 # **el**ectricity **ma**rket **da**ta for the **d**emand **r**esponse **a**nalysis **f**ramework
 
-Elmada is part of the [Draf Project](https://github.com/DrafProject) but can be used as a standalone package. Elmada stands for **el**ectricity **ma**rket **da**ta and allows the calculation of temporally resolved carbon emission factors, namely grid mix emission factors (XEFs) and marginal emission factors (MEF), with different approximation methods. Additionally it provides data access to historic wholesale prices, fuel specific generation, and load for European national electricity grids.
+Elmada is part of the [Draf Project](https://github.com/DrafProject) but can be used as a standalone package. Elmada stands for **el**ectricity **ma**rket **da**ta and allows the calculation of temporally resolved historic carbon emission factors for European countries with different approximation methods. Different methods for up to quarterhourly grid mix emission factors (XEFs) and marginal emission factors (MEF) are implemented. As a side product historic wholesale prices and fuel specific generation for European national electricity grids can be provdided.
 
 # Installation
 
@@ -29,15 +29,13 @@ pytest
 
 ## Install only Elmada
 
-Alternatively you can install pure Elmada:
+Alternatively, you can install only the Elmada module including the data:
 
 ```bash
 python -m pip install git+https://github.com/DrafProject/elmada.git
 ```
 
 # Data
-
-Theoretically, all European countries are available, however only the following are tested:
 
 You can use Elmada in two modes which can be set with `elmada.set_mode(mode=<MODE>)`:
 
