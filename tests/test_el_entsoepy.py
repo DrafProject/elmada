@@ -3,6 +3,7 @@ import pytest
 from elmada import el_entsoepy as ep
 from elmada import exceptions
 from elmada import mappings as mp
+from entsoe import EntsoePandasClient
 
 country_resi_means = [
     ("AT", 1791),
@@ -49,11 +50,13 @@ def test_prep_XEFs():
     assert isinstance(result, pd.DataFrame)
 
 
+@pytest.mark.apikey
 def test_load_installed_generation_capacity():
     result = ep.load_installed_generation_capacity(year=2019, country="DE", cache=False)
     assert isinstance(result, pd.DataFrame)
 
 
+@pytest.mark.apikey
 def test_prep_dayahead_prices():
     ep.prep_dayahead_prices(year=2019, freq="60min", country="DE")
 
@@ -87,12 +90,14 @@ def test_load_el_national_generation(mocker):
 
 
 def test_query_day_ahead_prices(mocker):
+    mocker.patch("elmada.el_entsoepy._get_client", return_value=EntsoePandasClient)
     mock = mocker.patch("entsoe.EntsoePandasClient.query_day_ahead_prices")
     ep._query_day_ahead_prices(2019, bidding_zone=ep.get_bidding_zone(country="DE", year=2019))
     mock.assert_called_once()
 
 
 def test__query_generation(mocker):
+    mocker.patch("elmada.el_entsoepy._get_client", return_value=EntsoePandasClient)
     mock = mocker.patch("entsoe.EntsoePandasClient.query_generation", return_value=pd.DataFrame())
     ep._query_generation(year=2019, country="DE", split_queries=False)
     mock.assert_called_once()

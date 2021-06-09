@@ -23,5 +23,5 @@ SAFE_CACHE_DIR = BASE_DIR / "data/safe_cache"
 
 
 def mode_dependent_cache_dir(year: Optional[int] = None):
-    is_safe_year = year in range(2017, 2021)
+    is_safe_year = year in range(2017, 2021) or year is None
     return SAFE_CACHE_DIR if (is_safe_mode() and is_safe_year) else CACHE_DIR

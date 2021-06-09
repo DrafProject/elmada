@@ -36,13 +36,16 @@ def test_prep_CEFs():
 
 
 def test_read_opsd_powerplant_list(mocker: MockerFixture):
-    mocker.patch.object(ConfigUtil, "mode", "safe")
-    assert elmada.get_mode() == "safe"
-    assert len(od.read_opsd_powerplant_list()) == 893
+    for mode in ["safe", "live"]:
 
-    mocker.patch.object(ConfigUtil, "mode", "live")
-    assert elmada.get_mode() == "live"
-    assert len(od.read_opsd_powerplant_list()) != 893
+        mocker.patch.object(ConfigUtil, "mode", mode)
+        assert elmada.get_mode() == mode
+        df = od.read_opsd_powerplant_list()
+        if mode == "safe":
+            assert len(df) == 893
+        else:
+            assert len(df) != 893
+        assert "fuel" in df
 
 
 def test_get_summary():

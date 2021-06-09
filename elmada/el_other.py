@@ -43,7 +43,7 @@ def get_ice_eua_prices(cache: bool = True) -> Dict:
         [1] https://www.theice.com/
         [2] https://www.quandl.com/data/CHRIS/ICE_C1-ECX-EUA-Futures-Continuous-Contract-1-C1-Front-Month
     """
-    fp = paths.CACHE_DIR / "QUANDL_eua_prices.parquet"
+    fp = paths.mode_dependent_cache_dir() / "QUANDL_eua_prices.parquet"
 
     if cache and fp.exists():
         ser = hp.read(fp)

@@ -63,17 +63,17 @@ def load_installed_generation_capacity(
     country.
     """
 
-    fp = paths.CACHE_DIR / f"{year}_{country}_installedGen_entsoe.h5"
+    fp = paths.mode_dependent_cache_dir() / f"{year}_{country}_installedGen_entsoe.parquet"
     warning = f"No installed generation capacity data available for {year}, {country}"
 
     if cache and fp.exists():
-        df = pd.read_hdf(fp)
+        df = hp.read(fp, squeeze=False)
     else:
         try:
             df = _query_installed_generation_capacity(year, country)
 
             if df.empty:
-                logger.warning(f"{warning}: Entsoe returned an empty dataframe.")
+                logger.warning(f"{warning}: ENTSO-E returned an empty dataframe.")
                 return _get_empty_installed_generation_capacity_df(ensure_std_techs)
 
             if cache:

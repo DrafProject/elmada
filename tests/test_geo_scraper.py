@@ -1,4 +1,3 @@
-import elmada
 import pandas as pd
 from elmada import geo_scraper as gs
 

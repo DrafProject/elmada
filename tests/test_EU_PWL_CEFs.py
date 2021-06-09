@@ -10,6 +10,7 @@ def test_prep_prices(mocker):
     mock.assert_called_once_with(year=2019, freq="60min", country="DE")
 
 
+@pytest.mark.needcache
 def test_prep_CEFs(mocker):
     mock = mocker.patch("elmada.el_opsd.get_CEFs_from_merit_order")
     pwl.prep_CEFs(year=2019, freq="60min", country="DE")

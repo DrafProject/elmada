@@ -320,7 +320,7 @@ def get_ccgt_AT():
 
     my_table = soup.find_all("table", {"class": "wikitable sortable"})[3]
 
-    headers = [cell.get_text() for cell in my_table.findAll("th")]
+    headers = [cell.get_text().rstrip("\n") for cell in my_table.findAll("th")]
     ncols = len(headers)
     rows = my_table.findAll("tr")
 
@@ -328,10 +328,13 @@ def get_ccgt_AT():
     for i, row in enumerate(rows):
         cells = row.find_all("td")
         if len(cells) == ncols:
-            df.loc[i, :] = [cell.get_text() for cell in cells]
+            df.loc[i, :] = [cell.get_text().rstrip("\n") for cell in cells]
 
-    replacings = {r"\[(.*?)\]": "", r"\n": "", ",": "."}
-    df = df.replace(to_replace=replacings, regex=True)
+    df = (
+        df.replace(r"\[(.*?)\]", "", regex=True)
+        .replace(r"\n", "", regex=True)
+        .replace(",", ".", regex=True)
+    )
     df.columns = [col.replace("\n", "") for col in df.columns]
     cap_col = "Leistung Elektrischin MWel"
     df[cap_col] = df[cap_col].astype("float")
@@ -375,8 +378,7 @@ def get_ccgt_IT():
         if len(cells) == ncols:
             df.loc[i, :] = [cell.get_text() for cell in cells]
 
-    replacings = {r"\[(.*?)\]": "", r"\n": ""}
-    df = df.replace(to_replace=replacings, regex=True)
+    df = df.replace(r"\[(.*?)\]", "", regex=True).replace(r"\n", "", regex=True)
     df.columns = [col.replace("\n", "") for col in df.columns]
 
     cap_col = "Inst. Leistung (MW)"
