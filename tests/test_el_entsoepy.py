@@ -2,7 +2,9 @@ import pandas as pd
 import pytest
 from elmada import el_entsoepy as ep
 from elmada import exceptions
+from elmada import helper as hp
 from elmada import mappings as mp
+from elmada import paths
 from entsoe import EntsoePandasClient
 
 country_resi_means = [
@@ -80,12 +82,14 @@ def test_get_renewable_generation():
     assert isinstance(result, pd.Series)
 
 
-@pytest.mark.slow
+@pytest.mark.apikey
 def test_load_el_national_generation(mocker):
-    mock = mocker.patch("entsoe.EntsoePandasClient.query_generation")
+    df = hp.read(paths.SAFE_CACHE_DIR / "2019_DE_gen_entsoe.parquet")
+    mock = mocker.patch("entsoe.EntsoePandasClient.query_generation", return_value=df)
     result = ep.load_el_national_generation(
         year=2019, country="DE", freq="15min", cache=False, split_queries=False
     )
+    mock.assert_called()
     assert isinstance(result, pd.DataFrame)
 
 
