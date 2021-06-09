@@ -1,4 +1,6 @@
-from .mode import get_mode, set_mode  # isort:skip
+from elmada._version import __version__
+
+from .mode import get_mode, set_mode
 
 from . import (
     el_entsoepy,

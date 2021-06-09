@@ -2,6 +2,8 @@ from pathlib import Path
 
 from setuptools import find_packages, setup
 
+exec(Path("elmada/_version.py").read_text().strip())  # Set the __version__ variable
+
 long_description = Path("README.md").read_text().strip()
 
 
@@ -32,7 +34,7 @@ def get_extra_requires(path, add_all=True):
 
 setup(
     name="elmada",
-    version="0.0.1",
+    version=__version__,
     author="Markus Fleschutz",
     author_email="mfleschutz@gmail.com",
     description="Electricity market data",
