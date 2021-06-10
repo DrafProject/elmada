@@ -9,8 +9,8 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from elmada import el_EU_PWL_CEFs as pwl
-from elmada import el_geo_morph as gm
+from elmada import eu_pwl
+from elmada import from_geo_via_morph
 from elmada import helper as hp
 from elmada import mappings as mp
 from elmada import paths
@@ -58,7 +58,7 @@ logger.setLevel(logging.WARN)
 def get_ccgt_shares_from_cascade():
     # geo = get_geo_shares_overview()["share_cc"].rename("geo")
     # rich_geo = get_rich_geo_shares_overview()["share_cc"].rename("rich_geo")
-    rich_geo = gm.get_ccgt_shares()["share_cc"].rename("rich_geo")
+    rich_geo = from_geo_via_morph.get_ccgt_shares()["share_cc"].rename("rich_geo")
     wiki = get_wiki_shares(cache=True).rename("manual")
     opsd = pd.Series({"DE": get_ccgt_DE()}).rename("opsd")
 
@@ -164,7 +164,9 @@ def get_ccgt_shares_from_cascade():
 
 
 def get_ccgt_DE() -> pd.Series:
-    ser = pwl.prep_installed_generation_capacity(year=2019, country="DE", source="power_plant_list")
+    ser = eu_pwl.prep_installed_generation_capacity(
+        year=2019, country="DE", source="power_plant_list"
+    )
     return ser["gas_cc"] / (ser["gas_cc"] + ser["gas"])
 
 
@@ -213,7 +215,10 @@ def get_valid_countries() -> collections.OrderedDict:
 
 
 def get_geo_list(
-    country_long: Optional[str] = None, filter: Optional[str] = None, fuel="gas", cache: bool = True
+    country_long: Optional[str] = None,
+    filter: Optional[str] = None,
+    fuel="gas",
+    cache: bool = True,
 ) -> pd.DataFrame:
     """possible conventional fuels are: gas, coal, nuclear, oil
     """
@@ -428,9 +433,9 @@ def get_ccgt_DK():
     geo_url = "http://globalenergyobservatory.org/"
     df = pd.DataFrame(
         [
-            ["HC Orsted CHP Power Plant Denmark", 185, True, geo_url + "form.php?pid=44235"],
-            ["Skaerbaek CHP Power Plant Denmark", 392, False, geo_url + "form.php?pid=44237"],
-            ["Svanemolle CHP Power Plant Denmark", 81, False, geo_url + "form.php?pid=44234"],
+            ["HC Orsted CHP Power Plant Denmark", 185, True, geo_url + "form.php?pid=44235",],
+            ["Skaerbaek CHP Power Plant Denmark", 392, False, geo_url + "form.php?pid=44237",],
+            ["Svanemolle CHP Power Plant Denmark", 81, False, geo_url + "form.php?pid=44234",],
         ],
         columns=["name", "capa", "is_ccgt", "source"],
     )

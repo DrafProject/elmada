@@ -83,14 +83,14 @@ def _make_emissions(year, freq, country, method, **mo_kwargs) -> pd.DataFrame:
     config = dict(year=year, freq=freq, country=country)
 
     if method == "EP":
-        return elmada.el_entsoepy.prep_XEFs(**config)
+        return elmada.from_entsoe.prep_XEFs(**config)
     # elif method == "SM":
-    #     return elmada.el_smard.prep_XEFs(**config)
+    #     return elmada.from_smard.prep_XEFs(**config)
     elif method == "PP":
-        return elmada.el_opsd.prep_CEFs(**config, **mo_kwargs)
+        return elmada.from_opsd.prep_CEFs(**config, **mo_kwargs)
     elif method in ["PWL", "PWLv"]:
         is_vmode = bool(method == "PWLv")
-        return elmada.el_EU_PWL_CEFs.prep_CEFs(validation_mode=is_vmode, **config, **mo_kwargs)
+        return elmada.eu_pwl.prep_CEFs(validation_mode=is_vmode, **config, **mo_kwargs)
     else:
         raise ValueError(f"Method {method} not implemented.")
 
@@ -98,25 +98,23 @@ def _make_emissions(year, freq, country, method, **mo_kwargs) -> pd.DataFrame:
 def get_merit_order(year: int, country: str = "DE", method: str = "PP", **kwargs) -> pd.DataFrame:
     if method == "PP":
         assert country == "DE", f"PP-method only works for Germany and not for {country}"
-        return elmada.el_opsd.merit_order(year=year, **kwargs)
+        return elmada.from_opsd.merit_order(year=year, **kwargs)
     elif method == "PWL":
-        return elmada.el_EU_PWL_CEFs.merit_order(
+        return elmada.eu_pwl.merit_order(
             year=year, country=country, validation_mode=False, **kwargs
         )
     elif method == "PWLv":
-        return elmada.el_EU_PWL_CEFs.merit_order(
-            year=year, country=country, validation_mode=True, **kwargs
-        )
+        return elmada.eu_pwl.merit_order(year=year, country=country, validation_mode=True, **kwargs)
     else:
         raise ValueError("`method` needs to be one of ['PP', 'PWL', 'PWLv'].")
 
 
 def get_residual_load(year: int, freq: str = "60min", country: str = "DE", **kwargs) -> pd.Series:
-    return elmada.el_entsoepy.prep_residual_load(year=year, freq=freq, country=country, **kwargs)
+    return elmada.from_entsoe.prep_residual_load(year=year, freq=freq, country=country, **kwargs)
 
 
 def get_el_national_generation(year: int, freq: str = "60min", country: str = "DE") -> pd.DataFrame:
-    return elmada.el_entsoepy.load_el_national_generation(year=year, freq=freq, country=country)
+    return elmada.from_entsoe.load_el_national_generation(year=year, freq=freq, country=country)
 
 
 def get_prices(
@@ -161,9 +159,9 @@ def get_prices(
     config = dict(year=year, freq=freq, country=country, cache=cache)
 
     if method == "hist_EP":
-        return elmada.el_entsoepy.prep_dayahead_prices(**config)
+        return elmada.from_entsoe.prep_dayahead_prices(**config)
     elif method == "hist_SM":
-        return elmada.el_smard.prep_dayahead_prices(**config)
+        return elmada.from_smard.prep_dayahead_prices(**config)
     elif method in ["PP", "PWL", "PWLv"]:
         df = get_emissions(method=f"_{method}", **config, **mo_kwargs)
         return df["marginal_cost"]

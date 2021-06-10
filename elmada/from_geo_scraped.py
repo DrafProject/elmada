@@ -5,7 +5,7 @@ from IPython.display import display
 
 from elmada import helper as hp
 from elmada import mappings as mp
-from elmada import el_geo_morph as gm
+from elmada import from_geo_via_morph
 from elmada import paths
 
 
@@ -53,7 +53,7 @@ def get_units_of_geo_list(cache: bool = True) -> pd.DataFrame:
 
 
 def _query_geo_power_plant_data():
-    geo = gm.get_geo_list()
+    geo = from_geo_via_morph.get_geo_list()
     max_count = len(geo)
     print(f"Download {max_count} items:", end="")
     concat_list = []

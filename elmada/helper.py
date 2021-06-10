@@ -208,7 +208,7 @@ def resample(
             func = downsample
 
         return func(
-            df=df, year=year, start_freq=start_freq, target_freq=target_freq, aggfunc=aggfunc
+            df=df, year=year, start_freq=start_freq, target_freq=target_freq, aggfunc=aggfunc,
         )
 
 

@@ -7,10 +7,10 @@ def test_get_emissions(mocker):
     config = dict(year=2019, freq="60min", country="DE")
 
     methodtuples = [
-        ("_EP", "elmada.el_entsoepy.prep_XEFs", config),
-        ("_PP", "elmada.el_opsd.prep_CEFs", config),
-        ("_PWL", "elmada.el_EU_PWL_CEFs.prep_CEFs", dict(**config, validation_mode=False)),
-        ("_PWLv", "elmada.el_EU_PWL_CEFs.prep_CEFs", dict(**config, validation_mode=True)),
+        ("_EP", "elmada.from_entsoe.prep_XEFs", config),
+        ("_PP", "elmada.from_opsd.prep_CEFs", config),
+        ("_PWL", "elmada.eu_pwl.prep_CEFs", dict(**config, validation_mode=False)),
+        ("_PWLv", "elmada.eu_pwl.prep_CEFs", dict(**config, validation_mode=True)),
     ]
 
     for (method, func, kwargs) in methodtuples:
@@ -102,18 +102,18 @@ def test_get_merit_order(method, expected_keys):
 
 def test_get_residual_load(mocker):
     config = dict(year=2019, freq="60min", country="DE")
-    mock = mocker.patch("elmada.el_entsoepy.prep_residual_load", return_value=True)
-    assert elmada.el_entsoepy.prep_residual_load(**config)
+    mock = mocker.patch("elmada.from_entsoe.prep_residual_load", return_value=True)
+    assert elmada.from_entsoe.prep_residual_load(**config)
     mock.assert_called_once_with(**config)
 
 
 def test_get_prices(mocker):
     config = dict(year=2019, freq="60min", country="DE", cache=True)
-    ep_mock = mocker.patch("elmada.el_entsoepy.prep_dayahead_prices", return_value=True)
+    ep_mock = mocker.patch("elmada.from_entsoe.prep_dayahead_prices", return_value=True)
     assert elmada.get_prices(**config, method="hist_EP")
     ep_mock.assert_called_once_with(**config)
 
-    sm_mock = mocker.patch("elmada.el_smard.prep_dayahead_prices", return_value=True)
+    sm_mock = mocker.patch("elmada.from_smard.prep_dayahead_prices", return_value=True)
     assert elmada.get_prices(**config, method="hist_SM")
     sm_mock.assert_called_once_with(**config)
 

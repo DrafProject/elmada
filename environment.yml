@@ -5,20 +5,21 @@ channels:
 dependencies:
   - appdirs
   - bs4
-  - entsoe-py=0.2
+  - entsoe-py =0.2
+  - fastparquet
   - ipython
   - lxml
   - matplotlib
+  # - notebook
   - numpy
   - pandas
+  - pip
   - pytables
-  - python=3.7
+  - python >=3.7
   - quandl
   - requests
-  - fastparquet
   - scipy
   - seaborn
   - xlrd
-  - pip
   - pip:
     - '--editable=.[all]' # installs an editable version of elmada including feature dependencies

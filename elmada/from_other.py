@@ -54,7 +54,8 @@ def get_ice_eua_prices(cache: bool = True) -> Dict:
         df = quandl.get("CHRIS/ICE_C1")
         ser = df["Settle"].resample("y").mean().rename("Price")
         ser.index = ser.index.year
-        hp.write(ser, fp)
+        if cache:
+            hp.write(ser, fp)
 
     return ser.to_dict()
 
@@ -63,10 +64,12 @@ def get_sandbag_eua_prices() -> Dict:
     """Get ETS EUA prices via Sandbag"""
     fp = paths.DATA_DIR / "sandbag/eua-price.csv"
 
-    # fix bad csv-syntax
+    # # fix bad csv-syntax
     s = fp.read_text(encoding="utf8").replace('",', '";')
 
-    df = pd.read_csv(StringIO(s), sep=";", decimal=",", index_col=0, comment="#")
+    io = StringIO(s)
+    df = pd.read_csv(io, sep=";", decimal=",", index_col=0, skiprows=2)
+
     df.index = pd.to_datetime(df.index)
     df = df.resample("Y").mean()
     df = df.set_index(df.index.year, drop=True)
@@ -264,9 +267,7 @@ def prepare_transmission_losses() -> pd.DataFrame:
     """Source: WorldBank.2020 (https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS)
     """
     fp = paths.DATA_DIR / "worldbank/Data_Extract_From_World_Development_Indicators/Data.csv"
-    df = pd.read_csv(fp, nrows=58, na_values="..", index_col=2)
-    to_drop = ["Series Name", "Series Code", "Country Code"]
-    df = df.drop(to_drop, axis=1)
+    df = pd.read_csv(fp, nrows=58, na_values="..", index_col=2).iloc[:, 3:]
     df = df.rename(columns={k: k[:4] for k in df.keys()})
     df["mean"] = df.loc[:, "2010":"2014"].mean(1)
     return df

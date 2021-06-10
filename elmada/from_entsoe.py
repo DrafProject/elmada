@@ -57,7 +57,7 @@ def _get_empty_installed_generation_capacity_df(ensure_std_techs: bool) -> pd.Da
 
 
 def load_installed_generation_capacity(
-    year: int = 2019, country: str = "DE", cache: bool = True, ensure_std_techs: bool = False
+    year: int = 2019, country: str = "DE", cache: bool = True, ensure_std_techs: bool = False,
 ) -> pd.DataFrame:
     """Returns a dataframe with installed generation capacity fuel type dependent on year and
     country.
@@ -304,7 +304,7 @@ def load_el_national_specific_emissions() -> pd.DataFrame:
     [1]: Tranberg.2019 (https://doi.org/10.1016/j.esr.2019.100367)
     """
     fp = paths.DATA_DIR / f"tranberg/specific_emission_factors.csv"
-    df = pd.read_csv(fp, header=0, index_col=0, comment="#").T
+    df = pd.read_csv(fp, header=0, index_col=0, skiprows=3).T
     return pd.DataFrame(
         {
             "wind_offshore": df["wind"],
@@ -415,7 +415,13 @@ def get_bidding_zone(country: str, year: int) -> str:
         else:
             country = "DE-AT-LU"
 
-    country_to_bidding = {"NO": "NO-1", "DK": "DK-2", "IT": "IT-NORD", "SE": "SE-1", "IE": "IE-SEM"}
+    country_to_bidding = {
+        "NO": "NO-1",
+        "DK": "DK-2",
+        "IT": "IT-NORD",
+        "SE": "SE-1",
+        "IE": "IE-SEM",
+    }
     return country_to_bidding.get(country, country)
 
 

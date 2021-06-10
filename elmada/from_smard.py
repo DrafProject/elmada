@@ -3,7 +3,7 @@ import logging
 
 import pandas as pd
 
-from elmada import el_entsoepy as ep
+from elmada import from_entsoe
 from elmada import helper as hp
 from elmada import paths
 
@@ -94,7 +94,7 @@ logger.setLevel(level=logging.WARN)
 
 #     gen = load_el_national_generation(year=year)
 
-#     specific_emissions = ep.load_el_national_specific_emissions()
+#     specific_emissions = from_entsoe.load_el_national_specific_emissions()
 
 #     shares = gen.copy()
 #     gen["sum"] = gen.sum(axis=1)

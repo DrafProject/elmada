@@ -4,11 +4,11 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 import pandas as pd
 
-from elmada import el_entsoepy as ep
-from elmada import el_opsd as od
-from elmada import el_other as ot
-from elmada import el_share_CCGT as ccgt
-from elmada import geo_scraper as gs
+from elmada import from_entsoe
+from elmada import from_opsd
+from elmada import from_other
+from elmada import cc_share
+from elmada import from_geo_scraped
 from elmada import mappings as mp
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ def prep_CEFs(
 
     if mo_P is None:
         mo_P = merit_order(year=year, country=country, validation_mode=validation_mode, **mo_kwargs)
-    return od.get_CEFs_from_merit_order(mo_P=mo_P, year=year, freq=freq, country=country)
+    return from_opsd.get_CEFs_from_merit_order(mo_P=mo_P, year=year, freq=freq, country=country)
 
 
 def merit_order(
@@ -40,23 +40,25 @@ def merit_order(
     approx_method: str = "regr",
     validation_mode: bool = False,
     overwrite_carbon_tax: Optional[float] = None,
-    pp_size_method: str = "geo_scraper",
+    pp_size_method: str = "from_geo_scraped",
 ) -> pd.DataFrame:
     """Return a merit-order list. Virtual power plants are constructed through discretization."""
 
     mo_f = merit_order_per_fuel(
-        year=year, country=country, approx_method=approx_method, validation_mode=validation_mode
+        year=year, country=country, approx_method=approx_method, validation_mode=validation_mode,
     )
 
     df = discretize_merit_order_per_fuel(mo_f, pp_size_method=pp_size_method, country=country)
 
-    df["x_k"] = df["fuel_draf"].map(ot.get_fuel_prices(year=year, country=country))
+    df["x_k"] = df["fuel_draf"].map(from_other.get_fuel_prices(year=year, country=country))
 
-    DATA_QUASCH = ot.get_emissions_per_fuel_quaschning()
+    DATA_QUASCH = from_other.get_emissions_per_fuel_quaschning()
     marginal_emissions_of_gen = df["fuel_draf"].map(DATA_QUASCH) / df["used_eff"]
     df["fuel_cost"] = df["x_k"] / df["used_eff"]
 
-    carbon_price = ot.get_ETS_price(year) if overwrite_carbon_tax is None else overwrite_carbon_tax
+    carbon_price = (
+        from_other.get_ETS_price(year) if overwrite_carbon_tax is None else overwrite_carbon_tax
+    )
     df["GHG_cost"] = marginal_emissions_of_gen * carbon_price
     df["marginal_emissions"] = marginal_emissions_of_gen
     df["marginal_cost"] = df["fuel_cost"] + df["GHG_cost"]
@@ -82,8 +84,8 @@ def merit_order_per_fuel(
         dict(
             eff_min=eff_min,
             eff_max=eff_max,
-            fuel_price=ot.get_fuel_prices(year=year, country=country),
-            emissions_for_gen=ot.get_emissions_per_fuel_quaschning(),  # in t_CO2eq / MWh_el
+            fuel_price=from_other.get_fuel_prices(year=year, country=country),
+            emissions_for_gen=from_other.get_emissions_per_fuel_quaschning(),  # in t_CO2eq / MWh_el
             capa=prep_installed_generation_capacity(year=year, country=country, source=source),
         )
     )
@@ -143,7 +145,7 @@ def get_clean_merit_order_for_min_max_approximation(sort_by_fuel=False) -> pd.Da
     """Return a clean German merit order of the generation technologies."""
 
     # The opsd-file is used here here!
-    mo = od.merit_order(year=2019)
+    mo = from_opsd.merit_order(year=2019)
 
     if sort_by_fuel:
         groups = []
@@ -161,12 +163,16 @@ def get_clean_merit_order_for_min_max_approximation(sort_by_fuel=False) -> pd.Da
 def prep_installed_generation_capacity(year=2019, country="DE", source="entsoe") -> pd.Series:
 
     if source == "power_plant_list":
-        ser = od.merit_order(year=year)[["fuel_draf", "capa"]].groupby("fuel_draf").sum()["capa"]
+        ser = (
+            from_opsd.merit_order(year=year)[["fuel_draf", "capa"]]
+            .groupby("fuel_draf")
+            .sum()["capa"]
+        )
         return ser
 
     elif source == "entsoe":
-        df = ep.load_installed_generation_capacity(year=year, country=country)
-        df = ep.aggregate_to_standard_techs(df)
+        df = from_entsoe.load_installed_generation_capacity(year=year, country=country)
+        df = from_entsoe.aggregate_to_standard_techs(df)
         ser = df.T.iloc[:, 0]
 
         ser = apply_share_cc_assumption(ser, country=country)
@@ -178,7 +184,7 @@ def prep_installed_generation_capacity(year=2019, country="DE", source="entsoe")
         return ser
 
     # elif source == "opsd":
-    #     ser = od.get_installed_generation_capacity(year=year, country=country)
+    #     ser = from_opsd.get_installed_generation_capacity(year=year, country=country)
     #     ser = pd.Series(index=mp.PWL_FUELS, data=ser)
     #     ser.fillna(0, inplace=True)
     #     ser = apply_share_cc_assumption(ser, country=country)
@@ -199,14 +205,14 @@ def apply_share_cc_assumption(ser, country: str) -> pd.Series:
 
 def get_share_cc(country: str) -> float:
     try:
-        return ccgt.get_ccgt_shares_from_cascade().loc[country, "selected"]
+        return cc_share.get_ccgt_shares_from_cascade().loc[country, "selected"]
     except KeyError:
         logger.warning("Unable to apply cascade method, German values returned")
-        return ccgt.get_ccgt_DE()
+        return cc_share.get_ccgt_DE()
 
 
 def discretize_merit_order_per_fuel(
-    mo_f: pd.DataFrame, country: str, pp_size_method: str = "geo_scraper"
+    mo_f: pd.DataFrame, country: str, pp_size_method: str = "from_geo_scraped"
 ) -> pd.DataFrame:
 
     concat_list = []
@@ -230,14 +236,14 @@ def discretize_merit_order_per_fuel(
 
 def get_pp_size(pp_size_method: str, country: str, fuel: str) -> int:
     try:
-        if pp_size_method == "geo_scraper":
-            return gs.get_pp_sizes_for_pwl().loc[country, fuel]
+        if pp_size_method == "from_geo_scraped":
+            return from_geo_scraped.get_pp_sizes_for_pwl().loc[country, fuel]
         # elif pp_size_method == "from_Germany":
         #     return get_pp_sizes_from_germany()[fuel]
         # elif pp_size_method == "from_geo":
-        #     return gm.get_pp_sizes().loc[country, fuel]
+        #     return from_geo_via_morph.get_pp_sizes().loc[country, fuel]
         # elif pp_size_method == "from_ccgt":
-        #     return ccgt.get_pp_sizes().loc[country, fuel]
+        #     return cc_share.get_pp_sizes().loc[country, fuel]
         else:
             raise ValueError(f"Invalid pp_size_method given: {pp_size_method}")
     except KeyError:
@@ -247,4 +253,4 @@ def get_pp_size(pp_size_method: str, country: str, fuel: str) -> int:
 
 @lru_cache(maxsize=1)
 def get_pp_sizes_from_germany() -> pd.Series:
-    return od.merit_order().groupby("fuel_draf").capa.mean()
+    return from_opsd.merit_order().groupby("fuel_draf").capa.mean()

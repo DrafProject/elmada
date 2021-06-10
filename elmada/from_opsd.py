@@ -9,8 +9,8 @@ import pandas as pd
 import requests
 from scipy import stats
 
-from elmada import el_entsoepy as ep
-from elmada import el_other as ot
+from elmada import from_entsoe
+from elmada import from_other
 from elmada import mappings as mp
 from elmada import paths
 import elmada
@@ -33,16 +33,25 @@ def prep_CEFs(year=2019, freq="60min", country="DE", mo_P=None, **mo_kwargs) -> 
 
 
 def get_CEFs_from_merit_order(
-    mo_P: pd.DataFrame, year: int, freq: str, country: str, resi_T: Optional[pd.Series] = None
+    mo_P: pd.DataFrame, year: int, freq: str, country: str, resi_T: Optional[pd.Series] = None,
 ) -> pd.DataFrame:
     if resi_T is None:
-        resi_T = ep.prep_residual_load(year=year, freq=freq, country=country)
+        resi_T = from_entsoe.prep_residual_load(year=year, freq=freq, country=country)
     _warn_if_not_enough_capa(mo_P, resi_T)
-    total_load_T = ep.load_el_national_generation(year=year, freq=freq, country=country).sum(axis=1)
-    cols = ["cumsum_capa", "marginal_emissions", "capa", "fuel_draf", "used_eff", "marginal_cost"]
+    total_load_T = from_entsoe.load_el_national_generation(
+        year=year, freq=freq, country=country
+    ).sum(axis=1)
+    cols = [
+        "cumsum_capa",
+        "marginal_emissions",
+        "capa",
+        "fuel_draf",
+        "used_eff",
+        "marginal_cost",
+    ]
     len_mo = len(mo_P)
     mo_P_arr = mo_P[cols].values
-    transm_eff = ot.get_transmission_efficiency(country=country)
+    transm_eff = from_other.get_transmission_efficiency(country=country)
 
     def get_data(resi_value: float, what: str = "marginal_emissions"):
         output_col_index = cols.index(what)
@@ -102,8 +111,10 @@ def merit_order(
     )
     df = _add_marginal_emissions_for_gen(df, emission_data_source)
 
-    carbon_price = ot.get_ETS_price(year) if overwrite_carbon_tax is None else overwrite_carbon_tax
-    df["x_k"] = df["fuel_draf"].map(ot.get_fuel_prices(year=year, country="DE"))
+    carbon_price = (
+        from_other.get_ETS_price(year) if overwrite_carbon_tax is None else overwrite_carbon_tax
+    )
+    df["x_k"] = df["fuel_draf"].map(from_other.get_fuel_prices(year=year, country="DE"))
     df["fuel_cost"] = df["x_k"] / df["used_eff"]
     df["GHG_cost"] = df["marginal_emissions_for_gen"] * carbon_price
     df["marginal_emissions"] = df["marginal_emissions_for_gen"]
@@ -125,7 +136,7 @@ def merit_order(
 
 #     WARNING:
 #         - Poor data for year 2016-2017!
-#         - Better use el_entsoepy.load_installed_generation_capacity
+#         - Better use from_entsoe.load_installed_generation_capacity
 #         - This function is just for the purpose of a later evaluation.
 #         - Several data sources are combined here, the sources are chosen arbitrary with 'last()'.
 
@@ -299,7 +310,7 @@ def _preprocess_efficiencies(
             logger.info("f{number_of_nans} nans filled in fuel {fuel}.")
             df.loc[(cond_zscore & cond_fuel), "efficiency_estimate"] = filler_dic[fuel]
 
-    df["eta_k"] = df["fuel_draf"].map(ot.get_baumgaertner_data()["eta_k"])
+    df["eta_k"] = df["fuel_draf"].map(from_other.get_baumgaertner_data()["eta_k"])
     df["used_eff"] = df["efficiency_estimate"] if efficiency_per_plant else df["eta_k"]
 
     if ensure_minimum_efficiency:
@@ -312,14 +323,14 @@ def _preprocess_efficiencies(
 def _add_marginal_emissions_for_gen(df: pd.DataFrame, emission_data_source: str) -> pd.DataFrame:
 
     if emission_data_source == "baumgaertner":
-        DATA_BAUMG = ot.get_baumgaertner_data()
+        DATA_BAUMG = from_other.get_baumgaertner_data()
         df["mu_co2_k"] = df["fuel_draf"].map(DATA_BAUMG["mu_co2_k"])
         df["H_u_k"] = df["fuel_draf"].map(DATA_BAUMG["H_u_k"])
         df["marginal_emissions_for_gen"] = df["mu_co2_k"] / (df["H_u_k"] * df["used_eff"])
 
     elif emission_data_source == "quaschning":
         # in the quaschning data the mu_co2_k and the H_u_k are already included
-        DATA_QUASCH = ot.get_emissions_per_fuel_quaschning()
+        DATA_QUASCH = from_other.get_emissions_per_fuel_quaschning()
         df["marginal_emissions_for_gen"] = df["fuel_draf"].map(DATA_QUASCH) / df["used_eff"]
 
     else:
