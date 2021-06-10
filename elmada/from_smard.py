@@ -1,9 +1,8 @@
-import csv
 import logging
 
 import pandas as pd
+import warnings
 
-from elmada import from_entsoe
 from elmada import helper as hp
 from elmada import paths
 
@@ -124,7 +123,7 @@ def prep_dayahead_prices(
 ) -> pd.Series:
 
     assert year in range(2000, 2100), f"{year} is not a valid year"
-    assert country == "DE", "smard provides only for DE!"
+    assert country == "DE", "Smard is only used for Germany!"
 
     fp = paths.CACHE_DIR / f"{year}_{freq}_{country}_dayahead_c_el_smard.parquet"
 
@@ -132,24 +131,13 @@ def prep_dayahead_prices(
         ser = hp.read(fp)
 
     else:
-        import re
-
-        fp_raw = paths.DATA_DIR / f"smard/DE_Grosshandelspreise_{year}_SMARD.csv"
-
-        with open(fp_raw, "r") as f:
-            reader = csv.reader(f, delimiter=";")
-            row1 = next(reader)  # gets the first line
-
-        def convert(x):
-            x = re.sub(pattern="-\B", repl="NaN", string=x)
-            x = x.replace(".", "").replace(",", ".")
-            return float(x)
-
-        converter = {i: convert for i in range(len(row1))}
-
+        fp_raw = paths.DATA_DIR / f"smard/Day-ahead_prices_{year}.csv"
         df = pd.read_csv(
-            fp_raw, sep=";", converters=converter, usecols=range(2, len(row1))
-        )  # in [MWh]
+            fp_raw,
+            sep=";",
+            usecols=["Germany/Luxembourg[€/MWh]", "Germany/Austria/Luxembourg[€/MWh]"],
+            na_values="-",
+        )
         df = df.reset_index(drop=True)
         df = df.fillna(df.mean())
 
@@ -157,20 +145,19 @@ def prep_dayahead_prices(
         df["DE_merged"] = 0
 
         if year < 2018:
-            df["DE_merged"] = df["Deutschland/Österreich/Luxemburg[Euro/MWh]"]
+            df["DE_merged"] = df["Germany/Austria/Luxembourg[€/MWh]"]
 
         elif year == 2018:
-            import warnings
 
             warnings.filterwarnings(
                 "ignore",
                 message="A value is trying to be set on a copy of a slice from a DataFrame",
             )
-            df.loc[:6552, "DE_merged"] = df.loc[:6552, "Deutschland/Österreich/Luxemburg[Euro/MWh]"]
-            df.loc[6552:, "DE_merged"] = df.loc[6552:, "Deutschland/Luxemburg[Euro/MWh]"]
+            df.loc[:6552, "DE_merged"] = df.loc[:6552, "Germany/Austria/Luxembourg[€/MWh]"]
+            df.loc[6552:, "DE_merged"] = df.loc[6552:, "Germany/Luxembourg[€/MWh]"]
 
         elif year > 2018:
-            df["DE_merged"] = df["Deutschland/Luxemburg[Euro/MWh]"]
+            df["DE_merged"] = df["Germany/Luxembourg[€/MWh]"]
 
         ser = df["DE_merged"]
         if cache:

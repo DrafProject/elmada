@@ -1,14 +1,17 @@
+<img src="elmada_logo.svg" width="450" alt="elmada logo">
+
+# Electricity market data for energy system modeling
+
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-<img src="elmada_logo.svg" width="300" alt="elmada logo">
+Elmada stands for **el**ectricity **ma**rket **da**ta and provides carbon emission factors as well as whole sale prices for energy system modeling with focus on the demand side, e.g., demand response potential analyses.
 
-# **el**ectricity **ma**rket **da**ta for the **d**emand **r**esponse **a**nalysis **f**ramework
+Elmada uses historic electricity generation data to calculate carbon emission factors for European countries.
+Based on the methodology described in [this open access paper](https://doi.org/10.1016/j.apenergy.2021.117040), grid mix emission factors (XEFs) and marginal emission factors (MEF) are calculated in up to quarter-hourly resolution.
 
-Elmada stands for **el**ectricity **ma**rket **da**ta and allows the calculation of temporally resolved historic carbon emission factors for European national electricity systems.
-With different methods, grid mix emission factors (XEFs) and marginal emission factors (MEF) can be calculated in up to quarter-hourly resolution.
-As a side product historic wholesale prices and fuel-specific generation for European national electricity grids can be provided.
-Elmada is part of the [Draf Project](https://github.com/DrafProject) but can be used as a standalone package.
+As a side product, historic wholesale prices and fuel-specific generation for European national electricity grids can be provided.
+Elmada is part of the [Draf Project](https://github.com/DrafProject) (Demand Response Analysis Framework) but can be used as a standalone package.
 
 # Installation
 
