@@ -1,11 +1,10 @@
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from IPython.display import display
 
+from elmada import from_geo_via_morph
 from elmada import helper as hp
 from elmada import mappings as mp
-from elmada import from_geo_via_morph
 from elmada import paths
 
 

@@ -5,8 +5,9 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 import numpy as np
-from numpy.core.fromnumeric import squeeze
 import pandas as pd
+from numpy.core.fromnumeric import squeeze
+
 from elmada import paths
 
 logger = logging.getLogger(__name__)
@@ -349,7 +350,7 @@ def fill_outlier_and_nan(
 
     df = remove_outlier(df, zscore_threshold)
 
-    if method is "linear":
+    if method == "linear":
         df = df.interpolate(method="linear")
     elif method == "fill":
         df = df.fillna(method="bfill").fillna(method="ffill")

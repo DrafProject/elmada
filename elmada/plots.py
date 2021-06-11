@@ -7,10 +7,10 @@ from matplotlib.patches import Patch
 
 from elmada import helper as hp
 from elmada import mappings as mp
-from elmada.main import get_merit_order, get_residual_load, get_emissions
+from elmada.main import get_emissions, get_merit_order, get_residual_load
 
 
-def merit_order_plt(
+def merit_order(
     year=2019,
     country="DE",
     method="PWL",
@@ -140,7 +140,7 @@ def _make_colored_background_for_fuel_types(ax, mo_P):
     return alpha_value_for_fuels
 
 
-def cefs_plotly(year: int = 2019, method: str = "MEF_PWL", **kwargs) -> "PlotlyPlot":
+def cefs_scatter_plotly(year: int = 2019, method: str = "MEF_PWL", **kwargs):
     import plotly.express as px
 
     first_part, second_part = method.split("_")
@@ -151,14 +151,21 @@ def cefs_plotly(year: int = 2019, method: str = "MEF_PWL", **kwargs) -> "PlotlyP
     )
 
 
-def cefs_plt(year=2019, method: str = "MEF_PWL", **kwargs) -> None:
-    first_part, second_part = method.split("_")
+def cefs_scatter(year=2019, method: str = "MEF_PWL", figsize: Tuple = (8, 3), **mo_kwargs) -> None:
+    _, second_part = method.split("_")
 
-    df = get_emissions(year=year, method=f"_{second_part}", **kwargs)
-    fuels = df["marginal_fuel"].unique().tolist()
-    colors = mp.get_tech_colors(fuels)
-    _, ax = plt.subplots(1, figsize=(8, 6))
-    ax.set_ylabel("Carbon emission factors [$t_{CO_{2}eq}$ / $MWh_{el}$]")
+    df = get_emissions(year=year, method=f"_{second_part}", **mo_kwargs)
 
-    for f, c in zip(fuels, colors):
-        df[f"{first_part}s"].where(df["marginal_fuel"] == f).plot(ax=ax, color=c)
+    df = df.reset_index().set_index(["index", "marginal_fuel"])["MEFs"].unstack()
+    df.index.name = None
+    df.plot(
+        marker="o",
+        markersize=2.5,
+        figsize=figsize,
+        linewidth=0,
+        color=mp.get_tech_colors(df.keys()),
+    )
+
+    ax = plt.gca()
+    ax.set(ylabel="Carbon emission factors\n[$g_{CO_{2}eq}$ / $kWh_{el}$]")
+    ax.legend(ncol=6, loc="lower center", bbox_to_anchor=(0.5, 1), frameon=True)

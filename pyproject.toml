@@ -1,0 +1,20 @@
+[tool.black]
+line-length = 100
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.github
+  | \.mypy_cache
+  | \.pytest_cache
+  | \.vscode
+  | _build
+  | build
+  | dist
+  | .*\.egg-info
+  # directories without python source files
+  | paper
+  | doc
+  | requirements
+)/
+'''

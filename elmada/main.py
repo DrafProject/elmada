@@ -16,24 +16,22 @@ def get_emissions(
     freq: str = "60min",
     country: str = "DE",
     method: str = "XEF_PP",
-    additional_info: bool = False,
     cache: bool = True,
+    use_datetime: bool = False,
     **mo_kwargs,
 ) -> Union[pd.Series, pd.DataFrame]:
     """Returns dynamic carbon emisson factors in gCO2eq/kWh_el and optional data.
-
-    $===
 
     Args:
         year: Year
         freq: Frequency, e.g. '60min' or '15min'
         country: alpha-2 country code, e.g. 'DE'
         method: A method string that consists of two parts joined by an underscore. The first
-            part is the type of emission factor. Use 'XEF' for grid mix emission factors or
+            part is the type of emission factor. Use 'XEF' for grid mix emission factors and
             'MEF' for marginal emission factors. The second part determines the calculation method
-            or data sources. 'EP' for ENTSO-E, 'PP' for power plant method, 'PWL' for piecewise
-            linear method, 'PWLv' for the the piecewise linear method in validation mode.
-            For PP, PWL, and PWLv, the first part can be omitted ('_PP', '_PWL', '_PWLv') to return
+            or data sources. 'EP' stands for ENTSO-E, 'PP' for power plant method, 'PWL' for piecewise
+            linear method, 'PWLv' for the piecewise linear method in validation mode.
+            For PP, PWL, and PWLv, the first can be omitted ('_PP', '_PWL', '_PWLv') to return
             a DataFrame including the columns 'residual_load', 'total_load', 'marginal_fuel',
             'efficiency', 'marginal_cost', 'MEFs', 'XEFs'.
             The following combinations are possible:
@@ -52,6 +50,8 @@ def get_emissions(
             | _PWLv    | Dataframe: extended data for PWLv method |
 
         cache: If cache is used.
+        use_datetime: If True, the index is a timezone agnostic datetime. If False, the index is
+            0, 1, 2, etc.
         **mo_kwargs: Keyword arguments for merit order creation such as 'overwrite_carbon_tax',
             'efficiency_per_plant', 'emission_data_source'.
     """
@@ -68,15 +68,13 @@ def get_emissions(
         if cache:
             hp.write(df, fp)
 
-    if additional_info:
-        return df
+    if use_datetime:
+        df.index = hp.make_datetimeindex(year=year, freq=freq)
+
+    if first_method_part in ("XEF", "MEF"):
+        return df[first_method_part + "s"]
     else:
-        if first_method_part == "XEF":
-            return df["XEFs"]
-        elif first_method_part == "MEF":
-            return df["MEFs"]
-        else:
-            return df
+        return df
 
 
 def _make_emissions(year, freq, country, method, **mo_kwargs) -> pd.DataFrame:
@@ -93,28 +91,6 @@ def _make_emissions(year, freq, country, method, **mo_kwargs) -> pd.DataFrame:
         return elmada.eu_pwl.prep_CEFs(validation_mode=is_vmode, **config, **mo_kwargs)
     else:
         raise ValueError(f"Method {method} not implemented.")
-
-
-def get_merit_order(year: int, country: str = "DE", method: str = "PP", **kwargs) -> pd.DataFrame:
-    if method == "PP":
-        assert country == "DE", f"PP-method only works for Germany and not for {country}"
-        return elmada.from_opsd.merit_order(year=year, **kwargs)
-    elif method == "PWL":
-        return elmada.eu_pwl.merit_order(
-            year=year, country=country, validation_mode=False, **kwargs
-        )
-    elif method == "PWLv":
-        return elmada.eu_pwl.merit_order(year=year, country=country, validation_mode=True, **kwargs)
-    else:
-        raise ValueError("`method` needs to be one of ['PP', 'PWL', 'PWLv'].")
-
-
-def get_residual_load(year: int, freq: str = "60min", country: str = "DE", **kwargs) -> pd.Series:
-    return elmada.from_entsoe.prep_residual_load(year=year, freq=freq, country=country, **kwargs)
-
-
-def get_el_national_generation(year: int, freq: str = "60min", country: str = "DE") -> pd.DataFrame:
-    return elmada.from_entsoe.load_el_national_generation(year=year, freq=freq, country=country)
 
 
 def get_prices(
@@ -167,3 +143,34 @@ def get_prices(
         return df["marginal_cost"]
     else:
         raise ValueError(f"Method '{method}' not implemented.")
+
+
+def get_merit_order(year: int, country: str = "DE", method: str = "PP", **kwargs) -> pd.DataFrame:
+    """Returns the merit order.
+
+    Args:
+        year: Year
+        country: alpha-2 country code, e.g. 'DE'
+        method: One of 'PP' (power plant method), 'PWL' (piecewise
+            linear method), 'PWLv' (piecewise linear method in validation mode).
+        **kwargs: keyword arguments for merit order function depending on `method`.
+    """
+    if method == "PP":
+        assert country == "DE", f"PP-method only works for Germany and not for {country}"
+        return elmada.from_opsd.merit_order(year=year, **kwargs)
+    elif method == "PWL":
+        return elmada.eu_pwl.merit_order(
+            year=year, country=country, validation_mode=False, **kwargs
+        )
+    elif method == "PWLv":
+        return elmada.eu_pwl.merit_order(year=year, country=country, validation_mode=True, **kwargs)
+    else:
+        raise ValueError("`method` needs to be one of ['PP', 'PWL', 'PWLv'].")
+
+
+def get_residual_load(year: int, freq: str = "60min", country: str = "DE", **kwargs) -> pd.Series:
+    return elmada.from_entsoe.prep_residual_load(year=year, freq=freq, country=country, **kwargs)
+
+
+def get_el_national_generation(year: int, freq: str = "60min", country: str = "DE") -> pd.DataFrame:
+    return elmada.from_entsoe.load_el_national_generation(year=year, freq=freq, country=country)
