@@ -6,7 +6,7 @@
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](code_of_conduct.md)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 Elmada stands for **el**ectricity **ma**rket **da**ta and essentially provides carbon emission factors as well as wholesale prices for energy system models that focus on the demand side, e.g., demand response potential analyses.
 Elmada is part of the [Draf Project](https://github.com/DrafProject) (Demand Response Analysis Framework) but can be used as a standalone package.
@@ -26,13 +26,13 @@ Other possibly useful market data such as merit order lists, fuel-specific gener
 
 Conda install (preferred):
 
-```bash
+```sh
 ... coming soon
 ```
 
 install with `pip` (PyPI registration is coming soon):
 
-```bash
+```sh
 python -m pip install git+https://github.com/DrafProject/elmada.git
 ```
 
@@ -42,26 +42,26 @@ With the following steps, set up a Conda environment with an editable version of
 
 Clone the source repository:
 
-```bash
+```sh
 git clone https://github.com/DrafProject/elmada.git
 cd elmada
 ```
 
 Create environment based on environment.yml and install an editable local Elmada version:
 
-```bash
+```sh
 conda env create
 ```
 
 Activate environment
 
-```bash
+```sh
 conda activate elmada
 ```
 
 Run the tests and ensure that there are no errors
 
-```bash
+```sh
 pytest
 ```
 
@@ -191,6 +191,7 @@ You can use Elmada in two modes which can be set with `elmada.set_mode(mode=<MOD
 Contributions in any form are welcome! To contribute changes, please have a look at our [contributing guidelines](CONTRIBUTING.md).
 
 In short:
+
 1. Fork the project and create a feature branch to work on in your fork (`git checkout -b new-feature`).
 1. Commit your changes to the feature branch and push the branch to GitHub (`git push origin my-new-feature`).
 1. On GitHub, create a new pull request from the feature branch.
