@@ -2,8 +2,8 @@
 
 To guarantee the further evolution of Elmada in the long term, we depend on the support of volunteer developers.
 
-<!-- Some of the resources to look at if you're interested in contributing:
-* [Join us on Gitter to chat!](https://gitter.im/...) -->
+Some of the resources to look at if you're interested in contributing:
+* [Join us on Gitter to chat!](https://gitter.im/DrafProject/elmada)
 
 ## Licensing
 

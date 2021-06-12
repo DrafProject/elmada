@@ -4,21 +4,25 @@
 
 # Elmada: electricity market data for energy system modeling
 
+[![Gitter](https://badges.gitter.im/DrafProject/elmada.svg)](https://gitter.im/DrafProject/elmada)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 Elmada stands for **el**ectricity **ma**rket **da**ta and essentially provides carbon emission factors as well as wholesale prices for energy system models that focus on the demand side, e.g., demand response potential analyses.
-Elmada is part of the [Draf Project](https://github.com/DrafProject) (Demand Response Analysis Framework) but can be used as a standalone package.
+Elmada is part of the [Draf Project] (Demand Response Analysis Framework) but can be used as a standalone package.
+
+## Features
 
 * __Carbon emission factors__ are calculated depending on country and year in up to quarter-hourly resolution.
-The methodology is described in [this open-access paper](https://doi.org/10.1016/j.apenergy.2021.117040) and comprises the calculation of grid mix emission factors (XEFs) and marginal emission factors (MEFs).
-The underlying data used depends on the chosen method, see table below.
-In any case, however, historical electricity production data from [ENTSO-E](https://transparency.entsoe.eu/) are used.
+You can choose between
+  * grid mix emission factors (XEFs) from fuel type-specific [ENTSO-E] electricity generation data (`method="XEF_EP"`)
+  * and approximations using merit order based simulations which allow also for the calculation of marginal emission factors (MEFs). The according methods, Power Plant (`PP`) and Piecewise Linear (`PWL`) are described in [this open-access paper][paper].
+  The data used depends on the method chosen, see [scheme below](#cef-scheme).
 
-* __Electrcity prices__ are provided for European national electricity grids -- either real historical [ENTSO-E](https://transparency.entsoe.eu/) data or the simulation results of PP/PWL method.
+* __Electrcity prices__ are provided for European national electricity grids. You can choose between the real historical [ENTSO-E] data or the simulation results of PP/PWL method.
 
-Other possibly useful market data such as merit order lists, fuel-specific generation data, and national loads power plant lists are provided as a by-product of the CEF calculations.
+* Other interesting market data such as the merit order list, fuel-specific generation data, and power plant lists are provided as a by-product of the CEF calculations.
 
 # Installation
 
@@ -65,10 +69,45 @@ Run the tests and ensure that there are no errors
 pytest
 ```
 
+# Data
+
+## Data modes
+
+You can use Elmada in two data modes which can be set with `elmada.set_mode(mode=<MODE>)`:
+
+* `mode="safe"` (default):
+  * Pre-cached data for 4 years and 20 countries are used. The data are described in the [paper].
+  * The years are 2017 to 2020 and the countries AT, BE, CZ, DE, DK, ES, FI, FR, GB, GR, HU, IE, IT, LT, NL, PL, PT, RO, RS, SI.
+  * The data is available in the space-saving and quick-to-read [Parquet format] under [.../safe_cache].
+* `mode="live"`:
+  * Up-to-date data are retrieved on demand and are cached to an OS-specific directory, see `elmada.paths.CACHE_DIR`. A symbolic link to it can be conveniently created by executing `elmada.helper.make_symlink_to_cache()`.
+  * Available years are 2017 until the present.
+  * Slow due to API requests.
+  * Requires valid API keys of Entsoe, Morph, Quandl, see table below.
+
+## Data table
+
+| Description | Local data location | Source | Channel | Involed in |
+|-|-|-|-|-|
+| Generation time series & installed generation capacities | [.../safe_cache] or `CACHE_DIR` | [ENTSO-E] | 🔌 on-demand-retrieval via [EntsoePandasClient] (requires valid [ENTSO-E API key] in [.../api_keys]`/entsoe.txt`) | CEFs via `EP`, `PP`, `PWL`, `PWLv` |
+| Carbon prices (EUA)| [.../safe_cache] or `CACHE_DIR` | [Sandbag] & [ICE] | 🔌 on-demand-retrieval via [Quandl] (requires valid [Quandl API key] in [.../api_keys]`/quandl.txt`) | CEFs via `_PP`, `PWL`, `PWLv` |
+| Share of CCGT among gas power plants | [.../safe_cache] or `CACHE_DIR` | [GEO] | 🔌 on-demand-download via [Morph] (requires valid [Morph API key] in [.../api_keys]`/morph.txt`)| CEFs via `PWL`, `PWLv` |
+| (Average) fossil power plants sizes | [.../safe_cache] or `CACHE_DIR` | [GEO] | 🔌 on-demand-scraping via [BeautifulSoup4] | CEFs via `PWL`, `PWLv` |
+| German fossil power plant list with efficiencies | [.../safe_cache] or `CACHE_DIR` | [OPSD] | 🔌 on-demand-download from [here][opsd_download] | CEFs via `PP`, `PWL`, `PWLv` |
+| Transmission & distribution losses | [.../worldbank] | [Worldbank] | 💾 manual download from [here][wb] | CEFs via `_PP`, `PWL`, `PWLv` |
+| Fuel prices for 2015 (+ trends) | [.../from_other.py] (+ [.../destatis]) | [Konstantin.2017] (+ [DESTATIS]) | 🔢 hard-coded values (+ 💾 manual download from [here][destatis_download]) | CEFs via `PP`, `PWL`, `PWLv` |
+| Fuel type-specific carbon emission intensities | [.../from_other.py] & [.../tranberg] | [Quaschning] & [Tranberg.2019] | 🔢 hard-coded values | xxx |
+
 # Usage
 
 ```sh
 >>> import elmada
+
+# [Optional] Set your api keys and go live mode:
+>>> elmada.set_api_key("entsoe", <YOUR_ENTSOE_API_KEY>)
+>>> elmada.set_api_key("morph", <YOUR_MORPH_API_KEY>)
+>>> elmada.set_api_key("quandl", <YOUR_QUANDL_API_KEY>)
+>>> elmada.set_mode("live")
 ```
 
 ## Carbon Emission factors
@@ -121,13 +160,17 @@ For PP, PWL, and PWLv, the first part can be omitted (`_PP`, `_PWL`, `_PWLv`) to
 [8760 rows x 7 columns]
 ```
 
-### Plot carbon emission factors
-
 ```sh
+# Plot carbon emission factors
 >>> elmada.plots.cefs_scatter(year=2019, country="DE", method="MEF_PP")
 ```
 
 <img src="doc/images/cefs_scatter.png" width="600" alt="CEFs">
+
+This scheme from the [paper] shows an overview of the methods PP, PWL, and PWLv:
+
+<!-- Converted from pptx via https://convertio.co/ -->
+<img src="doc/images/scheme_CEF_calculation.svg" id='cef-scheme' width="900" alt="scheme_CEF_calculation">
 
 ## Wholesale prices
 
@@ -146,11 +189,11 @@ Possible values for the `method` argument of `get_prices()` are:
 
 | `method` | Description |
 | --: | -- |
+| `hist_EP` | Using historic ENTSO-E data |
+| `hist_SM` | Using historic Smard data (used only as backup for DE, 2015 and 2018) |
 | `PP` | Using the power plant (PP) method |
 | `PWL` | Using piecewise linear method (PWL) method |
 | `PWLv` | Using piecewise linear method in validation mode |
-| `hist_EP` | Using historic ENTSO-E data |
-| `hist_SM` | Using historic Smard data (used only as backup for DE, 2015 and 2018) |
 
 ## Merit order
 
@@ -159,32 +202,6 @@ Possible values for the `method` argument of `get_prices()` are:
 ```
 
 <img src="doc/images/merit_order.svg" width="600" alt="merit_order">
-
-# Data
-
-You can use Elmada in two modes which can be set with `elmada.set_mode(mode=<MODE>)`:
-
-* `mode="safe"` (default):
-  * Pre-cached data for 4 years and 20 countries are used. The data are described in the [paper](https://doi.org/10.1016/j.apenergy.2021.117040).
-  * The years are 2017 to 2020 and the countries AT, BE, CZ, DE, DK, ES, FI, FR, GB, GR, HU, IE, IT, LT, NL, PL, PT, RO, RS, SI.
-  * The data is available in the space-saving and quick-to-read [Parquet format](https://parquet.apache.org/) under [data/safe_cache](elmada/data/safe_cache).
-* `mode="live"`:
-  * Up-to-date data are retrieved on demand and are cached to an OS-specific directory, see `elmada.paths.CACHE_DIR`. A symbolic link to it can be conveniently created by executing `elmada.helper.make_symlink_to_cache()`.
-  * Available years are 2017 until the present.
-  * Slow due to API requests.
-  * Requires valid API keys of Entsoe, Morph, Quandl, see table below.
-
-| Description | Local data location | Source | Channel |
-|-|-|-|-|
-| Generation time series & installed generation capacities | <temp_dir> | [ENTSO-E](https://transparency.entsoe.eu/) | 🔌 on-demand-retrieval via [EntsoePandasClient](https://github.com/EnergieID/entsoe-py#EntsoePandasClient) (requires valid [ENTSO-E API key](https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html) in [elmada/api_keys](elmada/api_keys)`/entsoe.txt`) |
-| Share of CCGT among gas power plants | <temp_dir> | [GEO](http://globalenergyobservatory.org/) | 🔌 on-demand-download via [Morph](https://morph.io/) (requires valid [Morph API key](https://morph.io/documentation/api) in [elmada/api_keys](elmada/api_keys)`/morph.txt`)|
-| Carbon prices (EUA)| <temp_dir> | [Sandbag](https://sandbag.org.uk/carbon-price-viewer/) / [ICE](https://www.theice.com/)| 🔌 on-demand-retrieval via [Quandl](https://www.quandl.com/) (requires valid [Quandl API key](https://docs.quandl.com/docs#section-authentication) in [elmada/api_keys](elmada/api_keys)`/quandl.txt`) |
-| (Average) fossil power plants sizes | <temp_dir> | [GEO](http://globalenergyobservatory.org/) | 🔌 on-demand-scraping via [BeautifulSoup4](https://pypi.org/project/beautifulsoup4/) |
-| German fossil power plant list with efficiencies | <temp_dir> | [OPSD](https://open-power-system-data.org/)  | 🔌 on-demand-download from [here](https://data.open-power-system-data.org/conventional_power_plants/latest/) |
-| Transmission & distribution losses | [.../worldbank](elmada/data/raw/worldbank) | [Worldbank](https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS) | 💾 manual download from [here](https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS)  |
-| Fuel price trends | [.../destatis](elmada/data/raw/destatis) | [DESTATIS](https://www.destatis.de/) | 💾 manual download from [here](https://www.destatis.de/DE/Themen/Wirtschaft/Preise/Publikationen/Energiepreise/energiepreisentwicklung-xlsx-5619001.xlsx?__blob=publicationFile) |
-| Fuel prices for 2015 | in code | [Konstantin.2017](https://doi.org/10.1007/978-3-662-49823-1) | 🔢 hard-coded values |
-| Carbon emission intensities | in code ([.../tranberg](elmada/data/raw/tranberg)) | [Quaschning](https://www.volker-quaschning.de/datserv/CO2-spez/index_e.ph) ([Tranberg.2019](https://doi.org/10.1016/j.esr.2019.100367)) | 🔢 hard-coded values |
 
 # Contributing
 
@@ -198,7 +215,7 @@ In short:
 
 # Citing Elmada
 
-If you use Elmada for academic work please cite [this open-access paper](https://doi.org/10.1016/j.apenergy.2021.117040) published in Applied Energy in 2021.
+If you use Elmada for academic work please cite [this open-access paper][paper] published in Applied Energy in 2021.
 
 # License
 
@@ -207,3 +224,34 @@ Copyright (c) 2021 Markus Fleschutz
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+<!-- SOURCES -->
+[.../api_keys]: elmada/api_keys
+[.../destatis]: elmada/data/raw/destatis
+[.../safe_cache]: elmada/data/safe_cache
+[.../tranberg]: elmada/data/raw/tranberg
+[.../worldbank]: elmada/data/raw/worldbank
+[BeautifulSoup4]: https://pypi.org/project/beautifulsoup4
+[destatis_download]: https://www.destatis.de/DE/Themen/Wirtschaft/Preise/Publikationen/Energiepreise/energiepreisentwicklung-xlsx-5619001.xlsx?__blob=publicationFile
+[DESTATIS]: https://www.destatis.de
+[Draf Project]: https://github.com/DrafProject
+[ENTSO-E API key]: https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html
+[ENTSO-E]: https://transparency.entsoe.eu/
+[EntsoePandasClient]: https://github.com/EnergieID/entsoe-py#EntsoePandasClient
+[GEO]: http://globalenergyobservatory.org
+[ICE]: https://www.theice.com
+[.../from_other.py]: elmada/from_other.py
+[Konstantin.2017]: https://doi.org/10.1007/978-3-662-49823-1
+[Morph API key]: https://morph.io/documentation/api
+[Morph]: https://morph.io
+[opsd_download]: https://data.open-power-system-data.org/conventional_power_plants/latest
+[OPSD]: https://open-power-system-data.org
+[paper]: https://doi.org/10.1016/j.apenergy.2021.117040
+[Parquet format]: https://parquet.apache.org
+[Quandl API key]: https://docs.quandl.com/docs#section-authentication
+[Quandl]: https://www.quandl.com
+[Quaschning]: https://www.volker-quaschning.de/datserv/CO2-spez/index_e.ph
+[Sandbag]: https://sandbag.org.uk/carbon-price-viewer
+[Tranberg.2019]: https://doi.org/10.1016/j.esr.2019.100367
+[wb]: https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS
+[Worldbank]: https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS

@@ -15,6 +15,15 @@ logger.setLevel(level=logging.WARN)
 
 DEFAULT_HEADER = "DEFAULT_HEADER"
 
+APIS = {
+    "entsoe": (
+        "ENTSO-E API key",
+        "https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html",
+    ),
+    "morph": ("Morph API key", "https://morph.io/documentation/api"),
+    "quandl": ("Quandl API key", "https://docs.quandl.com/docs#section-authentication"),
+}
+
 
 def make_symlink_to_cache():
     """Creates a symbolic link to the cache directory for easy access.
@@ -377,17 +386,23 @@ def int_from_freq(freq: str) -> int:
     return int(freq[:2])
 
 
-def get_api_key(which: str = "entsoe"):
-    d = {
-        "entsoe": "ENTSO-E API key (see https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html )",
-        "morph": "Morph API key (see https://morph.io/documentation/api )",
-        "quandl": "Quandl API key (see https://docs.quandl.com/docs#section-authentication )",
-    }
-
+def set_api_key(which: str, api_key: str) -> None:
     fp = paths.KEYS_DIR / f"{which}.txt"
+    assert which in APIS, f"`which` must be one of {list(APIS.keys())}."
+    if fp.exists():
+        respond = input(
+            f"The file {fp} already exists. Do you want to overwrite it? Type (y)es or (n)o."
+        )
+        if respond in ["yes", "y"]:
+            fp.write_text(api_key)
+            print(f"Api key written to {fp}.")
+        else:
+            print("Aborted.")
 
-    keys = list(d.keys())
-    assert which in d, f"`which` must be one of {keys}."
+
+def get_api_key(which: str = "entsoe"):
+    fp = paths.KEYS_DIR / f"{which}.txt"
+    assert which in APIS, f"`which` must be one of {list(APIS.keys())}."
 
     try:
         return fp.read_text().strip()
@@ -395,5 +410,5 @@ def get_api_key(which: str = "entsoe"):
     except FileNotFoundError as e:
         raise Exception(
             f"`{which}.txt` file not found. "
-            f"Please get a valid {d[which]} and place it in `elmada/api_keys/{which}.txt`\n"
+            f"Please get a valid {APIS[which][0]} (see {APIS[which][1]}) and place it in `elmada/api_keys/{which}.txt`\n"
         ) from e

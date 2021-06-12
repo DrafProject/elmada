@@ -38,7 +38,7 @@ def merit_order(
     if ax is not None:
         fig = ax.get_figure()
     else:
-        fig, ax = plt.subplots(1, figsize=(6, 2))
+        fig, ax = plt.subplots(1, figsize=(7, 3))
 
     ax_right = ax.twinx()
 
@@ -90,6 +90,8 @@ def merit_order(
 
     if include_histo:
         _add_histo(year, country, ax_right)
+
+    plt.tight_layout()
 
     return fig, ax, ax_right
 

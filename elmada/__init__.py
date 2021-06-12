@@ -1,6 +1,7 @@
 from elmada._version import __version__
 
 from .mode import get_mode, set_mode
+from .helper import set_api_key
 
 from . import (
     from_entsoe,
