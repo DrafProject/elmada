@@ -1,7 +1,7 @@
 from elmada._version import __version__
 
 from .mode import get_mode, set_mode
-from .helper import set_api_key
+from .helper import set_api_keys, make_symlink_to_cache
 
 from . import (
     from_entsoe,

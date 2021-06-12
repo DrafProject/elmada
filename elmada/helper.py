@@ -386,6 +386,11 @@ def int_from_freq(freq: str) -> int:
     return int(freq[:2])
 
 
+def set_api_keys(**kwargs) -> None:
+    for which, api_key in kwargs.items():
+        set_api_key(which=which, api_key=api_key)
+
+
 def set_api_key(which: str, api_key: str) -> None:
     fp = paths.KEYS_DIR / f"{which}.txt"
     assert which in APIS, f"`which` must be one of {list(APIS.keys())}."

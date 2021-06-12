@@ -299,9 +299,9 @@ def get_renewable_generation(year, freq, country) -> pd.Series:
 
 
 def load_el_national_specific_emissions() -> pd.DataFrame:
-    """Read specific emissions data from [1] in gCO2eq/kWh.
+    """Read specific emissions data from [Tranberg.2019] in gCO2eq/kWh.
 
-    [1]: Tranberg.2019 (https://doi.org/10.1016/j.esr.2019.100367)
+    [Tranberg.2019]: https://doi.org/10.1016/j.esr.2019.100367
     """
     fp = paths.DATA_DIR / f"tranberg/specific_emission_factors.csv"
     df = pd.read_csv(fp, header=0, index_col=0, skiprows=3).T

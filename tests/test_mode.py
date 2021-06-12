@@ -13,7 +13,7 @@ def test_set_mode():
     assert mode.get_mode() == "live"
 
     with pytest.raises(AssertionError):
-        mode.set_mode("save")
+        mode.set_mode("other")
 
     mode.set_mode(mode_backup)
 
