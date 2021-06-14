@@ -1,6 +1,8 @@
-from typing import Optional
-from appdirs import user_cache_dir
 from pathlib import Path
+from typing import Optional
+
+from appdirs import user_cache_dir
+
 from elmada.mode import is_safe_mode
 
 

@@ -1,10 +1,11 @@
-import elmada
 import pandas as pd
+from pytest_mock import MockerFixture
+
+import elmada
 from elmada import from_opsd
 from elmada import helper as hp
-from elmada.mode import ConfigUtil
-from pytest_mock import MockerFixture
 from elmada import paths
+from elmada.mode import ConfigUtil
 
 
 def test_prep_prices(mocker):

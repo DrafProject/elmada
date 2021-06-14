@@ -9,8 +9,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from elmada import eu_pwl
-from elmada import from_geo_via_morph
+from elmada import eu_pwl, from_geo_via_morph
 from elmada import helper as hp
 from elmada import mappings as mp
 from elmada import paths
@@ -220,8 +219,7 @@ def get_geo_list(
     fuel="gas",
     cache: bool = True,
 ) -> pd.DataFrame:
-    """possible conventional fuels are: gas, coal, nuclear, oil
-    """
+    """possible conventional fuels are: gas, coal, nuclear, oil"""
     fp = paths.mode_dependent_cache_dir() / f"geo_list_{fuel}.parquet"
 
     if cache and fp.exists():
@@ -433,9 +431,24 @@ def get_ccgt_DK():
     geo_url = "http://globalenergyobservatory.org/"
     df = pd.DataFrame(
         [
-            ["HC Orsted CHP Power Plant Denmark", 185, True, geo_url + "form.php?pid=44235",],
-            ["Skaerbaek CHP Power Plant Denmark", 392, False, geo_url + "form.php?pid=44237",],
-            ["Svanemolle CHP Power Plant Denmark", 81, False, geo_url + "form.php?pid=44234",],
+            [
+                "HC Orsted CHP Power Plant Denmark",
+                185,
+                True,
+                geo_url + "form.php?pid=44235",
+            ],
+            [
+                "Skaerbaek CHP Power Plant Denmark",
+                392,
+                False,
+                geo_url + "form.php?pid=44237",
+            ],
+            [
+                "Svanemolle CHP Power Plant Denmark",
+                81,
+                False,
+                geo_url + "form.php?pid=44234",
+            ],
         ],
         columns=["name", "capa", "is_ccgt", "source"],
     )

@@ -1,4 +1,5 @@
 import pandas as pd
+
 from elmada import from_geo_scraped
 
 from .common.hasher import get_hash

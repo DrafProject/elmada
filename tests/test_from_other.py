@@ -1,7 +1,9 @@
 from typing import Dict
+
 import pandas as pd
-from elmada import from_other
 import pytest
+
+from elmada import from_other
 
 
 def test_get_transmission_efficiency_series():

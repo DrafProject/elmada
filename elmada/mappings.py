@@ -9,7 +9,6 @@ ISO 3166-1 alpha-2 country codes are used, see https://en.wikipedia.org/wiki/ISO
 import collections
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Union
 
-
 # EU 27
 EU = {
     "AT": "Austria",

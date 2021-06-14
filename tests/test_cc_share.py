@@ -1,7 +1,8 @@
 import collections
 
-from elmada import cc_share
 import pandas as pd
+
+from elmada import cc_share
 
 
 def test_get_ccgt_shares_from_cascade():

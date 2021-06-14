@@ -57,7 +57,10 @@ def _get_empty_installed_generation_capacity_df(ensure_std_techs: bool) -> pd.Da
 
 
 def load_installed_generation_capacity(
-    year: int = 2019, country: str = "DE", cache: bool = True, ensure_std_techs: bool = False,
+    year: int = 2019,
+    country: str = "DE",
+    cache: bool = True,
+    ensure_std_techs: bool = False,
 ) -> pd.DataFrame:
     """Returns a dataframe with installed generation capacity fuel type dependent on year and
     country.
@@ -250,7 +253,10 @@ def _get_timestamps_for_month(year, tz, month):
 
 
 def prep_residual_load(
-    year: int = 2019, freq: str = "15min", country: str = "DE", method: str = "all_conv",
+    year: int = 2019,
+    freq: str = "15min",
+    country: str = "DE",
+    method: str = "all_conv",
 ) -> pd.Series:
     config = dict(year=year, freq=freq, country=country)
 

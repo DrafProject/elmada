@@ -1,6 +1,4 @@
-import pytest
-from elmada import from_geo_via_morph
-from elmada import paths
+from elmada import from_geo_via_morph, paths
 
 
 def test_download_database(mocker):

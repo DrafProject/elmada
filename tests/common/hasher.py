@@ -1,10 +1,10 @@
 import hashlib
 from pathlib import Path
 
+import pandas as pd
 from numpy.core.arrayprint import str_format
 
 import elmada
-import pandas as pd
 from elmada import mappings as mp
 
 HASH_DIR = Path(__file__).resolve().parent

@@ -1,7 +1,7 @@
 import logging
+import warnings
 
 import pandas as pd
-import warnings
 
 from elmada import helper as hp
 from elmada import paths

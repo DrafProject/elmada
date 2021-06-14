@@ -1,11 +1,11 @@
 import pandas as pd
 import pytest
-from elmada import from_entsoe
-from elmada import exceptions
+from entsoe import EntsoePandasClient
+
+from elmada import exceptions, from_entsoe
 from elmada import helper as hp
 from elmada import mappings as mp
 from elmada import paths
-from entsoe import EntsoePandasClient
 
 country_resi_means = [
     ("AT", 1791),

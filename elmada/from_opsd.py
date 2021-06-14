@@ -9,11 +9,10 @@ import pandas as pd
 import requests
 from scipy import stats
 
-from elmada import from_entsoe
-from elmada import from_other
+import elmada
+from elmada import from_entsoe, from_other
 from elmada import mappings as mp
 from elmada import paths
-import elmada
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARN)
@@ -33,7 +32,11 @@ def prep_CEFs(year=2019, freq="60min", country="DE", mo_P=None, **mo_kwargs) -> 
 
 
 def get_CEFs_from_merit_order(
-    mo_P: pd.DataFrame, year: int, freq: str, country: str, resi_T: Optional[pd.Series] = None,
+    mo_P: pd.DataFrame,
+    year: int,
+    freq: str,
+    country: str,
+    resi_T: Optional[pd.Series] = None,
 ) -> pd.DataFrame:
     if resi_T is None:
         resi_T = from_entsoe.prep_residual_load(year=year, freq=freq, country=country)

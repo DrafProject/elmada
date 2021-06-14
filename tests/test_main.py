@@ -1,6 +1,7 @@
-import elmada
 import pandas as pd
 import pytest
+
+import elmada
 
 
 def test_get_emissions(mocker):

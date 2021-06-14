@@ -18,3 +18,8 @@ exclude = '''
   | requirements
 )/
 '''
+
+[tool.isort]
+line_length = 100
+include_trailing_comma = true
+profile = "black"

@@ -1,22 +1,25 @@
-from elmada._version import __version__
+from ._version import __version__
+
+# isort: off
 
 from .mode import get_mode, set_mode
 from .helper import set_api_keys, make_symlink_to_cache
 
+# isort: on
+
 from . import (
-    from_entsoe,
+    cc_share,
     eu_pwl,
+    from_entsoe,
+    from_geo_scraped,
     from_geo_via_morph,
     from_opsd,
     from_other,
-    cc_share,
     from_smard,
-    from_geo_scraped,
     helper,
     paths,
     plots,
 )
-
 from .main import (
     get_el_national_generation,
     get_emissions,

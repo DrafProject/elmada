@@ -1,6 +1,7 @@
 import pytest
-from elmada import mode
+
 import elmada
+from elmada import mode
 
 
 def test_set_mode():

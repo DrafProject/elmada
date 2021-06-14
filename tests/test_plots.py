@@ -1,5 +1,6 @@
-import elmada
 import matplotlib.pyplot as plt
+
+import elmada
 
 
 def test_merit_order():

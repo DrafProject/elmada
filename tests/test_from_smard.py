@@ -1,5 +1,6 @@
-from elmada import from_smard
 import pandas as pd
+
+from elmada import from_smard
 
 
 def test_prep_dayahead_prices():

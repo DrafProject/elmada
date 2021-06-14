@@ -4,11 +4,7 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 import pandas as pd
 
-from elmada import from_entsoe
-from elmada import from_opsd
-from elmada import from_other
-from elmada import cc_share
-from elmada import from_geo_scraped
+from elmada import cc_share, from_entsoe, from_geo_scraped, from_opsd, from_other
 from elmada import mappings as mp
 
 logger = logging.getLogger(__name__)
@@ -45,7 +41,10 @@ def merit_order(
     """Return a merit-order list. Virtual power plants are constructed through discretization."""
 
     mo_f = merit_order_per_fuel(
-        year=year, country=country, approx_method=approx_method, validation_mode=validation_mode,
+        year=year,
+        country=country,
+        approx_method=approx_method,
+        validation_mode=validation_mode,
     )
 
     df = discretize_merit_order_per_fuel(mo_f, pp_size_method=pp_size_method, country=country)

@@ -5,10 +5,10 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 
+from elmada import get_mode
 from elmada import helper as hp
 from elmada import mappings as mp
 from elmada import paths
-from elmada import get_mode
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARN)
@@ -264,8 +264,7 @@ def get_emissions_per_fuel_quaschning() -> Dict:
 
 
 def prepare_transmission_losses() -> pd.DataFrame:
-    """Source: WorldBank.2020 (https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS)
-    """
+    """Source: WorldBank.2020 (https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS)"""
     fp = paths.DATA_DIR / "worldbank/Data_Extract_From_World_Development_Indicators/Data.csv"
     df = pd.read_csv(fp, nrows=58, na_values="..", index_col=2).iloc[:, 3:]
     df = df.rename(columns={k: k[:4] for k in df.keys()})

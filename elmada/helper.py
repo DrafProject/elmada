@@ -79,7 +79,7 @@ def print_error(series1: pd.Series, series2: pd.Series) -> None:
 
 def add_row_for_steps(ser: pd.Series) -> pd.Series:
     """Adds an initial row in the Series for plotting steps. This way the first step does not
-     disappear when choosing option `pre`.
+    disappear when choosing option `pre`.
     """
     return ser.append(pd.Series({-1: 0})).sort_index()
 
@@ -101,8 +101,8 @@ def sizeof_fmt(num: float, suffix: str = "B") -> str:
 
 def freq_to_hours(freq: str) -> float:
     """E.g.:
-        '60min' -> 1.0
-        '30min' -> 0.5
+    '60min' -> 1.0
+    '30min' -> 0.5
     """
     assert freq in ["60min", "30min", "15min"]
     return float(freq[:2]) / 60
@@ -218,7 +218,11 @@ def resample(
             func = downsample
 
         return func(
-            df=df, year=year, start_freq=start_freq, target_freq=target_freq, aggfunc=aggfunc,
+            df=df,
+            year=year,
+            start_freq=start_freq,
+            target_freq=target_freq,
+            aggfunc=aggfunc,
         )
 
 
@@ -354,7 +358,9 @@ def remove_outlier(
 
 
 def fill_outlier_and_nan(
-    df: Union[pd.Series, pd.DataFrame], zscore_threshold: int = 3, method: str = "linear",
+    df: Union[pd.Series, pd.DataFrame],
+    zscore_threshold: int = 3,
+    method: str = "linear",
 ) -> Union[pd.Series, pd.DataFrame]:
 
     df = remove_outlier(df, zscore_threshold)
