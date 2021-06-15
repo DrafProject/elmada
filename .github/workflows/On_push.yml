@@ -34,8 +34,8 @@ jobs:
         python-version: ["3.8", "3.9"]
     steps:
       - run: |
+        pwd
         ls
-        cwd
       - uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: elmada
