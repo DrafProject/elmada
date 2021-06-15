@@ -1,3 +1,5 @@
+import pytest
+
 from .common import averages, hasher
 
 
@@ -7,8 +9,9 @@ def make_and_check_hashes(which: str) -> bool:
     return current.equals(expected)
 
 
-def test_emissions_data():
-    assert make_and_check_hashes("CEF")
+# @pytest.mark.needcache
+# def test_emissions_data():
+#     assert make_and_check_hashes("CEF")
 
 
 def test_get_el_national_generation():

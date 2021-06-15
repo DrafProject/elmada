@@ -45,7 +45,7 @@ jobs:
       - name: Run pytest and generate coverage report
         shell: bash -l {0}
         run: |
-          pytest -v --cov=. --cov-report=xml .
+          pytest -v --cov=. --cov-report=xml -m="not apikey" .
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:

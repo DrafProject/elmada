@@ -25,7 +25,7 @@ def test_get_ice_eua_prices_with_cache():
     assert isinstance(result, Dict)
 
 
-@pytest.mark.slow
+@pytest.mark.apikey
 def test_get_ice_eua_prices_without_cache():
     result = from_other.get_ice_eua_prices(cache=False)
     assert isinstance(result, Dict)
