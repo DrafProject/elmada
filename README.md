@@ -4,6 +4,8 @@
 
 # Elmada: electricity market data for energy system modeling
 
+<!-- [![Tests](https://github.com/DrafProject/elmada/actions/workflows/On_push.yml/badge.svg)](https://github.com/DrafProject/elmada/actions/workflows/On_push.yml)
+[![codecov](https://codecov.io/gh/DrafProject/elmada/branch/master/graph/badge.svg?token=EOKKJG48A9)](https://codecov.io/gh/DrafProject/elmada) -->
 [![Gitter](https://badges.gitter.im/DrafProject/elmada.svg)](https://gitter.im/DrafProject/elmada)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
