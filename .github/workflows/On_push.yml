@@ -33,13 +33,10 @@ jobs:
         os: ["ubuntu-latest", "macos-latest", "windows-latest"]
         python-version: ["3.8", "3.9"]
     steps:
-      - run: |
-        pwd
-        ls
       - uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: elmada
-          environment-file: environment.yml
+          environment-file: ../environment.yml
           python-version: ${{ matrix.python-version }}
           auto-activate-base: false
       - name: Test with pytest and generate coverage report
