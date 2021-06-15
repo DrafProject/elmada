@@ -36,11 +36,14 @@ jobs:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2
         with:
-          activate-environment: elmada
+          miniconda-version: 'latest'
           environment-file: environment.yml
+          auto-update-conda: true
           python-version: ${{ matrix.python-version }}
           auto-activate-base: false
-      - name: Test with pytest and generate coverage report
+          activate-environment: elmada
+      - name: Run pytest and generate coverage report
+        shell: bash -l {0}
         run: |
           pytest -v --cov=. --cov-report=xml .
       - name: Upload coverage to Codecov
