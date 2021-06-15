@@ -5,25 +5,6 @@ on: [push]
 # https://github.com/marketplace/actions/setup-conda
 
 jobs:
-
-  # build:
-  #   runs-on: ${{ matrix.os }}
-  #   strategy:
-  #     matrix:
-  #       os: [ubuntu-latest, windows-latest, macOS-latest]
-  #       python-version: [3.8, 3.9]
-  #   name: Python ${{ matrix.python-version }}, ${{ matrix.os }}
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Setup conda
-  #       uses: s-weigand/setup-conda@v1
-  #       with:
-  #         update-conda: true
-  #         python-version: ${{ matrix.python-version }}
-  #         conda-channels: anaconda, conda-forge
-  #     - run: conda --version
-  #     - run: which python
-
   unit-tests:
     name: Python ${{ matrix.python-version }}, ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -31,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "macos-latest", "windows-latest"]
-        python-version: ["3.8", "3.9"]
+        python-version: [3.7, 3.8, 3.9]
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2
