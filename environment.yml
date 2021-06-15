@@ -10,16 +10,18 @@ dependencies:
   - ipython
   - lxml
   - matplotlib
-  # - notebook
   - numpy
   - pandas
   - pip
+  - pyarrow
   - pytables
   - python >=3.7
+  - python-snappy
   - quandl
   - requests
   - scipy
   - seaborn
   - xlrd
+  # - notebook
   - pip:
     - '--editable=.[all]' # installs an editable version of elmada including feature dependencies
