@@ -23,5 +23,5 @@ dependencies:
   - seaborn
   - xlrd
   # - notebook
-  # - pip:
-  #   - '--editable=.[all]' # installs an editable version of elmada including feature dependencies
+  - pip:
+    - '--editable=.[all]' # installs an editable version of elmada including feature dependencies
