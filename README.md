@@ -15,7 +15,7 @@
 Elmada stands for **el**ectricity **ma**rket **da**ta and essentially provides carbon emission factors as well as wholesale prices for energy system models that focus on the demand side, e.g., demand response potential analyses.
 Elmada is part of the [Draf Project] (Demand Response Analysis Framework) but can be used as a standalone package.
 
-<img src="doc/images/elmada_scheme_scribble.svg" width="550" alt="Elmada scheme scribble">
+<img src="doc/images/elmada_scheme_scribble.svg" width="650" alt="Elmada scheme scribble">
 
 ## Features
 
