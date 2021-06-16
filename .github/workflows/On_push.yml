@@ -1,4 +1,4 @@
-name: On push
+name: Tests
 
 on: [push]
 # sources
