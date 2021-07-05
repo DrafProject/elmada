@@ -18,45 +18,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARN)
 
 
-# @lru_cache(maxsize=1)
-# def get_pp_sizes(replace_nans_by_mean: bool = True, short_countries: bool = True):
-#     fuels = ["nuclear", "coal", "gas_cc", "gas", "oil"]
-#     df = pd.DataFrame({fuel: get_geo_capa_with_cc(fuel) for fuel in fuels})
-
-#     if short_countries:
-#         df = transform_countryindex_to_short(df)
-
-#     if replace_nans_by_mean:
-#         logger.info(f"Filled nan's with the following mean values:\n{df.mean()}")
-#         df = df.fillna(df.mean())
-#     df["lignite"] = df["coal"]
-#     return df
-
-
-# def transform_countryindex_to_short(df: Union[pd.Series, pd.DataFrame]):
-#     reverse_ana = {v: k for k, v in mp.COUNTRIES_FOR_ANALYSIS.items()}
-#     df.index = df.index.map(reverse_ana)
-#     return df.sort_index()
-
-
-# def get_geo_capa_with_cc(fuel: str):
-#     if "gas" in fuel:
-#         df = get_rich_geo_list(filter="ana")
-#         if fuel == "gas_cc":
-#             df = df[df["counts_as_cc"]]
-#         elif fuel == "gas":
-#             df = df[~df["counts_as_cc"]]
-
-#     else:
-#         df = get_geo_list(fuel=fuel, filter="ana")
-
-#     return df.groupby("country").capa.mean()
-
-
 @lru_cache(maxsize=1)
 def get_ccgt_shares_from_cascade():
-    # geo = get_geo_shares_overview()["share_cc"].rename("geo")
-    # rich_geo = get_rich_geo_shares_overview()["share_cc"].rename("rich_geo")
     rich_geo = from_geo_via_morph.get_ccgt_shares()["share_cc"].rename("rich_geo")
     wiki = get_wiki_shares(cache=True).rename("manual")
     opsd = pd.Series({"DE": get_ccgt_DE()}).rename("opsd")
@@ -80,81 +43,6 @@ def get_ccgt_shares_from_cascade():
     # df.reindex(mp.COUNTRIES_FOR_ANALYSIS.keys())
     df = df.sort_index()
     return df
-
-
-#################################
-# RICH GEO LIST self-scraped    #
-#################################
-
-
-# def get_rich_geo_shares_overview():
-#     geo = get_rich_geo_list()
-#     valid_countries = get_valid_countries()
-#     header = ["cy_long", "nplants", "total_capa"]
-#     df = pd.DataFrame(index=valid_countries.keys(), columns=header)
-
-#     for cy_short, cy_long in valid_countries.items():
-#         is_country = geo.country == cy_long
-#         df.loc[cy_short, "cy_long"] = cy_long
-#         df.loc[cy_short, "nplants"] = is_country.sum()
-#         df.loc[cy_short, "cc_capa"] = geo.loc[is_country, "capa"] @ geo.loc[is_country, "cc_weight"]
-#         df.loc[cy_short, "total_capa"] = geo.loc[is_country, "capa"].sum()
-
-#     df["share_cc"] = df["cc_capa"] / df["total_capa"]
-#     return df
-
-
-# def get_rich_geo_list(
-#     country_long: Optional[str] = None, filter: Optional[str] = None, cache: bool = True
-# ):
-#     fp = paths.CACHE_DIR / f"geo_list_rich.h5"
-
-#     if cache and fp.exists():
-#         df = pd.read_hdf(fp)
-
-#     else:
-#         df = get_geo_list()
-#         in_valid_countries = df["country"].isin(get_valid_countries().values())
-#         df["type"] = np.nan
-#         df.loc[in_valid_countries, "type"] = df.loc[in_valid_countries, "geoid"].apply(
-#             get_geo_plant_type
-#         )
-#         if cache:
-#             hp.write(df, fp)
-
-#     df.type.replace("Please Select", np.nan, inplace=True)
-
-#     cc_weighting = {
-#         "Thermal and CCGT": 1,
-#         "Power and Heat Combined Cycle Gas Turbine": 1,
-#         "Sub-critical Thermal": 0,
-#         "Combined Cycle Gas Turbine": 1,
-#         "Power and Heat Open Cycle Gas Turbine": 0,
-#         "Open Cycle Gas Turbine": 0,
-#         "Heat and Power Steam Turbine": 0,
-#         "Super-critical Thermal": 0,
-#         "Combined Cycle Gas Engine (CCGE)": 1,
-#         "Gas Engines": 0,
-#         "OCGT and CCGT": 0.49,
-#         np.nan: 0,
-#     }
-
-#     df["cc_weight"] = df["type"].map(cc_weighting)
-#     df["counts_as_cc"] = df["cc_weight"].apply(round).astype("bool")
-
-#     if country_long is None and filter is None:
-#         return df
-#     elif country_long is not None and filter is None:
-#         return df[df["country"] == country_long]
-#     elif country_long is None and filter is not None:
-#         if filter == "ana":
-#             return df[df.country.isin(mp.COUNTRIES_FOR_ANALYSIS.values())]
-#         elif filter == "eur":
-#             return df[df.country.isin(mp.EUROPE_COUNTRIES.values())]
-#         else:
-#             RuntimeError("Filter must be either 'ana' or 'eur'.")
-#     else:
-#         raise RuntimeError("Country_long and filter given but only one of the two expected.")
 
 
 #################################
@@ -196,21 +84,6 @@ def get_valid_countries() -> collections.OrderedDict:
     avail = set(df["country"].unique())
     d = {short: long for short, long in mp.COUNTRIES_FOR_ANALYSIS.items() if long in avail}
     return collections.OrderedDict(sorted(d.items()))
-
-
-# def get_geo_plant_type(geoid):
-#     if geoid is None:
-#         return np.nan
-#     else:
-#         url = "http://globalenergyobservatory.org/geoid/" + geoid
-#         page = requests.get(url).text
-#         soup = BeautifulSoup(page, "lxml")
-#         selector = soup.find("select", {"id": "Type_of_Plant_enumfield_rng1"})
-#         x = selector.find("option", dict(selected="selected"))
-#         if x is None:
-#             return np.nan
-#         else:
-#             return x.get_text()
 
 
 def get_geo_list(
@@ -431,24 +304,9 @@ def get_ccgt_DK():
     geo_url = "http://globalenergyobservatory.org/"
     df = pd.DataFrame(
         [
-            [
-                "HC Orsted CHP Power Plant Denmark",
-                185,
-                True,
-                geo_url + "form.php?pid=44235",
-            ],
-            [
-                "Skaerbaek CHP Power Plant Denmark",
-                392,
-                False,
-                geo_url + "form.php?pid=44237",
-            ],
-            [
-                "Svanemolle CHP Power Plant Denmark",
-                81,
-                False,
-                geo_url + "form.php?pid=44234",
-            ],
+            ["HC Orsted CHP Power Plant Denmark", 185, True, geo_url + "form.php?pid=44235",],
+            ["Skaerbaek CHP Power Plant Denmark", 392, False, geo_url + "form.php?pid=44237",],
+            ["Svanemolle CHP Power Plant Denmark", 81, False, geo_url + "form.php?pid=44234",],
         ],
         columns=["name", "capa", "is_ccgt", "source"],
     )

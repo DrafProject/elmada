@@ -131,36 +131,6 @@ def merit_order(
     return df
 
 
-# def get_installed_generation_capacity(year=2019, country="DE") -> pd.Series:
-#     """[NOT USED] This function is only kept for documentation.
-
-#     Returns a Series with aggregated installed generation capacity fuel type dependent on year
-#     and country.
-
-#     WARNING:
-#         - Poor data for year 2016-2017!
-#         - Better use from_entsoe.load_installed_generation_capacity
-#         - This function is just for the purpose of a later evaluation.
-#         - Several data sources are combined here, the sources are chosen arbitrary with 'last()'.
-
-#     Source:
-#         (https://doi.org/10.25832/national_generation_capacity/2019-12-02)
-#     """
-#     fp = (
-#         paths.DATA_DIR
-#         / "opsd/opsd-national_generation_capacity-2019-12-02/national_generation_capacity_stacked.csv"
-#     )
-#     df = pd.read_csv(fp, index_col=0)
-#     is_country = df["country"] == country
-#     is_year = df["year"] == year
-#     in_technology = df.technology.isin(mp.OPSD_TO_DRAF.keys())
-#     ser = df.loc[is_country & is_year & in_technology, ["technology", "capacity"]]
-#     ser = ser.groupby("technology").last().capacity
-#     ser.index = ser.index.map(mp.OPSD_TO_DRAF)
-#     ser.index.name = "fuel_draf"
-#     return ser
-
-
 def get_summary(year=2019) -> pd.DataFrame:
     ca = get_current_active_power_plants(year)
     grouper = ca.groupby(["fuel", "technology"])
@@ -170,14 +140,6 @@ def get_summary(year=2019) -> pd.DataFrame:
         sum_capa=grouper.sum()["capacity_net_bnetza"],
     )
     return pd.concat(d.values(), axis=1, keys=d.keys())
-
-
-# def get_summary_EU(year=2019) -> pd.DataFrame:
-#     """[NOT USED]"""
-#     ca = get_current_active_power_plants_EU(year)
-#     grouper = ca.groupby(["country", "energy_source", "energy_source_level_2", "technology"])
-#     d = dict(counts=grouper.count()["name"], sum_capa=grouper.sum()["capacity"])
-#     return pd.concat(d.values(), axis=1, keys=d.keys())
 
 
 def get_summary_of_opsd_raw() -> pd.DataFrame:
@@ -213,34 +175,6 @@ def get_current_active_power_plants(year=2019) -> pd.DataFrame:
 
     # interesting_cols = ["id", "name_bnetza", "status", "fuel", "technology", "type", "efficiency_estimate", "capacity_net_bnetza"]
     return ca
-
-
-# def get_current_active_power_plants_EU(year=2019) -> pd.DataFrame:
-#     """[NOT USED] Get current active OPSD power plants for European Union.
-
-#     NOTE: The data basis used in this function is not sufficient. In most countries there
-#     are only one fuel type.
-#     """
-#     df = read_opsd_powerplant_list(which="EU")
-#     used_fuels = mp.OPSD_TO_DRAF.keys()
-#     other_fuels = df["energy_source_level_2"].unique().tolist()
-#     after_commissioned = (df["commissioned"].notnull() & (df["commissioned"] < year)) | df[
-#         "commissioned"
-#     ].isna()
-#     has_capa_value = df["capacity"].notnull()
-#     currently_active = after_commissioned
-#     in_used_fuels = df["energy_source_level_2"].isin(used_fuels)
-#     cond = currently_active & has_capa_value & in_used_fuels
-#     ca = df[cond]
-
-#     logger.info(
-#         f"{(cond.sum() / len(df)):.2%} of data rows were used "
-#         f"({(~in_used_fuels).sum() / len(df):.2%} are not in used fuels). "
-#         f"Other (discarded) fuels are {other_fuels}."
-#     )
-
-#     # interesting_cols = ["country", "name", "energy_source_level_2", "technology", "type", "capacity"]
-#     return ca
 
 
 def read_opsd_powerplant_list(which: str = "DE") -> pd.DataFrame:

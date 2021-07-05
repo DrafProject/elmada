@@ -59,47 +59,6 @@ NON_OPERATIONAL_STATUSES = [
 ]
 
 
-# @lru_cache(maxsize=1)
-# def get_installed_capacity(cache: bool = False) -> pd.DataFrame:
-#     fp = paths.CACHE_DIR / "geo_installed_capacity.h5"
-
-#     if cache and fp.exists():
-#         df = pd.read_hdf(fp)
-
-#     else:
-#         df = get_geo_list()
-#         df = df.groupby(["cy", "fuel"])["capa"].sum().unstack()
-#         if cache:
-#             hp.write(df, fp)
-
-#     df.index.name = None
-#     df.columns.name = None
-#     return df[mp.PWL_FUELS]
-
-
-# @lru_cache(maxsize=1)
-# def get_pp_sizes(replace_nans_by_mean: bool = True, cache: bool = False) -> pd.DataFrame:
-#     fp = paths.CACHE_DIR / "ppsizes.h5"
-
-#     if cache and fp.exists():
-#         df = pd.read_hdf(fp)
-
-#     else:
-#         df = get_geo_list()
-#         df = df.groupby(["cy", "fuel"])["capa"].mean().unstack()
-#         if cache:
-#             hp.write(df, fp)
-
-#     if replace_nans_by_mean:
-#         logger.info(f"Filled nan's with the following mean values:\n{df.mean()}")
-#         df = df.fillna(df.mean())
-#         # these values where filled with mean:
-#         # df = pd.DataFrame({cy:pwl.prep_installed_generation_capacity(country=cy) for cy in mp.COUNTRIES_FOR_ANALYSIS}).T
-#         # df[(ge.get_pp_sizes().isna()) & (df>0)].stack()
-
-#     return df.astype("int")
-
-
 def get_ccgt_shares() -> pd.DataFrame:
     geo = get_geo_list()
     valid_countries = get_valid_countries()

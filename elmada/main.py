@@ -174,6 +174,3 @@ def get_residual_load(year: int, freq: str = "60min", country: str = "DE", **kwa
 
 def get_el_national_generation(year: int, freq: str = "60min", country: str = "DE") -> pd.DataFrame:
     return elmada.from_entsoe.load_el_national_generation(year=year, freq=freq, country=country)
-
-
-# TODO: add get_merit_order()
