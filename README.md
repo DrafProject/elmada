@@ -4,13 +4,15 @@
 
 # Elmada: electricity market data for energy system modeling
 
-[![Tests](https://github.com/DrafProject/elmada/actions/workflows/Tests.yml/badge.svg)](https://github.com/DrafProject/elmada/actions/workflows/on_push.yml)
-[![codecov](https://codecov.io/gh/DrafProject/elmada/branch/master/graph/badge.svg?token=EOKKJG48A9)](https://codecov.io/gh/DrafProject/elmada) -->
-[![Gitter](https://badges.gitter.im/DrafProject/elmada.svg)](https://gitter.im/DrafProject/elmada)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![Gitter](https://badges.gitter.im/DrafProject/elmada.svg)](https://gitter.im/DrafProject/elmada)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
+
+[![Tests](https://github.com/DrafProject/elmada/actions/workflows/On_push.yml/badge.svg)](https://github.com/DrafProject/elmada/actions/workflows/On_push.yml)
+[![codecov](https://codecov.io/gh/DrafProject/elmada/branch/master/graph/badge.svg?token=EOKKJG48A9)](https://codecov.io/gh/DrafProject/elmada)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1)](https://pycqa.github.io/isort/)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
+[![python](https://img.shields.io/badge/python-3.7_|_3.8_|_3.9-blue?logo=python&logoColor=white)](https://github.com/DrafProject/elmada)
 
 Elmada stands for **el**ectricity **ma**rket **da**ta and essentially provides carbon emission factors as well as wholesale prices for energy system models that focus on the demand side, e.g., demand response potential analyses.
 Elmada is part of the [Draf Project] (Demand Response Analysis Framework) but can be used as a standalone package.
