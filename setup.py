@@ -42,7 +42,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/drafproject/elmada",
     license="LGPLv3",
-    packages=find_packages("elmada"),
+    packages=find_packages(),
     python_requires=">=3.7",
     install_requires=["scipy", "entsoe-py", "requests", "bs4", "appdirs"],
     extras_require=get_extra_requires("extra-requirements.txt"),

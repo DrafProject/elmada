@@ -218,11 +218,7 @@ def resample(
             func = downsample
 
         return func(
-            df=df,
-            year=year,
-            start_freq=start_freq,
-            target_freq=target_freq,
-            aggfunc=aggfunc,
+            df=df, year=year, start_freq=start_freq, target_freq=target_freq, aggfunc=aggfunc,
         )
 
 
@@ -358,9 +354,7 @@ def remove_outlier(
 
 
 def fill_outlier_and_nan(
-    df: Union[pd.Series, pd.DataFrame],
-    zscore_threshold: int = 3,
-    method: str = "linear",
+    df: Union[pd.Series, pd.DataFrame], zscore_threshold: int = 3, method: str = "linear",
 ) -> Union[pd.Series, pd.DataFrame]:
 
     df = remove_outlier(df, zscore_threshold)
@@ -404,11 +398,12 @@ def set_api_key(which: str, api_key: str) -> None:
         respond = input(
             f"The file {fp} already exists. Do you want to overwrite it? Type (y)es or (n)o."
         )
-        if respond in ["yes", "y"]:
-            fp.write_text(api_key)
-            print(f"Api key written to {fp}.")
-        else:
+        if respond not in ["yes", "y"]:
             print("Aborted.")
+            return None
+
+    fp.write_text(api_key)
+    print(f"Api key written to {fp}.")
 
 
 def get_api_key(which: str = "entsoe"):

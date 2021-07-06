@@ -58,9 +58,9 @@ You can use Elmada in two data modes which can be set with `elmada.set_mode(mode
 
 | Description | Local data location | Source | Channel | Involed in |
 |-|-|-|-|-|
-| Generation time series & installed generation capacities | [.../safe_cache] or `CACHE_DIR` | [ENTSO-E] | 🔌 on-demand-retrieval via [EntsoePandasClient] (requires valid [ENTSO-E API key] in [.../api_keys]`/entsoe.txt`) | CEFs via `EP`, `PP`, `PWL`, `PWLv` |
-| Carbon prices (EUA)| [.../safe_cache] or `CACHE_DIR` | [Sandbag] & [ICE] | 🔌 on-demand-retrieval via [Quandl] (requires valid [Quandl API key] in [.../api_keys]`/quandl.txt`) | CEFs via `_PP`, `PWL`, `PWLv` |
-| Share of CCGT among gas power plants | [.../safe_cache] or `CACHE_DIR` | [GEO] | 🔌 on-demand-download via [Morph] (requires valid [Morph API key] in [.../api_keys]`/morph.txt`)| CEFs via `PWL`, `PWLv` |
+| Generation time series & installed generation capacities | [.../safe_cache] or `CACHE_DIR` | [ENTSO-E] | 🔌 on-demand-retrieval via [EntsoePandasClient] (requires valid [ENTSO-E API key]) | CEFs via `EP`, `PP`, `PWL`, `PWLv` |
+| Carbon prices (EUA)| [.../safe_cache] or `CACHE_DIR` | [Sandbag] & [ICE] | 🔌 on-demand-retrieval via [Quandl] (requires valid [Quandl API key]) | CEFs via `_PP`, `PWL`, `PWLv` |
+| Share of CCGT among gas power plants | [.../safe_cache] or `CACHE_DIR` | [GEO] | 🔌 on-demand-download via [Morph] (requires valid [Morph API key])| CEFs via `PWL`, `PWLv` |
 | (Average) fossil power plants sizes | [.../safe_cache] or `CACHE_DIR` | [GEO] | 🔌 on-demand-scraping via [BeautifulSoup4] | CEFs via `PWL`, `PWLv` |
 | German fossil power plant list with efficiencies | [.../safe_cache] or `CACHE_DIR` | [OPSD] | 🔌 on-demand-download from [here][opsd_download] | CEFs via `PP`, `PWL`, `PWLv` |
 | Transmission & distribution losses | [.../worldbank] | [Worldbank] | 💾 manual download from [here][wb] | CEFs via `_PP`, `PWL`, `PWLv` |
@@ -69,21 +69,15 @@ You can use Elmada in two data modes which can be set with `elmada.set_mode(mode
 
 # Installation
 
-## Using conda / pip
-
-Conda install (preferred):
+## Using `pip`
 
 ```sh
-... coming soon
+python -m pip install elmada[all]
 ```
 
-Install with `pip` (PyPI registration is coming soon):
+NOTE: [This blogpost](https://snarky.ca/why-you-should-use-python-m-pip/) explains why you should use `python -m pip` to run `pip`.
 
-```sh
-python -m pip install git+https://github.com/DrafProject/elmada.git
-```
-
-## From source (including environment and editable version)
+## From source (including conda environment and editable elmada version)
 
 Clone the source repository:
 
@@ -92,7 +86,7 @@ git clone https://github.com/DrafProject/elmada.git
 cd elmada
 ```
 
-Create environment based on environment.yml and install an editable local Elmada version:
+Create an conda environment based on `environment.yml` and install an editable local Elmada version:
 
 ```sh
 conda env create
@@ -114,11 +108,18 @@ pytest
 
 ```py
 import elmada
+```
 
-# OPTIONAL: Set your api keys and go live mode:
-elmada.set_api_keys(entsoe=<YOUR_ENTSOE_KEY>, morph=<YOUR_MORPH_KEY, quandl=<YOUR_QUANDL_KEY>)
+OPTIONAL: Set your api keys and go live mode:
+
+```py
+elmada.set_api_keys(entsoe="YOUR_ENTSOE_KEY", morph="YOUR_MORPH_KEY", quandl="YOUR_QUANDL_KEY")
+# NOTE: Api keys are stored in an OS-dependent config directory for later use.
+
 elmada.set_mode("live")
 ```
+
+
 
 ## Carbon Emission factors
 
@@ -244,7 +245,6 @@ Copyright (c) 2021 Markus Fleschutz
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 <!-- SOURCES -->
-[.../api_keys]: elmada/api_keys
 [.../destatis]: elmada/data/raw/destatis
 [.../from_other.py]: elmada/from_other.py
 [.../safe_cache]: elmada/data/safe_cache
