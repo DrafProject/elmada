@@ -3,9 +3,9 @@ channels:
   - conda-forge
   - anaconda
 dependencies:
+# NOTE: here '=' (single)
   - appdirs
   - bs4
-  - entsoe-py==0.2.15
   - fastparquet
   - ipython
   - lxml
@@ -24,4 +24,6 @@ dependencies:
   - xlrd
   # - notebook
   - pip:
+  # NOTE: here '==' (double)
+    - entsoe-py==0.2
     - '--editable=.[all]' # installs an editable version of elmada including feature dependencies

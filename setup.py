@@ -47,7 +47,7 @@ setup(
     install_requires=[
         "appdirs",
         "bs4",
-        "entsoe-py<=0.2",
+        "entsoe-py==0.2",
         "fastparquet",
         "ipython",
         "lxml",
