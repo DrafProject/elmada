@@ -5,7 +5,6 @@ channels:
 dependencies:  # NOTE: here '=' (single)
   - appdirs
   - bs4
-  - entsoe-py=0.2
   - fastparquet
   - ipython
   - lxml
@@ -28,4 +27,5 @@ dependencies:  # NOTE: here '=' (single)
   - xlrd
   # - notebook
   - pip:  # NOTE: here '==' (double)
+    - entsoe-py==0.2.12
     - '--editable=.' # installs an editable version of elmada
