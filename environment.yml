@@ -2,10 +2,10 @@ name: elmada
 channels:
   - conda-forge
   - anaconda
-dependencies:
-# NOTE: here '=' (single)
+dependencies:  # NOTE: here '=' (single)
   - appdirs
   - bs4
+  - entsoe-py=0.2
   - fastparquet
   - ipython
   - lxml
@@ -27,7 +27,5 @@ dependencies:
   - seaborn
   - xlrd
   # - notebook
-  - pip:
-  # NOTE: here '==' (double)
-    - entsoe-py==0.2
-    - '--no-cache-dir --no-deps --editable .' # installs an editable version of elmada
+  - pip:  # NOTE: here '==' (double)
+    - '--editable=.' # installs an editable version of elmada

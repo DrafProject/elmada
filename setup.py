@@ -53,7 +53,6 @@ setup(
         "lxml",
         "numpy",
         "pandas",
-        "pip",
         "pyarrow",
         "pytables",
         "python-snappy",

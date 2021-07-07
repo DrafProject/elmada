@@ -8,7 +8,8 @@
 [![Gitter](https://badges.gitter.im/DrafProject/elmada.svg)](https://gitter.im/DrafProject/elmada)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
-[![Tests](https://github.com/DrafProject/elmada/actions/workflows/On_push.yml/badge.svg)](https://github.com/DrafProject/elmada/actions/workflows/On_push.yml)
+[![CI](https://github.com/DrafProject/elmada/actions/workflows/CI.yml/badge.svg)](https://github.com/DrafProject/elmada/actions/workflows/CI.yml)
+[![CI with conda](https://github.com/DrafProject/elmada/actions/workflows/CI_conda.yml/badge.svg)](https://github.com/DrafProject/elmada/actions/workflows/CI_conda.yml)
 [![codecov](https://codecov.io/gh/DrafProject/elmada/branch/master/graph/badge.svg?token=EOKKJG48A9)](https://codecov.io/gh/DrafProject/elmada)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1)](https://pycqa.github.io/isort/)

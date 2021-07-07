@@ -1,6 +1,6 @@
-name: Tests
+name: CI_conda
 
-on: [push]
+on: push
 # sources
 # https://github.com/marketplace/actions/setup-conda
 
