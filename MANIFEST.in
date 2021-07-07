@@ -1,1 +1,1 @@
-include extra-requirements.txt
+include extra-requirements.txt doc/images/**

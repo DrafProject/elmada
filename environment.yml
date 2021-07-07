@@ -5,7 +5,7 @@ channels:
 dependencies:
   - appdirs
   - bs4
-  - entsoe-py =0.2
+  - entsoe-py=0.2
   - fastparquet
   - ipython
   - lxml
@@ -15,7 +15,7 @@ dependencies:
   - pip
   - pyarrow
   - pytables
-  - python >=3.7
+  - python>=3.7
   - python-snappy
   - quandl
   - requests
