@@ -13,10 +13,14 @@ dependencies:
   - numpy
   - pandas
   - pip
+  - plotly
   - pyarrow
   - pytables
-  - python>=3.7
+  - pytest
+  - pytest-cov
+  - pytest-mock
   - python-snappy
+  - python>=3.7
   - quandl
   - requests
   - scipy
@@ -26,4 +30,4 @@ dependencies:
   - pip:
   # NOTE: here '==' (double)
     - entsoe-py==0.2
-    - '--editable=.[all]' # installs an editable version of elmada including feature dependencies
+    - '--no-cache-dir --no-deps --editable .' # installs an editable version of elmada
