@@ -25,9 +25,13 @@ jobs:
           auto-activate-base: false
           activate-environment: elmada
       - name: Run pytest and generate coverage report
+        env:
+          ENTSOE_API_KEY: ${{ secrets.ENTSOE_API_KEY }}
+          MORPH_API_KEY: ${{ secrets.MORPH_API_KEY }}
+          QUANDL_API_KEY: ${{ secrets.QUANDL_API_KEY }}
         shell: bash -l {0}
         run: |
-          pytest -v --cov=elmada --cov-report=xml -m="not apikey" .
+          pytest -v --cov=elmada --cov-report=xml .
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
