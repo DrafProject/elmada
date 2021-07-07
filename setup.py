@@ -54,11 +54,11 @@ setup(
         "numpy",
         "pandas",
         "pyarrow",
-        "pytables",
         "python-snappy",
         "quandl",
         "requests",
         "scipy",
+        "tables",  # Pytables is referenced in python hosted projects as tables
         "xlrd",
     ],
     extras_require=get_extra_requires("extra-requirements.txt"),
