@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 from pytest_mock import MockerFixture
 
 import elmada
@@ -36,17 +37,13 @@ def test_prep_CEFs():
     assert isinstance(cefs, pd.DataFrame)
 
 
+@pytest.mark.apikey
 def test_read_opsd_powerplant_list(mocker: MockerFixture):
-    for mode in ["safe", "live"]:
-
-        mocker.patch.object(ConfigUtil, "mode", mode)
-        assert elmada.get_mode() == mode
-        df = from_opsd.read_opsd_powerplant_list()
-        if mode == "safe":
-            assert len(df) == 893
-        else:
-            assert len(df) != 893
-        assert "fuel" in df
+    mocker.patch.object(ConfigUtil, "mode", "safe")
+    assert elmada.get_mode() == "safe"
+    df = from_opsd.read_opsd_powerplant_list()
+    assert len(df) == 893
+    assert "fuel" in df
 
 
 def test_get_summary():
