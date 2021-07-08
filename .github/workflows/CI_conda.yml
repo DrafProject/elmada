@@ -31,7 +31,7 @@ jobs:
           QUANDL_API_KEY: ${{ secrets.QUANDL_API_KEY }}
         shell: bash -l {0}
         run: |
-          pytest -v --cov=elmada --cov-report=xml .
+          pytest -v --cov=elmada --cov-report=xml -m="not apikey" .
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
