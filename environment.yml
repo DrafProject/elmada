@@ -16,7 +16,6 @@ dependencies:  # NOTE: here '=' (single)
   - pytest
   - pytest-cov
   - pytest-mock
-  - python-snappy
   - python>=3.7
   - quandl
   - requests

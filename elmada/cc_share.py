@@ -24,7 +24,7 @@ def get_ccgt_shares_from_cascade():
     wiki = get_wiki_shares(cache=True).rename("manual")
     opsd = pd.Series({"DE": get_ccgt_DE()}).rename("opsd")
 
-    df = pd.concat([wiki, rich_geo, opsd], 1, sort=False)
+    df = pd.concat([wiki, rich_geo, opsd], axis=1, sort=False)
 
     def select_source(row):
         if not np.isnan(row["opsd"]):
@@ -293,7 +293,7 @@ def get_ccgt_IT():
     df2 = pd.DataFrame.from_dict(is_ccgt, "index", columns=["is_ccgt", "source"]).reset_index(
         drop=True
     )
-    df = pd.concat([df, df2], 1)
+    df = pd.concat([df, df2], axis=1)
     df["is_ccgt"] = df["is_ccgt"].astype("float")
 
     return (df[cap_col] * df["is_ccgt"]).sum() / df[cap_col].sum()

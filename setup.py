@@ -53,7 +53,6 @@ setup(
         "numpy",
         "pandas",
         "pyarrow",
-        "python-snappy",
         "quandl",
         "requests",
         "scipy",
