@@ -5,6 +5,7 @@
 # Elmada: electricity market data for energy system modeling
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![pypi](https://img.shields.io/pypi/v/elmada.svg)](https://pypi.python.org/pypi/elmada/)
 [![Gitter](https://badges.gitter.im/DrafProject/elmada.svg)](https://gitter.im/DrafProject/elmada)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
@@ -15,8 +16,9 @@
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1)](https://pycqa.github.io/isort/)
 [![python](https://img.shields.io/badge/python-3.7_|_3.8_|_3.9-blue?logo=python&logoColor=white)](https://github.com/DrafProject/elmada)
 
-Elmada stands for **el**ectricity **ma**rket **da**ta and essentially provides carbon emission factors as well as wholesale prices for energy system models that focus on the demand side, e.g., demand response potential analyses.
-Elmada is part of the [Draf Project] (Demand Response Analysis Framework) but can be used as a standalone package.
+The open-source Python package **Elmada** provides carbon emission factors and wholesale prices of the national electricity supply system for the modeling of distributed energy systems.
+Elmada stands for **el**ectricity **ma**rket **da**ta.
+It is part of the [Draf Project] but can be used as a standalone package.
 
 <img src="doc/images/elmada_scheme_scribble.svg" width="650" alt="Elmada scheme scribble">
 
@@ -70,7 +72,7 @@ You can use Elmada in two data modes which can be set with `elmada.set_mode(mode
 
 ## Time zones
 
-The data is in local time since the [Draf Project](https://github.com/DrafProject) focuses on the modeling of individual energy hubs.
+The data is in local time since the [Draf Project] focuses on the modeling of individual energy hubs.
 Standard time is used i.e. daylight saving time is ignored.
 Also see [this table](https://github.com/DrafProject/marginal-emission-factors/blob/main/README.md#time-zones) of the time zones used.
 
