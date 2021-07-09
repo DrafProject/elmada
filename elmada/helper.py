@@ -137,7 +137,7 @@ def write(data: Union[pd.Series, pd.DataFrame], fp: Union[Path, str]) -> None:
 
     Args:
         data: Must be either pandas.Series or pandas.DataFrame.
-        fp: Filepath of a .parquet, .h5, or .csv file.
+        fp: Filepath of a .parquet or .csv file.
     """
 
     fp = Path(fp)
@@ -148,8 +148,8 @@ def write(data: Union[pd.Series, pd.DataFrame], fp: Union[Path, str]) -> None:
             if data.name is None:
                 data.name = DEFAULT_HEADER
         pd.DataFrame(data).to_parquet(fp, index=True)
-    elif fp.suffix == ".h5":
-        data.to_hdf(fp, key="default", mode="w")
+    # elif fp.suffix == ".h5":
+    #     data.to_hdf(fp, key="default", mode="w")
     elif fp.suffix == ".csv":
         data.to_csv(fp, index=True)
     else:
@@ -160,7 +160,7 @@ def read(fp: Union[Path, str], squeeze: bool = True) -> Union[pd.Series, pd.Data
     """Standardized way of reading arrays in draf.
 
     Args:
-        fp: Filepath of a .parquet, .h5, or .csv file.
+        fp: Filepath of a .parquet, or .csv file.
         squeeze: If DataFrames with one columns should be transformed into a series
     """
 
@@ -168,8 +168,8 @@ def read(fp: Union[Path, str], squeeze: bool = True) -> Union[pd.Series, pd.Data
 
     if fp.suffix == ".parquet":
         data = pd.read_parquet(fp)
-    elif fp.suffix == ".h5":
-        data = pd.read_hdf(fp)
+    # elif fp.suffix == ".h5":
+    #     data = pd.read_hdf(fp)
     elif fp.suffix == ".csv":
         data = pd.read_csv(fp, index_col=0)
     else:

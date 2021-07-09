@@ -47,8 +47,7 @@ setup(
     install_requires=[
         "appdirs",
         "bs4",
-        "entsoe-py==0.2.12",
-        "fastparquet",
+        "entsoe-py==0.2.10",
         "ipython",
         "lxml",
         "numpy",
@@ -58,7 +57,6 @@ setup(
         "quandl",
         "requests",
         "scipy",
-        "tables",  # Pytables is referenced in python hosted projects as tables
         "xlrd",
     ],
     extras_require=get_extra_requires("extra-requirements.txt"),

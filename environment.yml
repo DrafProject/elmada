@@ -5,7 +5,6 @@ channels:
 dependencies:  # NOTE: here '=' (single)
   - appdirs
   - bs4
-  - fastparquet
   - ipython
   - lxml
   - matplotlib
@@ -14,7 +13,6 @@ dependencies:  # NOTE: here '=' (single)
   - pip
   - plotly
   - pyarrow
-  - pytables
   - pytest
   - pytest-cov
   - pytest-mock
@@ -27,5 +25,5 @@ dependencies:  # NOTE: here '=' (single)
   - xlrd
   # - notebook
   - pip:  # NOTE: here '==' (double)
-    - entsoe-py==0.2.12
+    - entsoe-py==0.2.10
     - '--editable=.' # installs an editable version of elmada

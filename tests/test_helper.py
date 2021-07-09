@@ -18,9 +18,9 @@ def test_datetime_to_int(freq: str, year: int, month: int, day: int, expected: i
 @pytest.mark.parametrize(
     "freq, year, pos, expected",
     [
-        ["15min", 1999, 10, pd.Timestamp("1999-01-01 02:30:00", freq="15T")],
-        ["45min", 2003, 34, pd.Timestamp("2003-01-02 01:30:00", freq="45T")],
-        ["60min", 2020, 1, pd.Timestamp("2020-01-01 01:00:00", freq="60T")],
+        ["15min", 1999, 10, pd.Timestamp("1999-01-01 02:30:00")],
+        ["45min", 2003, 34, pd.Timestamp("2003-01-02 01:30:00")],
+        ["60min", 2020, 1, pd.Timestamp("2020-01-01 01:00:00")],
     ],
 )
 def test_int_to_datetime(freq: str, year: int, pos: int, expected: pd.Timestamp):
@@ -65,7 +65,7 @@ def test_delete_cache(mocker, capsys):
     captured = capsys.readouterr()
     assert captured.out == "No file found containing 'XXXX'.\n"
 
-    fp = paths.CACHE_DIR / "test_file_XXXX.h5"
+    fp = paths.CACHE_DIR / "test_file_XXXX.parquet"
     tuplelist = [(True, "1 files deleted\n"), (False, "No files deleted\n")]
 
     for (patch_value, msg) in tuplelist:
@@ -127,7 +127,7 @@ def test_write():
     with pytest.raises(ValueError):
         hp.write(ser, path_scheme)
 
-    for suffix in [".parquet", ".h5", ".csv"]:
+    for suffix in [".parquet", ".csv"]:
         fp = path_scheme.with_suffix(suffix)
         assert not fp.exists()
         hp.write(ser, fp)
@@ -136,8 +136,8 @@ def test_write():
 
 
 def test_read(mocker):
-    suffices = ("parquet", "h5", "csv")
-    funcs = ("pandas.read_parquet", "pandas.read_hdf", "pandas.read_csv")
+    suffices = ("parquet", "csv")
+    funcs = ("pandas.read_parquet", "pandas.read_csv")
     for suffix, func in zip(suffices, funcs):
         fp = Path(f"_.{suffix}")
         mock = mocker.patch(func, return_value=pd.DataFrame({0: [1, 2, 3]}))
