@@ -118,6 +118,8 @@ def get_prices(
             | hist_EP | Using historic ENTSO-E data                         |
             | hist_SM | Using historic Smard data only for DE, (2015, 2018  |
 
+        cache: If data is cached
+
     Known data issues:
         - (2015, DE, entsoe)-prices: data missing until Jan 6th
         - (2018, DE, entsoe)-prices: data missing from Sep 30th
@@ -145,25 +147,29 @@ def get_prices(
         raise ValueError(f"Method '{method}' not implemented.")
 
 
-def get_merit_order(year: int, country: str = "DE", method: str = "PP", **kwargs) -> pd.DataFrame:
-    """Returns the merit order.
+def get_merit_order(
+    year: int, country: str = "DE", method: str = "PP", **mo_kwargs
+) -> pd.DataFrame:
+    """Returns the merit order as DataFrame.
 
     Args:
         year: Year
         country: alpha-2 country code, e.g. 'DE'
         method: One of 'PP' (power plant method), 'PWL' (piecewise
             linear method), 'PWLv' (piecewise linear method in validation mode).
-        **kwargs: keyword arguments for merit order function depending on `method`.
+        **mo_kwargs: keyword arguments for merit order function depending on `method`.
     """
     if method == "PP":
         assert country == "DE", f"PP-method only works for Germany and not for {country}"
-        return elmada.from_opsd.merit_order(year=year, **kwargs)
+        return elmada.from_opsd.merit_order(year=year, **mo_kwargs)
     elif method == "PWL":
         return elmada.eu_pwl.merit_order(
-            year=year, country=country, validation_mode=False, **kwargs
+            year=year, country=country, validation_mode=False, **mo_kwargs
         )
     elif method == "PWLv":
-        return elmada.eu_pwl.merit_order(year=year, country=country, validation_mode=True, **kwargs)
+        return elmada.eu_pwl.merit_order(
+            year=year, country=country, validation_mode=True, **mo_kwargs
+        )
     else:
         raise ValueError("`method` needs to be one of ['PP', 'PWL', 'PWLv'].")
 

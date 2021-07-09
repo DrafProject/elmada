@@ -1,8 +1,6 @@
 name: CI with conda
 
 on: push
-# sources
-# https://github.com/marketplace/actions/setup-conda
 
 jobs:
   unit-tests:
@@ -11,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "windows-latest"] #, "macos-latest", ]
+        os: ["ubuntu-latest", "windows-latest"]
         python-version: [3.7, 3.8, 3.9]
     steps:
       - uses: actions/checkout@v2

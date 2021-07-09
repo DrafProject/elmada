@@ -23,6 +23,8 @@ def merit_order(
     legend_fontsize: float = 9,
     **mo_kwargs,
 ) -> Tuple[plt.Figure, plt.Axes, plt.Axes]:
+    """Plot the merit order with the given method."""
+
     plt.rcParams.update({"mathtext.default": "regular"})
     plt.rc("text", usetex=False)
     plt.rc("font", family="serif")
@@ -142,21 +144,32 @@ def _make_colored_background_for_fuel_types(ax, mo_P):
     return alpha_value_for_fuels
 
 
-def cefs_scatter_plotly(year: int = 2019, method: str = "MEF_PWL", **kwargs):
+def cefs_scatter_plotly(
+    year: int = 2019, freq: str = "60min", country: str = "DE", method: str = "MEF_PWL", **mo_kwargs
+):
+    """Optional interactive scatter plot. Works only if plotly is installed."""
     import plotly.express as px
 
     first_part, second_part = method.split("_")
 
-    df = get_emissions(year=year, method=f"_{second_part}", **kwargs)
+    df = get_emissions(year=year, freq=freq, country=country, method=f"_{second_part}", **mo_kwargs)
     return px.scatter(
         df, y=f"{first_part}s", color="marginal_fuel", color_discrete_map=mp.TECH_COLORS
     )
 
 
-def cefs_scatter(year=2019, method: str = "MEF_PWL", figsize: Tuple = (8, 3), **mo_kwargs) -> None:
+def cefs_scatter(
+    year=2019,
+    freq: str = "60min",
+    country: str = "DE",
+    method: str = "MEF_PWL",
+    figsize: Tuple = (8, 3),
+    **mo_kwargs,
+) -> None:
+    """Plot the CEFs as scatter plot with colors refering to marginal power plant type."""
     _, second_part = method.split("_")
 
-    df = get_emissions(year=year, method=f"_{second_part}", **mo_kwargs)
+    df = get_emissions(year=year, freq=freq, country=country, method=f"_{second_part}", **mo_kwargs)
 
     df = df.reset_index().set_index(["index", "marginal_fuel"])["MEFs"].unstack()
     df.index.name = None

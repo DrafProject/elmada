@@ -99,7 +99,7 @@ def merit_order_per_fuel(
 
 @lru_cache(maxsize=2)
 def approximate_min_max_values(method="regr") -> Tuple[Dict, Dict, Dict, Dict]:
-    """method = 'interp' or 'regr'"""
+    """`method` must be either 'interp' for interpolation or 'regr' for linear regression."""
     mo = get_clean_merit_order_for_min_max_approximation(sort_by_fuel=True)
 
     if method == "interp":

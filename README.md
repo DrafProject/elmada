@@ -68,17 +68,25 @@ You can use Elmada in two data modes which can be set with `elmada.set_mode(mode
 | Fuel prices for 2015 (+ trends) | [.../from_other.py] (+ [.../destatis]) | [Konstantin.2017] (+ [DESTATIS]) | 🔢 hard-coded values (+ 💾 manual download from [here][destatis_download]) | CEFs via `PP`, `PWL`, `PWLv` |
 | Fuel type-specific carbon emission intensities | [.../from_other.py] & [.../tranberg] | [Quaschning] & [Tranberg.2019] | 🔢 hard-coded values | CEFs via `EP`, `PP`, `PWL`, `PWLv` |
 
+## Time zones
+
+The data is in local time since the [Draf Project](https://github.com/DrafProject) focuses on the modeling of individual energy hubs.
+Standard time is used i.e. daylight saving time is ignored.
+Also see [this table](https://github.com/DrafProject/marginal-emission-factors/blob/main/README.md#time-zones) of the time zones used.
+
 # Installation
 
 ## Using `pip`
 
 ```sh
-python -m pip install elmada[all]
+python -m pip install elmada
 ```
 
-NOTE: [This blogpost](https://snarky.ca/why-you-should-use-python-m-pip/) explains why you should use `python -m pip` to run `pip`.
+NOTE: Read [here](https://snarky.ca/why-you-should-use-python-m-pip/) why you should use `python -m pip` instead of `pip`.
 
-## From source (including conda environment and editable elmada version)
+## From source using conda
+
+For a conda environment including a full editable elmada version do the following steps.
 
 Clone the source repository:
 
@@ -93,7 +101,7 @@ Create an conda environment based on `environment.yml` and install an editable l
 conda env create
 ```
 
-Activate environment
+Activate the environment
 
 ```sh
 conda activate elmada
@@ -120,17 +128,13 @@ elmada.set_api_keys(entsoe="YOUR_ENTSOE_KEY", morph="YOUR_MORPH_KEY", quandl="YO
 elmada.set_mode("live")
 ```
 
-
-
 ## Carbon Emission factors
-
-### Get only CEFs
 
 ```py
 elmada.get_emissions(year=2019, country="DE", method="MEF_PWL", freq="60min", use_datetime=True)
 ```
 
-... returns marginal emission factors with hourly datetime index:
+... returns marginal emission factors calculated by the PWL method with hourly datetime index:
 
 ```sh
 2019-01-01 00:00:00     990.103492
@@ -144,25 +148,8 @@ Freq: 60T, Name: MEFs, Length: 8760, dtype: float64
 The `method` argument of `get_emissions()` takes strings that consists of two parts seperated by an underscore.
 The first part is the type of emission factor: grid mix emission factors (`XEF`) or marginal emission factors (`MEF`).
 The second part determines the calculation method: power plant method (`PP`), piecewise linear method (`PWL`),  or piecewise linear method in validation mode (`PWLv`).
+
 The first part can be omitted (`_PP`, `_PWL`, `_PWLv`) to return a DataFrame that includes additional information.
-Additionally, XEFs can be calculated from historic fuel type-specific generation data (`XEF_EP`).
-
-Here is an overview of valid `method` argument values:
-
-| `method` | Return type | Return values | Restriction |
-| --: | -- | -- | -- |
-| `XEF_PP` | Series | XEFs using PP method | DE |
-| `XEF_PWL` | Series | XEFs using PWL method | European countries |
-| `XEF_PWLv` | Series | XEFs using PWLv method | DE |
-| `MEF_PP` | Series | MEFs from PP method | DE |
-| `MEF_PWL` | Series | MEFs using PWL method | European countries |
-| `MEF_PWLv` | Series | MEFs using PWLv method | DE |
-| `_PP` | Dataframe | extended data for PP method | DE |
-| `_PWL` | Dataframe | extended data for PWL method | European countries |
-| `_PWLv` | Dataframe | extended data for PWLv method | DE |
-| `XEF_EP` | Series | XEFs using fuel type-specific generation data from [ENTSO-E]| European countries |
-
-### Get additional information
 
 ```py
 elmada.get_emissions(year=2019, country="DE", method="_PWL")
@@ -180,13 +167,28 @@ elmada.get_emissions(year=2019, country="DE", method="_PWL")
 [8760 rows x 7 columns]
 ```
 
-### Plot CEFs
+Additionally, XEFs can be calculated from historic fuel type-specific generation data (`XEF_EP`).
+
+Here is an overview of valid `method` argument values:
+
+| `method` | Return type | Return values | Restriction |
+| --: | -- | -- | -- |
+| `XEF_PP` | Series | XEFs using PP method | DE |
+| `XEF_PWL` | Series | XEFs using PWL method | European countries |
+| `XEF_PWLv` | Series | XEFs using PWLv method | DE |
+| `MEF_PP` | Series | MEFs from PP method | DE |
+| `MEF_PWL` | Series | MEFs using PWL method | European countries |
+| `MEF_PWLv` | Series | MEFs using PWLv method | DE |
+| `_PP` | Dataframe | extended data for PP method | DE |
+| `_PWL` | Dataframe | extended data for PWL method | European countries |
+| `_PWLv` | Dataframe | extended data for PWLv method | DE |
+| `XEF_EP` | Series | XEFs using fuel type-specific generation data from [ENTSO-E]| European countries |
+
+You can plot the carbon emission factors with
 
 ```py
 elmada.plots.cefs_scatter(year=2019, country="DE", method="MEF_PP")
 ```
-
-... plots carbon emission factors:
 
 <img src="doc/images/cefs_scatter.png" width="600" alt="CEFs">
 
@@ -221,7 +223,15 @@ Possible values for the `method` argument of `get_prices()` are:
 elmada.plots.merit_order(year=2019, country="DE", method="PP")
 ```
 
+... plots the merit order:
+
 <img src="doc/images/merit_order.svg" width="600" alt="merit_order">
+
+```py
+elmada.get_merit_order(year=2019, country="DE", method="PP")
+```
+
+... returns the merit order as DataFrame with detailed information on individual power plant blocks.
 
 # Contributing
 

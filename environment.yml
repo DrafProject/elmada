@@ -11,7 +11,6 @@ dependencies:  # NOTE: here '=' (single)
   - numpy
   - pandas
   - pip
-  - plotly
   - pyarrow
   - pytest
   - pytest-cov
@@ -20,9 +19,8 @@ dependencies:  # NOTE: here '=' (single)
   - quandl
   - requests
   - scipy
-  - seaborn
   - xlrd
   # - notebook
   - pip:  # NOTE: here '==' (double)
     - entsoe-py==0.2.10
-    - '--editable=.' # installs an editable version of elmada
+    - '--editable=.[dev]' # installs an editable full version of elmada

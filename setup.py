@@ -6,32 +6,6 @@ exec(Path("elmada/_version.py").read_text().strip())  # Set the __version__ vari
 
 long_description = Path("README.md").read_text().strip()
 
-
-# As proposed by Han Xiao in https://hanxiao.io/2019/11/07/A-Better-Practice-for-Managing-extras-require-Dependencies-in-Python
-def get_extra_requires(path, add_all=True):
-    """Parse extra-requirements.txt for a {feature: requirements} map."""
-    import re
-    from collections import defaultdict
-
-    with open(path) as fp:
-        extra_deps = defaultdict(set)
-        for k in fp:
-            if k.strip() and not k.startswith("#"):
-                tags = set()
-                if ":" in k:
-                    k, v = k.split(":")
-                    tags.update(vv.strip() for vv in v.split(","))
-                tags.add(re.split("[<=>]", k)[0])
-                for t in tags:
-                    extra_deps[t].add(k)
-
-        # add tag `all` at the end
-        if add_all:
-            extra_deps["all"] = {vv for v in extra_deps.values() for vv in v}
-
-    return extra_deps
-
-
 setup(
     name="elmada",
     version=__version__,
@@ -50,6 +24,7 @@ setup(
         "entsoe-py==0.2.10",
         "ipython",
         "lxml",
+        "matplotlib",
         "numpy",
         "pandas",
         "pyarrow",
@@ -58,7 +33,7 @@ setup(
         "scipy",
         "xlrd",
     ],
-    extras_require=get_extra_requires("extra-requirements.txt"),
+    extras_require={"dev": ["plotly", "pytest", "pytest-cov", "pytest-mock", "mypy"]},
     include_package_data=True,
     package_data={"elmada": ["*.parquet", "*.csv", "*.txt", "*xls"]},
     classifiers=[
