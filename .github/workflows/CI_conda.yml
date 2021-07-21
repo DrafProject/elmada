@@ -30,7 +30,8 @@ jobs:
         shell: bash -l {0}
         run: |
           pytest -v --cov=elmada --cov-report=xml -m="not apikey" .
-      - name: Upload coverage to Codecov
+      - name: Upload coverage report to Codecov
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.9' }}
         uses: codecov/codecov-action@v1
         with:
           # token: ${{ secrets.CODECOV_TOKEN }}
