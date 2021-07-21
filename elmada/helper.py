@@ -412,23 +412,28 @@ def set_api_key(which: str, api_key: str) -> None:
     print(f"Api key written to {fp}.")
 
 
+def _get_api_key_from_environment(var_name: str) -> Optional[str]:
+    return os.environ[var_name]
+
+
+def _get_api_key_from_file(which: str) -> Optional[str]:
+    fp = paths.KEYS_DIR / f"{which}.txt"
+    return fp.read_text().strip()
+
+
 def get_api_key(which: str = "entsoe"):
     assert which in APIS, f"`which` must be one of {list(APIS.keys())}."
 
     var_name = APIS[which][2]
 
     try:
-        return os.environ[var_name]
-
+        return _get_api_key_from_environment(var_name=var_name)
     except KeyError:
-
         try:
-            fp = paths.KEYS_DIR / f"{which}.txt"
-            return fp.read_text().strip()
-
+            return _get_api_key_from_file(which=which)
         except FileNotFoundError as e:
             raise Exception(
                 f"`{which}.txt` file not found and {var_name} not set."
                 f"Please get a valid {APIS[which][0]} "
-                f"(see {APIS[which][1]}) and place it in `elmada/api_keys/{which}.txt`\n"
+                f"(see {APIS[which][1]}) and set it with `elmada.set_api_key()`\n"
             ) from e

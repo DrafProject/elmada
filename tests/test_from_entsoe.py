@@ -62,7 +62,6 @@ def test_load_installed_generation_capacity():
     assert isinstance(result, pd.DataFrame)
 
 
-@pytest.mark.apikey
 def test_prep_dayahead_prices():
     from_entsoe.prep_dayahead_prices(year=2019, freq="60min", country="DE")
 
@@ -95,6 +94,10 @@ def test_load_el_national_generation(mocker):
     )
     mock.assert_called()
     assert isinstance(result, pd.DataFrame)
+
+
+def test_get_bidding_zone():
+    assert from_entsoe.get_bidding_zone(country="AT", year=2017) == "DE-AT-LU"
 
 
 def test_query_day_ahead_prices(mocker):

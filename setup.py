@@ -33,19 +33,23 @@ setup(
         "scipy",
         "xlrd",
     ],
-    extras_require={"dev": ["plotly", "pytest", "pytest-cov", "pytest-mock", "mypy"]},
+    extras_require={
+        "dev": ["plotly", "pytest", "pytest-cov", "pytest-mock", "pytest-responsemock", "mypy"]
+    },
     include_package_data=True,
     package_data={"elmada": ["*.parquet", "*.csv", "*.txt", "*xls"]},
     classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Science/Research",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
-        "Topic :: Scientific/Engineering",
+        "Intended Audience :: Science/Research",
         "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
         "Natural Language :: English",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3",
+        "Topic :: Scientific/Engineering :: Information Analysis",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     keywords=["energy market data", "energy systems", "carbon emission factors", "demand response"],
 )

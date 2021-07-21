@@ -23,4 +23,5 @@ dependencies:  # NOTE: here '=' (single)
   # - notebook
   - pip:  # NOTE: here '==' (double)
     - entsoe-py==0.2.10
+    - pytest-responsemock
     - '--editable=.[dev]' # installs an editable full version of elmada

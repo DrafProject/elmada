@@ -1,4 +1,5 @@
 import collections
+from pathlib import Path
 
 import pandas as pd
 
@@ -26,8 +27,23 @@ def test_get_valid_countries():
 
 
 def test_get_geo_list():
-    result = cc_share.get_geo_list()
+    result = cc_share.get_geo_list(cache=True)
     assert isinstance(result, pd.DataFrame)
+
+
+def _read_fake_geo_body():
+    fp = Path(__file__).parent / "common/geo_test_list.html"
+    return fp.read_text()
+
+
+def test__scrape_geo_list(response_mock):
+    url = "http://globalenergyobservatory.org/list.php?db=PowerPlants&type=Gas"
+    fake_geo_body = _read_fake_geo_body()
+    with response_mock(f"GET {url} -> 200 :{fake_geo_body}"):
+        df = cc_share.get_geo_list(cache=False)
+    assert isinstance(df, pd.DataFrame)
+    assert df.loc[1, "country"] == "Albania"
+    print(df)
 
 
 def test_get_geo_shares_overview():

@@ -99,32 +99,7 @@ def get_geo_list(
         df = hp.read(fp)
 
     else:
-        fuel_ = fuel.capitalize()
-        base_url = "http://globalenergyobservatory.org/"
-        url = base_url + f"list.php?db=PowerPlants&type={fuel_}"
-        page = requests.get(url).text
-        soup = BeautifulSoup(page, "lxml")
-        my_table = soup.find("table")
-        headers = [cell.get_text().strip() for cell in my_table.find_all("h2")]
-        ncols = len(headers)
-        entries = my_table.findAll("td")
-
-        df = pd.DataFrame(
-            {
-                "name": [x.get_text() for x in entries[ncols + 0 :: 4]],
-                "geoid": [
-                    x.find("a").get_attribute_list("href")[0].split("/")[1].strip()
-                    for x in entries[ncols + 0 :: 4]
-                ],
-                "capa": [cell.get_text().strip() for cell in entries[ncols + 1 :: 4]],
-                "country": [cell.get_text().strip() for cell in entries[ncols + 2 :: 4]],
-                "state": [cell.get_text().strip() for cell in entries[ncols + 3 :: 4]],
-            }
-        )
-        # df.loc[df["country"] == "Czech Republic", "country"] = "Czechia"
-        df.loc[df.capa == ""] = np.nan
-        df["is_ccgt"] = df.name.str.contains("CCGT").astype(bool)
-        df["capa"] = df["capa"].astype(np.float)
+        df = _scrape_geo_list(fuel)
         if cache:
             hp.write(df, fp)
 
@@ -141,6 +116,36 @@ def get_geo_list(
             ValueError("`filter` must be either 'ana' or 'eur'.")
     else:
         raise ValueError("Country_long and filter given but only one of the two expected.")
+
+
+def _scrape_geo_list(fuel: str):
+    fuel_ = fuel.capitalize()
+    base_url = "http://globalenergyobservatory.org/"
+    url = base_url + f"list.php?db=PowerPlants&type={fuel_}"
+    page = requests.get(url).text
+    soup = BeautifulSoup(page, "lxml")
+    my_table = soup.find("table")
+    headers = [cell.get_text().strip() for cell in my_table.find_all("h2")]
+    ncols = len(headers)
+    entries = my_table.findAll("td")
+
+    df = pd.DataFrame(
+        {
+            "name": [x.get_text() for x in entries[ncols + 0 :: 4]],
+            "geoid": [
+                x.find("a").get_attribute_list("href")[0].split("/")[1].strip()
+                for x in entries[ncols + 0 :: 4]
+            ],
+            "capa": [cell.get_text().strip() for cell in entries[ncols + 1 :: 4]],
+            "country": [cell.get_text().strip() for cell in entries[ncols + 2 :: 4]],
+            "state": [cell.get_text().strip() for cell in entries[ncols + 3 :: 4]],
+        }
+    )
+    # df.loc[df["country"] == "Czech Republic", "country"] = "Czechia"
+    df.loc[df.capa == ""] = np.nan
+    df["is_ccgt"] = df.name.str.contains("CCGT").astype(bool)
+    df["capa"] = df["capa"].astype(np.float)
+    return df
 
 
 #################################

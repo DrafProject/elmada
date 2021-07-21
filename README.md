@@ -4,17 +4,17 @@
 
 # Elmada: electricity market data for energy system modeling
 
-[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-[![pypi](https://img.shields.io/pypi/v/elmada.svg)](https://pypi.python.org/pypi/elmada/)
-[![Gitter](https://badges.gitter.im/DrafProject/elmada.svg)](https://gitter.im/DrafProject/elmada)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
-
+![PyPI](https://img.shields.io/pypi/v/elmada?color=success&label=pypi%20package)
 [![CI](https://github.com/DrafProject/elmada/actions/workflows/CI.yml/badge.svg)](https://github.com/DrafProject/elmada/actions/workflows/CI.yml)
 [![CI with conda](https://github.com/DrafProject/elmada/actions/workflows/CI_conda.yml/badge.svg)](https://github.com/DrafProject/elmada/actions/workflows/CI_conda.yml)
 [![codecov](https://codecov.io/gh/DrafProject/elmada/branch/master/graph/badge.svg?token=EOKKJG48A9)](https://codecov.io/gh/DrafProject/elmada)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1)](https://pycqa.github.io/isort/)
+
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![python](https://img.shields.io/badge/python-3.7_|_3.8_|_3.9-blue?logo=python&logoColor=white)](https://github.com/DrafProject/elmada)
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1)](https://pycqa.github.io/isort/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Gitter](https://badges.gitter.im/DrafProject/elmada.svg)](https://gitter.im/DrafProject/elmada)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 The open-source Python package **Elmada** provides carbon emission factors and wholesale prices of the national electricity supply system for the modeling of distributed energy systems.
 Elmada stands for **el**ectricity **ma**rket **da**ta.
@@ -28,7 +28,7 @@ It is part of the [Draf Project] but can be used as a standalone package.
 You can choose between
   * grid mix emission factors (XEFs) from fuel type-specific [ENTSO-E] electricity generation data (`method="XEF_EP"`)
   * and approximations using merit order based simulations which allow also for the calculation of marginal emission factors (MEFs).
-    The according Power Plant method (`PP`) and Piecewise Linear method (`PWL`) are described in [this open-access paper][paper].
+    The according Power Plant method (`PP`) and Piecewise Linear method (`PWL`) are described in [this open-access Applied Energy paper][APEN paper].
     The data used depends on the method chosen, see [scheme below](#cef-scheme).
 
 * __Electrcity prices__ are provided for European national electricity grids. You can choose between the real historical [ENTSO-E] data or the simulation results of PP/PWL method.
@@ -37,7 +37,7 @@ You can choose between
 
 ## Methodology
 
-This scheme from the [paper] shows an overview of the methods PP, PWL, and PWLv:
+This scheme from the [Applied Energy paper][APEN paper] shows an overview of the methods PP, PWL, and PWLv:
  <!-- Converted from pptx via https://convertio.co/ -->
  <img src="doc/images/scheme_CEF_calculation.svg" id='cef-scheme' width="900" alt="scheme_CEF_calculation">
 
@@ -48,14 +48,14 @@ This scheme from the [paper] shows an overview of the methods PP, PWL, and PWLv:
 You can use Elmada in two data modes which can be set with `elmada.set_mode(mode=<MODE>)`:
 
 * `mode="safe"` (default):
-  * Pre-cached data for 4 years and 20 countries are used. The data are described in the [paper].
+  * Pre-cached data for 4 years and 20 countries are used. The data are described in the [Applied Energy paper][APEN paper].
   * The years are 2017 to 2020 and the countries AT, BE, CZ, DE, DK, ES, FI, FR, GB, GR, HU, IE, IT, LT, NL, PL, PT, RO, RS, SI.
   * The data is available in the space-saving and quick-to-read [Parquet format] under [.../safe_cache].
 * `mode="live"`:
   * Up-to-date data are retrieved on demand and are cached to an OS-specific directory, see `elmada.paths.CACHE_DIR`. A symbolic link to it can be conveniently created by executing `elmada.make_symlink_to_cache()`.
   * Available years are 2017 until the present.
   * Slow due to API requests.
-  * Requires valid API keys of Entsoe, Morph, Quandl, see [table below](#data-table).
+  * Requires valid API keys of Entsoe, Morph, Quandl, see [table below](#data-sources).
 
 ## Data sources
 
@@ -247,7 +247,7 @@ In short:
 
 # Citing Elmada
 
-If you use Elmada for academic work please cite [this open-access paper][paper] published in Applied Energy in 2021.
+If you use Elmada for academic work please cite [this open-access paper][APEN paper] published in Applied Energy in 2021.
 
 # License
 
@@ -263,6 +263,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [.../safe_cache]: elmada/data/safe_cache
 [.../tranberg]: elmada/data/raw/tranberg
 [.../worldbank]: elmada/data/raw/worldbank
+[APEN paper]: https://doi.org/10.1016/j.apenergy.2021.117040
 [BeautifulSoup4]: https://pypi.org/project/beautifulsoup4
 [destatis_download]: https://www.destatis.de/DE/Themen/Wirtschaft/Preise/Publikationen/Energiepreise/energiepreisentwicklung-xlsx-5619001.xlsx?__blob=publicationFile
 [DESTATIS]: https://www.destatis.de
@@ -277,7 +278,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [Morph]: https://morph.io
 [opsd_download]: https://data.open-power-system-data.org/conventional_power_plants/latest
 [OPSD]: https://open-power-system-data.org
-[paper]: https://doi.org/10.1016/j.apenergy.2021.117040
 [Parquet format]: https://parquet.apache.org
 [Quandl API key]: https://docs.quandl.com/docs#section-authentication
 [Quandl]: https://www.quandl.com

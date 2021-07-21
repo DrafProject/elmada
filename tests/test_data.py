@@ -9,7 +9,7 @@ def make_and_check_hashes(which: str) -> bool:
     return current.equals(expected)
 
 
-# @pytest.mark.needcache
+# @pytest.mark.wantcache
 # def test_emissions_data():
 #     assert make_and_check_hashes("CEF")
 

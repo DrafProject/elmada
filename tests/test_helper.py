@@ -151,12 +151,28 @@ def test_read(mocker):
         hp.read(Path("spam.egg"))
 
 
-def test_get_api_key():
-    with pytest.raises(Exception):
-        hp.get_api_key("non_existing_key")
-
-
 def test_make_symlink_to_cache(mocker):
     mock = mocker.patch.object(Path, "symlink_to")
     hp.make_symlink_to_cache()
     mock.assert_called()
+
+
+def test_set_and_get_api_key(mocker, monkeypatch):
+    key_dir = Path(__file__).parent / "common"
+    mocker.patch("elmada.paths.KEYS_DIR", key_dir)
+
+    # make sure there is no api key stored as environment variable
+    monkeypatch.delenv(hp.APIS["entsoe"][2], raising=False)
+
+    fp = key_dir / "entsoe.txt"
+    if fp.exists():
+        fp.unlink()
+    hp.set_api_keys(entsoe="123")
+    assert hp.get_api_key(which="entsoe") == "123"
+    fp.unlink()
+
+
+def test_estimate_freq():
+    ser = pd.Series(range(7000))
+    with pytest.raises(RuntimeError):
+        hp.estimate_freq(ser)
