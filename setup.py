@@ -11,7 +11,7 @@ setup(
     version=__version__,
     author="Markus Fleschutz",
     author_email="mfleschutz@gmail.com",
-    description="Electricity market data",
+    description="Dynamic electricity carbon emission factors and prices for Europe",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/DrafProject/elmada",

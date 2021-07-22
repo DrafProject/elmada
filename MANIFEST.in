@@ -1,1 +1,2 @@
-include doc/images/**
+graft doc/images
+graft elmada
