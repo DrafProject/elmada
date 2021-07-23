@@ -41,7 +41,7 @@ Two types of carbon emission factors are calculated:
 * grid-mix emission factors (XEFs), which represent the emission intensity based on the current generation mix of the electricity system,
 * and marginal emission factors (MEFs), which quantify the emission intensity of the generators likely to react to a marginal system change.
 
-MEFs are more challenging to approximate than XEFs MEFs they require the identification of the marginal power plants per time step.
+MEFs are more challenging to approximate than XEFs since MEFs require the identification of the marginal power plants per time step.
 In `elmada`, this is done through a merit order simulation within the PP and PWL method described in [@Fleschutz2021].
 
 So far, `elmada` has been used in a study where MEFs, XEFs and the results of load shift simulations based on them are compared across 20 European countries [@Fleschutz2021].
