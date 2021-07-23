@@ -8,14 +8,14 @@ from elmada.mode import is_safe_mode
 
 def _get_cache_directory() -> Path:
     """Returns the path to cache directory and creates it, if not yet existing."""
-    fp = Path(user_cache_dir(appname="Elmada", appauthor="DrafProject"))
+    fp = Path(user_cache_dir(appname="elmada", appauthor="DrafProject"))
     fp.mkdir(parents=True, exist_ok=True)
     return fp
 
 
 def _get_config_directory() -> Path:
     """Returns the path to config directory and creates it, if not yet existing."""
-    fp = Path(user_config_dir(appname="Elmada", appauthor="DrafProject")) / "api_keys"
+    fp = Path(user_config_dir(appname="elmada", appauthor="DrafProject")) / "api_keys"
     fp.mkdir(parents=True, exist_ok=True)
     return fp
 

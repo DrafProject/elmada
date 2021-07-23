@@ -2,7 +2,7 @@
 
 ---
 
-# Elmada: electricity market data for energy system modeling
+# elmada: Dynamic electricity carbon emission factors and prices for Europe
 
 ![PyPI](https://img.shields.io/pypi/v/elmada?color=success&label=pypi%20package)
 [![CI](https://github.com/DrafProject/elmada/actions/workflows/CI.yml/badge.svg)](https://github.com/DrafProject/elmada/actions/workflows/CI.yml)
@@ -16,28 +16,33 @@
 [![Gitter](https://badges.gitter.im/DrafProject/elmada.svg)](https://gitter.im/DrafProject/elmada)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
-The open-source Python package **Elmada** provides carbon emission factors and wholesale prices of the national electricity supply system for the modeling of distributed energy systems.
-Elmada stands for **el**ectricity **ma**rket **da**ta.
+The open-source Python package **elmada** provides electricity carbon emission factors and wholesale prices for European countries.
+The data can be used in the modeling of distributed energy systems, e.g., to evaluate the environmental effect of demand response.
+**elmada** stands for **el**ectricity **ma**rket **da**ta.
 It is part of the [Draf Project] but can be used as a standalone package.
 
 <img src="doc/images/elmada_scheme_scribble.svg" width="650" alt="Elmada scheme scribble">
 
 ## Features
 
-* __Carbon emission factors__ are calculated depending on country and year in up to quarter-hourly resolution.
+* __Carbon emission factors (CEF)__ are calculated depending on country and year in up to quarter-hourly resolution.
 You can choose between
   * grid mix emission factors (XEFs) from fuel type-specific [ENTSO-E] electricity generation data (`method="XEF_EP"`)
   * and approximations using merit order based simulations which allow also for the calculation of marginal emission factors (MEFs).
     The according Power Plant method (`PP`) and Piecewise Linear method (`PWL`) are described in [this open-access Applied Energy paper][APEN paper].
     The data used depends on the method chosen, see [scheme below](#cef-scheme).
 
-* __Electrcity prices__ are provided for European national electricity grids. You can choose between the real historical [ENTSO-E] data or the simulation results of PP/PWL method.
+* __Wholesale electrcity prices__ are provided for European countries. You can choose between the real historical [ENTSO-E] data or the simulation results of `PP` / `PWL` method.
 
-* Other interesting market data such as the merit order list, fuel-specific generation data, and power plant lists are provided as a by-product of the CEF calculations.
+* Other interesting market data such as merit order lists, fuel-specific generation data, or power plant lists are provided as a by-product of the CEF calculations.
 
 ## Methodology
 
-This scheme from the [Applied Energy paper][APEN paper] shows an overview of the methods PP, PWL, and PWLv:
+With the `XEF_EP` method, XEFs are calculated by multiplying the share matrix *S* (fuel type specific share of electricity generation per time step from [ENTSO-E]) with the intensity vector *ε*  (fuel type specific life cycle carbon emission intensities from [Tranberg.2019]):
+
+<img src="https://render.githubusercontent.com/render/math?math=\mathrm{XEF}^\mathrm{EP}_{t} = S_{t,f}\cdot\varepsilon_f">
+
+The methods `PP`, `PWL`, and `PWLv` are explained in [this Applied Energy paper][APEN paper]. Here is an overview:
  <!-- Converted from pptx via https://convertio.co/ -->
  <img src="doc/images/scheme_CEF_calculation.svg" id='cef-scheme' width="900" alt="scheme_CEF_calculation">
 
@@ -45,7 +50,7 @@ This scheme from the [Applied Energy paper][APEN paper] shows an overview of the
 
 ## Data modes
 
-You can use Elmada in two data modes which can be set with `elmada.set_mode(mode=<MODE>)`:
+You can use **elmada** in two data modes which can be set with `elmada.set_mode(mode=<MODE>)`:
 
 * `mode="safe"` (default):
   * Pre-cached data for 4 years and 20 countries are used. The data are described in the [Applied Energy paper][APEN paper].
@@ -62,11 +67,11 @@ You can use Elmada in two data modes which can be set with `elmada.set_mode(mode
 | Description | Local data location | Source | Channel | Involed in |
 |-|-|-|-|-|
 | Generation time series & installed generation capacities | [.../safe_cache] or `CACHE_DIR` | [ENTSO-E] | 🔌 on-demand-retrieval via [EntsoePandasClient] (requires valid [ENTSO-E API key]) | CEFs via `EP`, `PP`, `PWL`, `PWLv` |
-| Carbon prices (EUA)| [.../safe_cache] or `CACHE_DIR` | [Sandbag] & [ICE] | 🔌 on-demand-retrieval via [Quandl] (requires valid [Quandl API key]) | CEFs via `_PP`, `PWL`, `PWLv` |
+| Carbon prices (EUA)| [.../safe_cache] or `CACHE_DIR` | [Sandbag] & [ICE] | 🔌 on-demand-retrieval via [Quandl] (requires valid [Quandl API key]) | CEFs via `PP`, `PWL`, `PWLv` |
 | Share of CCGT among gas power plants | [.../safe_cache] or `CACHE_DIR` | [GEO] | 🔌 on-demand-download via [Morph] (requires valid [Morph API key])| CEFs via `PWL`, `PWLv` |
 | (Average) fossil power plants sizes | [.../safe_cache] or `CACHE_DIR` | [GEO] | 🔌 on-demand-scraping via [BeautifulSoup4] | CEFs via `PWL`, `PWLv` |
 | German fossil power plant list with efficiencies | [.../safe_cache] or `CACHE_DIR` | [OPSD] | 🔌 on-demand-download from [here][opsd_download] | CEFs via `PP`, `PWL`, `PWLv` |
-| Transmission & distribution losses | [.../worldbank] | [Worldbank] | 💾 manual download from [here][wb] | CEFs via `_PP`, `PWL`, `PWLv` |
+| Transmission & distribution losses | [.../worldbank] | [Worldbank] | 💾 manual download from [here][wb] | CEFs via `PP`, `PWL`, `PWLv` |
 | Fuel prices for 2015 (+ trends) | [.../from_other.py] (+ [.../destatis]) | [Konstantin.2017] (+ [DESTATIS]) | 🔢 hard-coded values (+ 💾 manual download from [here][destatis_download]) | CEFs via `PP`, `PWL`, `PWLv` |
 | Fuel type-specific carbon emission intensities | [.../from_other.py] & [.../tranberg] | [Quaschning] & [Tranberg.2019] | 🔢 hard-coded values | CEFs via `EP`, `PP`, `PWL`, `PWLv` |
 
@@ -88,7 +93,7 @@ NOTE: Read [here](https://snarky.ca/why-you-should-use-python-m-pip/) why you sh
 
 ## From source using conda
 
-For a conda environment including a full editable elmada version do the following steps.
+For a conda environment including a full editable **elmada** version do the following steps.
 
 Clone the source repository:
 
@@ -97,19 +102,19 @@ git clone https://github.com/DrafProject/elmada.git
 cd elmada
 ```
 
-Create an conda environment based on `environment.yml` and install an editable local Elmada version:
+Create an conda environment based on `environment.yml` and install an editable local **elmada** version:
 
 ```sh
 conda env create
 ```
 
-Activate the environment
+Activate the environment:
 
 ```sh
 conda activate elmada
 ```
 
-Run the tests and ensure that there are no errors
+Run the tests and ensure that there are no errors:
 
 ```sh
 pytest
@@ -136,7 +141,7 @@ elmada.set_mode("live")
 elmada.get_emissions(year=2019, country="DE", method="MEF_PWL", freq="60min", use_datetime=True)
 ```
 
-... returns marginal emission factors calculated by the PWL method with hourly datetime index:
+... returns marginal emission factors calculated by the `PWL` method with hourly datetime index:
 
 ```sh
 2019-01-01 00:00:00     990.103492
@@ -245,9 +250,9 @@ In short:
 1. Commit your changes to the feature branch and push the branch to GitHub (`git push origin my-new-feature`).
 1. On GitHub, create a new pull request from the feature branch.
 
-# Citing Elmada
+# Citing elmada
 
-If you use Elmada for academic work please cite [this open-access paper][APEN paper] published in Applied Energy in 2021.
+If you use **elmada** for academic work please cite [this open-access paper][APEN paper] published in Applied Energy in 2021.
 
 # License
 

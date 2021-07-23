@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import pytest
 from entsoe import EntsoePandasClient
@@ -62,8 +63,20 @@ def test_load_installed_generation_capacity():
     assert isinstance(result, pd.DataFrame)
 
 
-def test_prep_dayahead_prices():
-    from_entsoe.prep_dayahead_prices(year=2019, freq="60min", country="DE")
+def test_prep_dayahead_prices(mocker):
+    dummy = pd.Series(30, index=range(8760))
+    dummy[2] = np.nan
+    dummy[5] = 5000.0
+    dummy.index = hp.make_datetimeindex(year=2019, freq="60min", tz="Europe/Berlin")
+    assert isinstance(dummy.index, pd.DatetimeIndex)
+
+    mocker.patch("elmada.from_entsoe._query_day_ahead_prices", return_value=dummy)
+    result = from_entsoe.prep_dayahead_prices(year=2019, freq="60min", country="DE", cache=False)
+
+    assert isinstance(result, pd.Series)
+    assert result[2] == 30
+    assert result[5] == 30
+    assert isinstance(result.index, pd.RangeIndex)
 
 
 def test_get_empty_installed_generation_capacity_df():

@@ -1,13 +1,13 @@
 # How to contribute
 
-To guarantee the further evolution of Elmada in the long term, we depend on the support of volunteer developers.
+To guarantee the further evolution of elmada in the long term, we depend on the support of volunteer developers.
 
 Some of the resources to look at if you're interested in contributing:
 * [Join us on Gitter to chat!](https://gitter.im/DrafProject/elmada)
 
 ## Licensing
 
-By contributing to Elmada, e.g. through opening a pull request or submitting a patch, you represent that your contributions are your own original work and that you have the right to license them, and you agree that your contributions are licensed under the LGPL 3 license.
+By contributing to elmada, e.g. through opening a pull request or submitting a patch, you represent that your contributions are your own original work and that you have the right to license them, and you agree that your contributions are licensed under the LGPL 3 license.
 
 ## Submitting bug reports
 
@@ -27,7 +27,6 @@ To contribute changes:
 
 Before submitting a pull request, check whether you have:
 
-* Added your changes to [CHANGELOG.md](CHANGELOG.md)
 * Added or updated documentation for your changes
 * Added tests if you implemented new functionality
 
@@ -44,7 +43,7 @@ Please try to write clear commit messages. One-line messages are fine for small 
 
 ## Testing
 
-We have existing test coverage for the key functionality of Elmada.
+We have existing test coverage for the key functionality of elmada.
 
 All tests are in the ``elmada/tests`` directory and use [pytest](https://docs.pytest.org/en/latest/).
 
