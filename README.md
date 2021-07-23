@@ -1,10 +1,10 @@
-<img src="doc/images/elmada_logo.svg" width="450" alt="elmada logo">
+<img src="https://github.com/DrafProject/elmada/raw/main/doc/images/elmada_logo.svg" width="450" alt="elmada logo">
 
 ---
 
 # elmada: Dynamic electricity carbon emission factors and prices for Europe
 
-![PyPI](https://img.shields.io/pypi/v/elmada?color=success&label=pypi%20package)
+[![PyPI](https://img.shields.io/pypi/v/elmada?color=success&label=pypi%20package)](https://pypi.python.org/pypi/elmada)
 [![CI](https://github.com/DrafProject/elmada/actions/workflows/CI.yml/badge.svg)](https://github.com/DrafProject/elmada/actions/workflows/CI.yml)
 [![CI with conda](https://github.com/DrafProject/elmada/actions/workflows/CI_conda.yml/badge.svg)](https://github.com/DrafProject/elmada/actions/workflows/CI_conda.yml)
 [![codecov](https://codecov.io/gh/DrafProject/elmada/branch/main/graph/badge.svg?token=EOKKJG48A9)](https://codecov.io/gh/DrafProject/elmada)
@@ -21,7 +21,7 @@ The data can be used in the modeling of distributed energy systems, e.g., to eva
 **elmada** stands for **el**ectricity **ma**rket **da**ta.
 It is part of the [Draf Project] but can be used as a standalone package.
 
-<img src="doc/images/elmada_scheme_scribble.svg" width="650" alt="Elmada scheme scribble">
+<img src="https://github.com/DrafProject/elmada/raw/main/doc/images/elmada_scheme_scribble.svg" width="650" alt="Elmada scheme scribble">
 
 ## Features
 
@@ -44,7 +44,7 @@ With the `XEF_EP` method, XEFs are calculated by multiplying the share matrix *S
 
 The methods `PP`, `PWL`, and `PWLv` are explained in [this Applied Energy paper][APEN paper]. Here is an overview:
  <!-- Converted from pptx via https://convertio.co/ -->
- <img src="doc/images/scheme_CEF_calculation.svg" id='cef-scheme' width="900" alt="scheme_CEF_calculation">
+ <img src="https://github.com/DrafProject/elmada/raw/main/doc/images/scheme_CEF_calculation.svg" id='cef-scheme' width="900" alt="scheme_CEF_calculation">
 
 # Data
 
@@ -197,7 +197,7 @@ You can plot the carbon emission factors with
 elmada.plots.cefs_scatter(year=2019, country="DE", method="MEF_PP")
 ```
 
-<img src="doc/images/cefs_scatter.png" width="600" alt="CEFs">
+<img src="https://github.com/DrafProject/elmada/raw/main/doc/images/cefs_scatter.png" width="600" alt="CEFs">
 
 ## Wholesale prices
 
@@ -232,7 +232,7 @@ elmada.plots.merit_order(year=2019, country="DE", method="PP")
 
 ... plots the merit order:
 
-<img src="doc/images/merit_order.svg" width="600" alt="merit_order">
+<img src="https://github.com/DrafProject/elmada/raw/main/doc/images/merit_order.svg" width="600" alt="merit_order">
 
 ```py
 elmada.get_merit_order(year=2019, country="DE", method="PP")

@@ -1,0 +1,28 @@
+{
+  "@context": "https://raw.githubusercontent.com/codemeta/codemeta/master/codemeta.jsonld",
+  "@type": "Code",
+  "author": [
+    {
+      "@id": "https://orcid.org/0000-0002-8516-9635",
+      "@type": "Person",
+      "name": "Markus Fleschutz",
+      "affiliation": "Department of Process, Energy and Transport Engineering, Munster Technological University"
+    },
+    {
+      "@id": "https://orcid.org/0000-0002-4269-2581",
+      "@type": "Person",
+      "name": "Michael D. Murphy",
+      "affiliation": "Department of Process, Energy and Transport Engineering, Munster Technological University"
+    }
+  ],
+  "identifier": "http://doi.org/10.5281/zenodo.5126771",
+  "codeRepository": "https://github.com/DrafProject/elmada",
+  "datePublished": "2021-07-23",
+  "dateModified": "2021-07-23",
+  "dateCreated": "2021-07-23",
+  "description": "Dynamic electricity carbon emission factors and prices for Europe",
+  "keywords": "energy market data, energy systems, carbon emission factors, marginal emissions, demand response",
+  "license": "LGPLv3",
+  "title": "elmada",
+  "version": "v0.0.6"
+}
