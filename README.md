@@ -7,7 +7,7 @@
 ![PyPI](https://img.shields.io/pypi/v/elmada?color=success&label=pypi%20package)
 [![CI](https://github.com/DrafProject/elmada/actions/workflows/CI.yml/badge.svg)](https://github.com/DrafProject/elmada/actions/workflows/CI.yml)
 [![CI with conda](https://github.com/DrafProject/elmada/actions/workflows/CI_conda.yml/badge.svg)](https://github.com/DrafProject/elmada/actions/workflows/CI_conda.yml)
-[![codecov](https://codecov.io/gh/DrafProject/elmada/branch/master/graph/badge.svg?token=EOKKJG48A9)](https://codecov.io/gh/DrafProject/elmada)
+[![codecov](https://codecov.io/gh/DrafProject/elmada/branch/main/graph/badge.svg?token=EOKKJG48A9)](https://codecov.io/gh/DrafProject/elmada)
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![python](https://img.shields.io/badge/python-3.7_|_3.8_|_3.9-blue?logo=python&logoColor=white)](https://github.com/DrafProject/elmada)
