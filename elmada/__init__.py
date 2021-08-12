@@ -1,4 +1,14 @@
-from ._version import __version__
+__title__ = "elmada"
+__summary__ = "Dynamic electricity carbon emission factors and prices for Europe"
+__uri__ = "https://github.com/DrafProject/elmada"
+
+__version__ = "0.0.6"
+
+__author__ = "Markus Fleschutz"
+__email__ = "mfleschutz@gmail.com"
+
+__license__ = "LGPLv3"
+__copyright__ = f"Copyright (C) 2021 {__author__}"
 
 # isort: off
 

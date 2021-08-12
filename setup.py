@@ -2,13 +2,11 @@ from pathlib import Path
 
 from setuptools import find_packages, setup
 
-exec(Path("elmada/_version.py").read_text().strip())  # Set the __version__ variable
-
 long_description = Path("README.md").read_text().strip()
 
 setup(
     name="elmada",
-    version=__version__,
+    version="0.0.6",
     author="Markus Fleschutz",
     author_email="mfleschutz@gmail.com",
     description="Dynamic electricity carbon emission factors and prices for Europe",
