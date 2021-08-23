@@ -15,6 +15,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Gitter](https://badges.gitter.im/DrafProject/elmada.svg)](https://gitter.im/DrafProject/elmada)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
+[![status](https://joss.theoj.org/papers/9a6bf04b8a7bbc6b29b2ad79103acf42/status.svg)](https://joss.theoj.org/papers/9a6bf04b8a7bbc6b29b2ad79103acf42)
 
 The open-source Python package **elmada** provides electricity carbon emission factors and wholesale prices for European countries.
 The data can be used in the modeling of distributed energy systems, e.g., to evaluate the environmental effect of demand response.
@@ -32,7 +33,7 @@ You can choose between
     The according Power Plant method (`PP`) and Piecewise Linear method (`PWL`) are described in [this open-access Applied Energy paper][APEN paper].
     The data used depends on the method chosen, see [scheme below](#cef-scheme).
 
-* __Wholesale electrcity prices__ are provided for European countries. You can choose between the real historical [ENTSO-E] data or the simulation results of `PP` / `PWL` method.
+* __Wholesale electrcity prices__ are provided for European countries. You can choose between the real historical [ENTSO-E] data or the simulation results of the `PP` / `PWL` method.
 
 * Other interesting market data such as merit order lists, fuel-specific generation data, or power plant lists are provided as a by-product of the CEF calculations.
 

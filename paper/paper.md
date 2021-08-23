@@ -28,13 +28,17 @@ The expansion of intermittent renewable energy sources such as solar and wind re
 To properly assess this flexibility within energy system models, it is essential to know the wholesale price and associated carbon emissions per unit of electricity for a given time step.
 
 `elmada` is an easy-to-use open-source Python package designed to provide dynamic electricity carbon emission factors and prices for European countries.
-The target group includes modelers of distributed energy hubs who need electricity market data. This is where the name **elmada** comes from: **el**ectricity **ma**rket **da**ta.
+The target group includes modelers of distributed energy hubs who need electricity market data.
+This is where the name **elmada** comes from: **el**ectricity **ma**rket **da**ta.
 `elmada` is developed in the open on GitHub [@ElmadaGitHub] and each release is archived on Zenodo [@ElmadaZenodo].
+
+# Statement of Need
+
+Dynamic electricity emission factors are important for the environmental assessment of power demands in not fully decarbonized energy systems.
 To the best of the authors' knowledge, `elmada` is the first free and open-source Python interface for dynamic emission factors in Europe.
 This makes `elmada` an important complement to existing commercial services, such as the electricityMap API [@ElecMapApi] and the Automated Emissions Reduction from WattTime [@WattTime].
 
-Currently, `elmada` provides data for 20 European countries and for each year since 2017.
-`elmada` works mainly with data from the ENTSO-E Transparency Platform [@ENTSOE].
+# Functionality
 
 Two types of carbon emission factors are calculated:
 
@@ -43,6 +47,14 @@ Two types of carbon emission factors are calculated:
 
 MEFs are more challenging to approximate than XEFs since MEFs require the identification of the marginal power plants per time step.
 In `elmada`, this is done through a merit order simulation within the PP and PWL method described in [@Fleschutz2021].
+
+Also, historical and simulated day-ahead electricity market prices are provided.
+They can be used either for the economic evaluation of electricity demands or to model the incentive signal of price-based demand response.
+
+Currently, `elmada` provides data for 20 European countries and for each year since 2017.
+`elmada` works mainly with data from the ENTSO-E Transparency Platform [@ENTSOE].
+
+# Current and Future Usage
 
 So far, `elmada` has been used in a study where MEFs, XEFs and the results of load shift simulations based on them are compared across 20 European countries [@Fleschutz2021].
 In ongoing research, `elmada` is used to quantify the costs and emission-saving potentials that arise from the exploitation of existing and future flexibility in decentral energy hubs.
