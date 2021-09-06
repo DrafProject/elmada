@@ -151,7 +151,7 @@ def write(data: Union[pd.Series, pd.DataFrame], fp: Union[Path, str]) -> None:
     # elif fp.suffix == ".h5":
     #     data.to_hdf(fp, key="default", mode="w")
     elif fp.suffix == ".csv":
-        data.to_csv(fp, index=True)
+        data.to_csv(fp, index=True, header=True)
     else:
         raise ValueError(f"Suffix {fp.suffix} not supported")
 

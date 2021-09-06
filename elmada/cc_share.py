@@ -144,7 +144,7 @@ def _scrape_geo_list(fuel: str):
     # df.loc[df["country"] == "Czech Republic", "country"] = "Czechia"
     df.loc[df.capa == ""] = np.nan
     df["is_ccgt"] = df.name.str.contains("CCGT").astype(bool)
-    df["capa"] = df["capa"].astype(np.float)
+    df["capa"] = df["capa"].astype(float)
     return df
 
 

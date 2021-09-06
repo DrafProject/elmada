@@ -18,7 +18,7 @@ setup(
     python_requires=">=3.7",
     install_requires=[
         "appdirs",
-        "bs4",
+        "beautifulsoup4",
         "entsoe-py==0.2.10",
         "ipython",
         "lxml",

@@ -119,7 +119,7 @@ def set_lignite_plants(df: pd.DataFrame) -> pd.DataFrame:
 
 def filter_operating_plants(df: pd.DataFrame) -> pd.DataFrame:
     no_status = df.status.isna()
-    contains_shutdown = df.name.str.contains("(Shutdown)")
+    contains_shutdown = df.name.str.contains("Shutdown")
     df.loc[no_status & contains_shutdown, "status"] = "Shutdown"
     is_operating = ~df["status"].isin(NON_OPERATIONAL_STATUSES)
     return df[is_operating]

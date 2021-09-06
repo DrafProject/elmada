@@ -115,7 +115,37 @@ Activate the environment:
 conda activate elmada
 ```
 
-Run the tests and ensure that there are no errors:
+## From source without using conda
+
+### For Unix
+
+```sh
+git clone https://github.com/DrafProject/elmada.git
+cd elmada
+python3 -m venv env
+source env/bin/activate
+python -m pip install -e .[dev]
+```
+
+### For Windows
+
+```sh
+git clone https://github.com/DrafProject/elmada.git
+cd elmada
+py -m venv env
+.\env\Scripts\activate
+py -m pip install -e .[dev]
+```
+
+# Tests
+
+This should always work:
+
+```sh
+pytest -m="not apikey"
+```
+
+This works only if API keys are set as described [below](#optional-set-your-api-keys-and-go-live-mode):
 
 ```sh
 pytest
@@ -127,7 +157,7 @@ pytest
 import elmada
 ```
 
-OPTIONAL: Set your api keys and go live mode:
+## OPTIONAL: Set your API keys and go live mode
 
 ```py
 elmada.set_api_keys(entsoe="YOUR_ENTSOE_KEY", morph="YOUR_MORPH_KEY", quandl="YOUR_QUANDL_KEY")

@@ -5,12 +5,15 @@ channels:
 dependencies:  # NOTE: here '=' (single)
   - appdirs
   - bs4
+  - entsoe-py=0.2.10
   - ipython
   - lxml
   - matplotlib
+  - mypy
   - numpy
   - pandas
   - pip
+  - plotly
   - pyarrow
   - pytest
   - pytest-cov
