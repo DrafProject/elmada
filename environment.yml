@@ -4,9 +4,11 @@ channels:
   - anaconda
 dependencies:  # NOTE: here '=' (single)
   - appdirs
+  - black
   - bs4
   - entsoe-py=0.2.10
   - ipython
+  - isort
   - lxml
   - matplotlib
   - mypy

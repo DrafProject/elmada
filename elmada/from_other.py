@@ -15,7 +15,17 @@ logger.setLevel(logging.WARN)
 
 
 def get_ETS_price(year: int) -> float:
-    return get_ETS_prices()[year]
+    prices = get_ETS_prices()
+    try:
+        return prices[year]
+    except KeyError:
+        max(prices.keys())
+        backup_value = prices[max(prices.keys())]
+        logger.warning(
+            f"No data for ETS price for {year} "
+            f"==> Default value of latest available year with {backup_value:.2f} €/t is given."
+        )
+        return backup_value
 
 
 def get_ETS_prices() -> Dict:
@@ -191,15 +201,18 @@ def _get_gas_price(year: int = 2019, country: str = "DE") -> float:
     df = df / 100 * 1000  # convert cent/kWh into €/MWh
 
     default_value = df.mean().mean()
-    warn_message = f"No data for gas price for {year},{country} ==> Default value {default_value:.2f} €/MWh is given."
+    warn_msg = (
+        f"No data for gas price for {year},{country} ==> "
+        f"Default value {default_value:.2f} €/MWh is given."
+    )
     try:
         price = df.loc[year, mp.EU_de_for_gas_price[country]]
     except KeyError:
-        logger.warning(warn_message)
+        logger.warning(warn_msg)
         return default_value
 
     if np.isnan(price):
-        logger.warning(warn_message)
+        logger.warning(warn_msg)
         return default_value
 
     else:

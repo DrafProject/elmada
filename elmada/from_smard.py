@@ -10,8 +10,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARN)
 
 
-
-
 def prep_dayahead_prices(
     year: int, freq: str = "60min", country: str = "DE", cache: bool = True
 ) -> pd.Series:

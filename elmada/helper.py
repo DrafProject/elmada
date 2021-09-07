@@ -375,16 +375,44 @@ def fill_outlier_and_nan(
 
 def estimate_freq(data: Union[List, pd.Series, pd.DataFrame]) -> str:
     """Estimate the correct frequency by the length of the yearly data-set."""
+
+    if isinstance(data.index, pd.DatetimeIndex):
+        from_dtindex = estimate_freq_from_dtindex(data)
+        from_len = estimate_freq_from_len(data, allow_error=False)
+        if from_dtindex != from_len:
+            logger.warning(
+                "The length of the dtindex does not match the freqency. "
+                "This might be part-year data for the current year. "
+                "Consider overwriting the cache as soon as more data is available."
+            )
+        return from_dtindex
+    else:
+        return estimate_freq_from_len(data, allow_error=True)
+
+
+def estimate_freq_from_dtindex(data: Union[pd.Series, pd.DataFrame]) -> str:
+    step_length_in_minutes = int((data.index[1] - data.index[0]).seconds / 60)
+    return f"{step_length_in_minutes}min"
+
+
+def estimate_freq_from_len(
+    data: Union[List, pd.Series, pd.DataFrame], allow_error: bool = True
+) -> str:
     data_len = len(data)
     minutes_per_year = 8760 * 60
     tolerance = 0.2
 
-    for step_length_in_minutes in [60, 30, 15]:
+    for step_length_in_minutes in [60, 30, 15, 10, 5, 1]:
         error = abs(data_len * step_length_in_minutes / minutes_per_year - 1)
         if error < tolerance:
             return f"{step_length_in_minutes}min"
 
-    raise RuntimeError(f"Data contains {data_len} datapoints. It cannot be matched to a frequency.")
+    if allow_error:
+        raise RuntimeError(
+            f"Data contains {data_len} datapoints. It cannot be matched to a frequency."
+        )
+    else:
+        return ""
 
 
 def int_from_freq(freq: str) -> int:
