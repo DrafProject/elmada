@@ -25,7 +25,10 @@ bibliography: paper.bib
 # Summary
 
 The expansion of intermittent renewable energy sources such as solar and wind requires increased operational flexibility in electricity systems.
-To properly assess this flexibility within energy system models, it is essential to know the wholesale price and associated carbon emissions per unit of electricity for a given time step.
+Energy system models at the scale of individual decentral energy hubs can help decision-makers of energy hubs such as city quarters or industrial sites evaluate the cost and carbon emission saving potentials of their flexibility.
+For national scale models, the carbon emissions of the electricity supply system are endogenously determined.
+However, low-level models (at the scale of decentral energy hubs) need this information as input.
+And since specific carbon emissions of national electricity supply systems fluctuate hourly, the usage of at least hourly resolved carbon emission factors is essential [@Prina2020].
 
 `elmada` is an easy-to-use open-source Python package designed to provide dynamic electricity carbon emission factors and prices for European countries.
 The target group includes modelers of distributed energy hubs who need electricity market data.
@@ -34,7 +37,7 @@ This is where the name **elmada** comes from: **el**ectricity **ma**rket **da**t
 
 # Statement of Need
 
-Dynamic electricity emission factors are important for the environmental assessment of power demands in not fully decarbonized energy systems.
+Dynamic electricity emission factors are important for the environmental assessment of electricity supply in not fully decarbonized energy systems.
 To the best of the authors' knowledge, `elmada` is the first free and open-source Python interface for dynamic emission factors in Europe.
 This makes `elmada` an important complement to existing commercial services, such as the electricityMap API [@ElecMapApi] and the Automated Emissions Reduction from WattTime [@WattTime].
 
