@@ -271,6 +271,17 @@ elmada.get_merit_order(year=2019, country="DE", method="PP")
 
 ... returns the merit order as DataFrame with detailed information on individual power plant blocks.
 
+## Pre-processed data
+
+The following table describes additional `elmada` functions that provide pre-processed data.
+Keyword arguments are for example `kw = dict(year=2019, freq="60min", country="DE")`.
+
+| `elmada.` function call | Return type (Dimensions) | Return value | Usage in `elmada` | Used within |
+| -- | -- | -- | -- | -- |
+| `get_el_national_generation(**kw)` | DataFrame (time, fuel type) | National electricity generation | Share matrix *S* | `XEF_EP` method |
+| `get_el_national_generation(**kw).sum(axis=1)` | Series (time) | Total national electricity generation | Proxy for the total load | XEFs calculations |
+| `get_residual_load(**kw)` | Series (time) | Conventional national generation | Proxy for the residual load (see [scheme above](#methodology)) | `PP`, `PWL` and `PWLv`|
+
 # Contributing
 
 Contributions in any form are welcome! To contribute changes, please have a look at our [contributing guidelines](CONTRIBUTING.md).
