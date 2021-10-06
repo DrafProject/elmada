@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-
 import elmada
 
 
@@ -17,3 +16,11 @@ def test_cefs_scatter():
         elmada.plots.cefs_scatter(year=2019, country="DE", method=method)
         assert plt.gcf().number == 1
     plt.close()
+
+
+def test_xef_country_map():
+    elmada.plots.xef_country_map(year=2019, method="XEF_PWL", scope="Europe20")
+
+
+def test_cefs_scatter_plotly():
+    elmada.plots.cefs_scatter_plotly(year=2019, freq="60min", country="DE", method="MEF_PWL")

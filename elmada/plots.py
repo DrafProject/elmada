@@ -147,7 +147,7 @@ def _make_colored_background_for_fuel_types(ax, mo_P):
 def cefs_scatter_plotly(
     year: int = 2019, freq: str = "60min", country: str = "DE", method: str = "MEF_PWL", **mo_kwargs
 ):
-    """Optional interactive scatter plot. Works only if plotly is installed."""
+    """Optional interactive scatter plot. Works only if Plotly is installed."""
     import plotly.express as px
 
     first_part, second_part = method.split("_")
@@ -190,11 +190,20 @@ def _small(s: str):
     return f"<span style='font-size:small;'>{s}</span>"
 
 
-def xef_country_map(year: int = 2019, method: str = "XEF_PWL"):
+def xef_country_map(year: int = 2019, method: str = "XEF_PWL", scope: str = "Europe30"):
+    """Returns a choropleth figure. Works only if Plotly is installed.
+
+    Args:
+        year: Year for data
+        method: One of XEF_EP, XEF_PWLv, MEF_PWL
+        scope: One of Europe20, Europe30
+    """
+
     from iso3166 import countries
     import plotly.express as px
 
-    df = pd.DataFrame([(k, v) for k, v in mp.EUROPE30.items()], columns=["iso_alpha2", "country"])
+    d = mp.EUROPE30 if scope == "Europe30" else mp.COUNTRIES_FOR_ANALYSIS
+    df = pd.DataFrame([(k, v) for k, v in d.items()], columns=["iso_alpha2", "country"])
     df["iso_alpha3"] = df.iso_alpha2.apply(lambda x: countries.get(x).alpha3)
     df[method] = df.iso_alpha2.apply(
         lambda x: get_emissions(year=year, country=x, method=method).mean()
