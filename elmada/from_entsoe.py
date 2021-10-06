@@ -29,7 +29,16 @@ def prep_XEFs(year: int = 2019, freq: str = "60min", country: str = "DE") -> pd.
     assert country in mp.EUROPE_COUNTRIES
 
     shares_TF = prep_shares(year, freq, country)
-    ce_F = load_el_national_specific_emissions()[country]
+    spec_emissions = load_el_national_specific_emissions()
+    if country in spec_emissions:
+        used_country = country
+    else:
+        used_country = "EU28"
+        logger.warning(
+            f"Country {country} not in Tranberg table for specific emission factors. "
+            "EU28 average is used."
+        )
+    ce_F = spec_emissions[used_country]
     x = set(shares_TF.keys()) & set(ce_F.keys())
     ce_T = shares_TF[x] @ ce_F[x]
     ce_T = ce_T.fillna(ce_T.mean())
@@ -57,7 +66,7 @@ def _get_empty_installed_generation_capacity_df(ensure_std_techs: bool) -> pd.Da
 
 
 def load_installed_generation_capacity(
-    year: int = 2019, country: str = "DE", cache: bool = True, ensure_std_techs: bool = False,
+    year: int = 2019, country: str = "DE", cache: bool = True, ensure_std_techs: bool = False
 ) -> pd.DataFrame:
     """Returns a dataframe with installed generation capacity fuel type dependent on year and
     country.
@@ -134,7 +143,7 @@ def load_el_national_generation(
     assert freq in [None, "15min", "30min", "60min"], f"{freq} is not a valid frequency"
     assert country in mp.EUROPE_COUNTRIES
 
-    fp = paths.mode_dependent_cache_dir(year) / f"{year}_{country}_gen_entsoe.parquet"
+    fp = paths.mode_dependent_cache_dir(year, country) / f"{year}_{country}_gen_entsoe.parquet"
 
     if cache and fp.exists():
         df = hp.read(fp)
@@ -250,7 +259,7 @@ def _get_timestamps_for_month(year, tz, month):
 
 
 def prep_residual_load(
-    year: int = 2019, freq: str = "15min", country: str = "DE", method: str = "all_conv",
+    year: int = 2019, freq: str = "15min", country: str = "DE", method: str = "all_conv"
 ) -> pd.Series:
     config = dict(year=year, freq=freq, country=country)
 

@@ -32,7 +32,17 @@ setup(
         "xlrd",
     ],
     extras_require={
-        "dev": ["black", "isort", "mypy", "plotly", "pytest-cov", "pytest-mock", "pytest-responsemock", "pytest"]
+        "dev": [
+            "black",
+            "iso3166",
+            "isort",
+            "mypy",
+            "plotly",
+            "pytest-cov",
+            "pytest-mock",
+            "pytest-responsemock",
+            "pytest",
+        ]
     },
     include_package_data=True,
     package_data={"elmada": ["*.parquet", "*.csv", "*.txt", "*xls"]},

@@ -8,6 +8,7 @@ dependencies:  # NOTE: here '=' (single)
   - bs4
   - entsoe-py=0.2.10
   - ipython
+  - iso3166
   - isort
   - lxml
   - matplotlib

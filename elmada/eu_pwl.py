@@ -41,7 +41,7 @@ def merit_order(
     """Return a merit-order list. Virtual power plants are constructed through discretization."""
 
     mo_f = merit_order_per_fuel(
-        year=year, country=country, approx_method=approx_method, validation_mode=validation_mode,
+        year=year, country=country, approx_method=approx_method, validation_mode=validation_mode
     )
 
     df = discretize_merit_order_per_fuel(mo_f, pp_size_method=pp_size_method, country=country)

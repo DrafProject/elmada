@@ -32,7 +32,7 @@ def prep_CEFs(year=2019, freq="60min", country="DE", mo_P=None, **mo_kwargs) -> 
 
 
 def get_CEFs_from_merit_order(
-    mo_P: pd.DataFrame, year: int, freq: str, country: str, resi_T: Optional[pd.Series] = None,
+    mo_P: pd.DataFrame, year: int, freq: str, country: str, resi_T: Optional[pd.Series] = None
 ) -> pd.DataFrame:
     if resi_T is None:
         resi_T = from_entsoe.prep_residual_load(year=year, freq=freq, country=country)

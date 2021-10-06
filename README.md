@@ -82,6 +82,18 @@ The data is in local time since the [Draf Project] focuses on the modeling of in
 Standard time is used i.e. daylight saving time is ignored.
 Also see [this table](https://github.com/DrafProject/marginal-emission-factors/blob/main/README.md#time-zones) of the time zones used.
 
+## Geographic scope
+
+The countries supported by `elmada` can be seen in the map below.
+In the [Usage section](#usage) they are refered to as Europe30.
+They include:
+
+* 20 countries analyzed in the [Applied Energy paper][APEN paper]: AT, BE, CZ, DE, DK, ES, FI, FR, GB, GR, HU, IE, IT, LT, NL, PL, PT, RO, RS, SI
+* 8 countries with only [one reported fossil fuel type][APENsupplPage8]: BA, CH, EE, LV, ME, MK, NO, SE
+* 2 countries where installed generation capacity data for 2019 were only available after the publication of [Applied Energy paper][APEN paper]: BG, SK
+
+<img src="doc/images/xef_country_map.svg" width="600" alt="xef_country_map">
+
 # Installation
 
 ## Using `pip`
@@ -212,15 +224,15 @@ Here is an overview of valid `method` argument values:
 | `method` | Return type | Return values | Restriction |
 | --: | -- | -- | -- |
 | `XEF_PP` | Series | XEFs using PP method | DE |
-| `XEF_PWL` | Series | XEFs using PWL method | European countries |
+| `XEF_PWL` | Series | XEFs using PWL method | [Europe30] |
 | `XEF_PWLv` | Series | XEFs using PWLv method | DE |
 | `MEF_PP` | Series | MEFs from PP method | DE |
-| `MEF_PWL` | Series | MEFs using PWL method | European countries |
+| `MEF_PWL` | Series | MEFs using PWL method | [Europe30] |
 | `MEF_PWLv` | Series | MEFs using PWLv method | DE |
 | `_PP` | Dataframe | extended data for PP method | DE |
-| `_PWL` | Dataframe | extended data for PWL method | European countries |
+| `_PWL` | Dataframe | extended data for PWL method | [Europe30] |
 | `_PWLv` | Dataframe | extended data for PWLv method | DE |
-| `XEF_EP` | Series | XEFs using fuel type-specific generation data from [ENTSO-E]| European countries |
+| `XEF_EP` | Series | XEFs using fuel type-specific generation data from [ENTSO-E] | [Europe30] |
 
 You can plot the carbon emission factors with
 
@@ -250,9 +262,9 @@ Possible values for the `method` argument of `get_prices()` are:
 | `method` | Description | Restriction |
 | --: | -- | -- |
 | `PP` | Using the power plant method | DE |
-| `PWL` | Using piecewise linear method | European countries |
+| `PWL` | Using piecewise linear method | [Europe30] |
 | `PWLv` | Using piecewise linear method in validation mode | DE |
-| `hist_EP` | Using historic [ENTSO-E] data | European countries |
+| `hist_EP` | Using historic [ENTSO-E] data | [Europe30] without BA, ME, MK|
 | `hist_SM` | Using historic [Smard] data | used only as backup for DE, 2015 and 2018 |
 
 ## Merit order
@@ -311,6 +323,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [.../tranberg]: elmada/data/raw/tranberg
 [.../worldbank]: elmada/data/raw/worldbank
 [APEN paper]: https://doi.org/10.1016/j.apenergy.2021.117040
+[APENsupplPage8]: https://ars.els-cdn.com/content/image/1-s2.0-S0306261921004992-mmc1.pdf#page=8
 [BeautifulSoup4]: https://pypi.org/project/beautifulsoup4
 [destatis_download]: https://www.destatis.de/DE/Themen/Wirtschaft/Preise/Publikationen/Energiepreise/energiepreisentwicklung-xlsx-5619001.xlsx?__blob=publicationFile
 [DESTATIS]: https://www.destatis.de
@@ -318,6 +331,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [ENTSO-E API key]: https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html
 [ENTSO-E]: https://transparency.entsoe.eu/
 [EntsoePandasClient]: https://github.com/EnergieID/entsoe-py#EntsoePandasClient
+[Europe30]: #geographic-scope
 [GEO]: http://globalenergyobservatory.org
 [ICE]: https://www.theice.com
 [Konstantin.2017]: https://doi.org/10.1007/978-3-662-49823-1

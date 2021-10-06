@@ -3,6 +3,7 @@ class ConfigUtil:
 
 
 def set_mode(mode: str):
+    """Set data mode either to 'safe' or to 'live'."""
     assert mode in ["safe", "live"]
     ConfigUtil.mode = mode
 

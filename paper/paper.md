@@ -54,7 +54,7 @@ In `elmada`, this is done through a merit order simulation within the PP and PWL
 Also, historical and simulated day-ahead electricity market prices are provided.
 They can be used either for the economic evaluation of electricity demands or to model the incentive signal of price-based demand response.
 
-Currently, `elmada` provides data for 20 European countries and for each year since 2017.
+Currently, `elmada` provides data for 30 European countries and for each year since 2017.
 `elmada` works mainly with data from the ENTSO-E Transparency Platform [@ENTSOE].
 
 # Current and Future Usage

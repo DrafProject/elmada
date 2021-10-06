@@ -184,3 +184,36 @@ def cefs_scatter(
     ax = plt.gca()
     ax.set(ylabel="Carbon emission factors\n[$g_{CO_{2}eq}$ / $kWh_{el}$]")
     ax.legend(ncol=6, loc="lower center", bbox_to_anchor=(0.5, 1), frameon=True)
+
+
+def _small(s: str):
+    return f"<span style='font-size:small;'>{s}</span>"
+
+
+def xef_country_map(year: int = 2019, method: str = "XEF_PWL"):
+    from iso3166 import countries
+    import plotly.express as px
+
+    df = pd.DataFrame([(k, v) for k, v in mp.EUROPE30.items()], columns=["iso_alpha2", "country"])
+    df["iso_alpha3"] = df.iso_alpha2.apply(lambda x: countries.get(x).alpha3)
+    df[method] = df.iso_alpha2.apply(
+        lambda x: get_emissions(year=year, country=x, method=method).mean()
+    )
+    small_adder = _small("(unsupported countries in light blue)")
+    fig = px.choropleth(
+        df,
+        locations="iso_alpha3",
+        color=method,
+        hover_name="country",
+        scope="europe",
+        color_continuous_scale="OrRd",
+        labels={method: f"{method}<br>gCO2eq/kWh"},
+        title=f"{year} mean {method} of supported countries<br>{small_adder}",
+        width=700,
+    )
+    fig.update_layout(
+        margin=dict(l=0, r=0, t=0, b=0),
+        title={"y": 0.12, "x": 0.5, "xanchor": "center", "yanchor": "top"},
+        coloraxis_colorbar=dict(xpad=0, x=0.95),
+    )
+    return fig

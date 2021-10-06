@@ -62,7 +62,7 @@ def delete_cache(filter_str: str = "*") -> None:
 
         for f in files:
             size = sizeof_fmt(f.stat().st_size)
-            print(f"\t{size:>5}{f.name}")
+            print(f"\t{size:>5}  {f.name}")
 
         if confirm_deletion(lenf):
             for f in files:

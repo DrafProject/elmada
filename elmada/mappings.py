@@ -103,7 +103,6 @@ EXCLUDED = {
     "MK": "Only lignite as conventional generation data from ENTSO-E.",
     "ME": "Only lignite as conventional generation data from ENTSO-E.",
     "EE": "Only other_conv as conventional generation data from ENTSO-E.",
-    # "LT": "Only gas & oil as conventional generation data from ENTSO-E.",
     "BG": "No installed capacity for 2019 from ENTSO-E",
     "SK": "No installed capacity for 2019 from ENTSO-E",
 }
@@ -114,6 +113,10 @@ EUROPE_COUNTRIES_LONG_TO_SHORT = {long: short for short, long in EUROPE_COUNTRIE
 
 d = {k: v for k, v in EUROPE_COUNTRIES.items() if k not in EXCLUDED}
 COUNTRIES_FOR_ANALYSIS = collections.OrderedDict(sorted(d.items()))
+
+NO_GEN_DAT = {k for k, v in EXCLUDED.items() if v == "No generation data available from ENTSO-E"}
+d = {k: v for k, v in EUROPE_COUNTRIES.items() if k not in NO_GEN_DAT}
+EUROPE30 = collections.OrderedDict(sorted(d.items()))
 
 # Modified entsoe-py mapping to match whole countries
 NEIGHBOURS_CY = {
