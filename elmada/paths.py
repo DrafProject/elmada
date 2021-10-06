@@ -30,5 +30,5 @@ SAFE_CACHE_DIR = BASE_DIR / "data/safe_cache"
 
 def mode_dependent_cache_dir(year: Optional[int] = None, country: Optional[str] = None):
     is_safe_year = year in range(2017, 2021) or year is None
-    is_safe_country = country in COUNTRIES_FOR_ANALYSIS
+    is_safe_country = country in COUNTRIES_FOR_ANALYSIS or country is None
     return SAFE_CACHE_DIR if (is_safe_mode() and is_safe_year and is_safe_country) else CACHE_DIR
