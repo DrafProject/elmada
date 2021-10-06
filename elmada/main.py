@@ -60,7 +60,7 @@ def get_emissions(
     fp = paths.CACHE_DIR / f"{year}_{country}_{freq}_CEFs_{last_method_part}.parquet"
 
     if cache and fp.exists() and not mo_kwargs:
-        df = hp.read(fp)
+        df = hp.read(fp, squeeze=False)
     else:
         df = _make_emissions(
             year=year, freq=freq, country=country, method=last_method_part, **mo_kwargs
