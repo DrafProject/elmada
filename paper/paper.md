@@ -28,22 +28,37 @@ The expansion of intermittent renewable energy sources such as solar and wind re
 Energy system models at the scale of individual decentral energy hubs can help decision-makers of energy hubs such as city quarters or industrial sites evaluate the cost and carbon emission saving potentials of their flexibility.
 For national scale models, the carbon emissions of the electricity supply system are endogenously determined.
 However, low-level models (at the scale of decentral energy hubs) need this information as input.
-And since specific carbon emissions of national electricity supply systems fluctuate hourly, the usage of at least hourly resolved carbon emission factors is essential [@Prina2020].
+And since specific carbon emissions of national electricity supply systems fluctuate hourly, the usage of at least hourly resolved carbon emission factors (CEFs) is essential [@Prina2020].
 
-`elmada` is an easy-to-use open-source Python package designed to provide dynamic electricity carbon emission factors and prices for European countries.
+`elmada` is an easy-to-use open-source Python package designed to provide dynamic electricity CEFs and prices for European countries.
 The target group includes modelers of distributed energy hubs who need electricity market data.
 This is where the name **elmada** comes from: **el**ectricity **ma**rket **da**ta.
 `elmada` is developed in the open on GitHub [@ElmadaGitHub] and each release is archived on Zenodo [@ElmadaZenodo].
 
 # Statement of Need
 
-Dynamic electricity emission factors are important for the environmental assessment of electricity supply in not fully decarbonized energy systems.
-To the best of the authors' knowledge, `elmada` is the first free and open-source Python interface for dynamic emission factors in Europe.
-This makes `elmada` an important complement to existing commercial services, such as the electricityMap API [@ElecMapApi] and the Automated Emissions Reduction from WattTime [@WattTime].
+Dynamic CEFs are important for the environmental assessment of electricity supply in not fully decarbonized energy systems.
+To the best of the authors' knowledge, `elmada` is the first free and open-source Python interface for dynamic CEFs in Europe.
+This makes `elmada` an important complement to existing commercial services.
+
+At the moment, there are two main commercial services that provide an Application Programming Interface (API) for historical dynamic CEFs: the `electricityMap` API [@ElecMapApi] and the Automated Emissions Reduction from WattTime [@WattTime].
+The `electricityMap` is maintained by Tomorrow, a startup based in Denmark, and WattTime is a nonprofit organization in the USA.
+However, both focus on real-time CEFs as incentive signals for demand response answering the question "How clean is my electricity right now?".
+We elaborate more on `electricityMap` here, as they originate in Europe, which is also the focus of `elmada`.
+The services of WattTime are broadly similar.
+
+`electricityMap` is a software project that visualizes the carbon emission intensity linked to the generation and consumption of electricity on a global choropleth map.
+Additionally, the `electricityMap` API provides historical, real-time (current hour), forecast, and since recently also marginal data. The calculation methods consider international energy exchanges and the fact that the list of data sources is curated by Tomorrow (the company behind it) makes it save-to-use as a live incentive signal e.g. for carbon-based demand response applications.
+However, the use of `electricityMap` API requires a data-dependent payment even for the historic data, so it is not free of charge.
+
+Currently, there is no multi-national solution for modelers of decentral energy hubs searching for free historical hourly CEFs (in particular MEFs).
+This gap often leads to the usage of yearly average CEFs, which are potentially misleading [@Hawkes2010].
+We close this gap by providing the conveniently installable Python package `elmada` that calculates XEFs and MEFs in hourly (or higher) resolution for 30 European countries for free.
+`elmada` provides modelers a no-regret (free) entry point to European dynamic CEFs leaving it open to the modeler to later switch to a paid service that generate more accurate CEFs, e.g. through advanced methods such as the consideration of cross-border energy flows through flow tracing [@Tranberg2019].
 
 # Functionality
 
-Two types of carbon emission factors are calculated:
+Two types of CEFs are calculated:
 
 * grid-mix emission factors (XEFs), which represent the emission intensity based on the current generation mix of the electricity system,
 * and marginal emission factors (MEFs), which quantify the emission intensity of the generators likely to react to a marginal system change.
@@ -62,7 +77,7 @@ Currently, `elmada` provides data for 30 European countries and for each year si
 So far, `elmada` has been used in a study where MEFs, XEFs and the results of load shift simulations based on them are compared across 20 European countries [@Fleschutz2021].
 In ongoing research, `elmada` is used to quantify the costs and emission-saving potentials that arise from the exploitation of existing and future flexibility in decentral energy hubs.
 
-We hope that `elmada` reduces the difficulty associated with the use of dynamic carbon emission factors and prices in the modeling of decentral energy systems.
+We hope that `elmada` reduces the difficulty associated with the use of dynamic CEFs and prices in the modeling of decentral energy systems.
 
 # Acknowledgements
 
