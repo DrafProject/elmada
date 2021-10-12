@@ -18,8 +18,8 @@ def test_cefs_scatter():
     plt.close()
 
 
-def test_xef_country_map():
-    elmada.plots.xef_country_map(year=2019, method="XEF_PWL", scope="Europe20")
+def test_cef_country_map():
+    elmada.plots.cef_country_map(year=2019, method="XEF_PWL", scope="Europe20")
 
 
 def test_cefs_scatter_plotly():

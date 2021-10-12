@@ -28,7 +28,7 @@ The expansion of intermittent renewable energy sources such as solar and wind re
 Energy system models at the scale of individual decentral energy hubs can help decision-makers of energy hubs such as city quarters or industrial sites evaluate the cost and carbon emission saving potentials of their flexibility.
 For national scale models, the carbon emissions of the electricity supply system are endogenously determined.
 However, low-level models (at the scale of decentral energy hubs) need this information as input.
-And since specific carbon emissions of national electricity supply systems fluctuate hourly, the usage of at least hourly resolved carbon emission factors (CEFs) is essential [@Prina2020].
+Since specific carbon emissions of national electricity supply systems fluctuate hourly, the usage of dynamic (i.e. at least hourly resolved) carbon emission factors (CEFs) is essential [@Prina2020].
 
 `elmada` is an easy-to-use open-source Python package designed to provide dynamic electricity CEFs and prices for European countries.
 The target group includes modelers of distributed energy hubs who need electricity market data.
@@ -51,6 +51,11 @@ The services of WattTime are broadly similar.
 Additionally, the `electricityMap` API provides historical, real-time (current hour), forecast, and since recently also marginal data. The calculation methods consider international energy exchanges and the fact that the list of data sources is curated by Tomorrow (the company behind it) makes it save-to-use as a live incentive signal e.g. for carbon-based demand response applications.
 However, the use of `electricityMap` API requires a data-dependent payment even for the historic data, so it is not free of charge.
 
+There are two types of dynamic CEFs:
+
+* grid-mix emission factors (XEFs), which represent the emission intensity based on the current generation mix of the electricity system,
+* and marginal emission factors (MEFs), which quantify the emission intensity of the generators likely to react to a marginal system change.
+
 Currently, there is no multi-national solution for modelers of decentral energy hubs searching for free historical hourly CEFs (in particular MEFs).
 This gap often leads to the usage of yearly average CEFs, which are potentially misleading [@Hawkes2010].
 We close this gap by providing the conveniently installable Python package `elmada` that calculates XEFs and MEFs in hourly (or higher) resolution for 30 European countries for free.
@@ -58,13 +63,9 @@ We close this gap by providing the conveniently installable Python package `elma
 
 # Functionality
 
-Two types of CEFs are calculated:
-
-* grid-mix emission factors (XEFs), which represent the emission intensity based on the current generation mix of the electricity system,
-* and marginal emission factors (MEFs), which quantify the emission intensity of the generators likely to react to a marginal system change.
-
+`elmada` calculates both types of dynamic CEFs: XEFs and MEFs.
 MEFs are more challenging to approximate than XEFs since MEFs require the identification of the marginal power plants per time step.
-In `elmada`, this is done through a merit order simulation within the PP and PWL method described in [@Fleschutz2021].
+In `elmada`, this is done through a merit order simulation within the power plant (PP) and piecewise linear (PWL) method described in [@Fleschutz2021].
 
 Also, historical and simulated day-ahead electricity market prices are provided.
 They can be used either for the economic evaluation of electricity demands or to model the incentive signal of price-based demand response.

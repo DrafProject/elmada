@@ -190,7 +190,7 @@ def _small(s: str):
     return f"<span style='font-size:small;'>{s}</span>"
 
 
-def xef_country_map(year: int = 2019, method: str = "XEF_PWL", scope: str = "Europe30"):
+def cef_country_map(year: int = 2019, method: str = "XEF_PWL", scope: str = "Europe30"):
     """Returns a choropleth figure. Works only if Plotly is installed.
 
     Args:

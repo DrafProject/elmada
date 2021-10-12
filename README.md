@@ -18,9 +18,8 @@
 [![status](https://joss.theoj.org/papers/9a6bf04b8a7bbc6b29b2ad79103acf42/status.svg)](https://joss.theoj.org/papers/9a6bf04b8a7bbc6b29b2ad79103acf42)
 
 The open-source Python package **elmada** provides electricity carbon emission factors and wholesale prices for European countries.
-The data can be used in the modeling of distributed energy systems, e.g., to evaluate the environmental effect of demand response.
-**elmada** stands for **el**ectricity **ma**rket **da**ta.
-It is part of the [Draf Project] but can be used as a standalone package.
+The target group includes modelers of distributed energy hubs who need **el**ectricity **ma**rket **da**ta (short: **elmada**), e.g., to evaluate the environmental effect of demand response.
+**elmada** is part of the [Draf Project] but can be used as a standalone package.
 
 <img src="https://github.com/DrafProject/elmada/raw/main/doc/images/elmada_scheme_scribble.svg" width="650" alt="Elmada scheme scribble">
 
@@ -33,7 +32,7 @@ You can choose between
     The according Power Plant method (`PP`) and Piecewise Linear method (`PWL`) are described in [this open-access Applied Energy paper][APEN paper].
     The data used depends on the method chosen, see [scheme below](#cef-scheme).
 
-* __Wholesale electrcity prices__ are provided for European countries. You can choose between the real historical [ENTSO-E] data or the simulation results of the `PP` / `PWL` method.
+* __Wholesale electricity prices__ are provided for European countries. You can choose between the real historical [ENTSO-E] data or the simulation results of the `PP` / `PWL` method.
 
 * Other interesting market data such as merit order lists, fuel-specific generation data, or power plant lists are provided as a by-product of the CEF calculations.
 
@@ -49,6 +48,21 @@ The methods `PP`, `PWL`, and `PWLv` are explained in [this Applied Energy paper]
 
 # Data
 
+## Geographic scope
+
+In `elmada`, two-letter country codes ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)) are used.
+
+The countries supported by `elmada` can be seen in the map below which is the output of `elmada.plots.cef_country_map(year=2020, method="XEF_EP")`.
+
+<img src="doc/images/cef_country_map.svg" width="600" alt="cef_country_map">
+
+In the [Usage section](#usage) they are referred to as Europe30.
+They include:
+
+* 20 countries analyzed in the [Applied Energy paper][APEN paper]: AT, BE, CZ, DE, DK, ES, FI, FR, GB, GR, HU, IE, IT, LT, NL, PL, PT, RO, RS, SI
+* 8 countries with only [one reported fossil fuel type][APENsupplPage8]: BA, CH, EE, LV, ME, MK, NO, SE
+* 2 countries where installed generation capacity data for 2019 were only available after the publication of the [Applied Energy paper][APEN paper]: BG, SK
+
 ## Data modes
 
 You can use **elmada** in two data modes which can be set with `elmada.set_mode(mode=<MODE>)`:
@@ -61,11 +75,11 @@ You can use **elmada** in two data modes which can be set with `elmada.set_mode(
   * Up-to-date data are retrieved on demand and are cached to an OS-specific directory, see `elmada.paths.CACHE_DIR`. A symbolic link to it can be conveniently created by executing `elmada.make_symlink_to_cache()`.
   * Available years are 2017 until the present.
   * Slow due to API requests.
-  * Requires valid API keys of Entsoe, Morph, Quandl, see [table below](#data-sources).
+  * Requires valid API keys of ENTSO-E, Morph, Quandl, see [table below](#data-sources).
 
 ## Data sources
 
-| Description | Local data location | Source | Channel | Involed in |
+| Description | Local data location | Source | Channel | Involved in |
 |-|-|-|-|-|
 | Generation time series & installed generation capacities | [.../safe_cache] or `CACHE_DIR` | [ENTSO-E] | 🔌 on-demand-retrieval via [EntsoePandasClient] (requires valid [ENTSO-E API key]) | CEFs via `EP`, `PP`, `PWL`, `PWLv` |
 | Carbon prices (EUA)| [.../safe_cache] or `CACHE_DIR` | [Sandbag] & [ICE] | 🔌 on-demand-retrieval via [Quandl] (requires valid [Quandl API key]) | CEFs via `PP`, `PWL`, `PWLv` |
@@ -81,18 +95,6 @@ You can use **elmada** in two data modes which can be set with `elmada.set_mode(
 The data is in local time since the [Draf Project] focuses on the modeling of individual energy hubs.
 Standard time is used i.e. daylight saving time is ignored.
 Also see [this table](https://github.com/DrafProject/marginal-emission-factors/blob/main/README.md#time-zones) of the time zones used.
-
-## Geographic scope
-
-The countries supported by `elmada` can be seen in the map below.
-In the [Usage section](#usage) they are refered to as Europe30.
-They include:
-
-* 20 countries analyzed in the [Applied Energy paper][APEN paper]: AT, BE, CZ, DE, DK, ES, FI, FR, GB, GR, HU, IE, IT, LT, NL, PL, PT, RO, RS, SI
-* 8 countries with only [one reported fossil fuel type][APENsupplPage8]: BA, CH, EE, LV, ME, MK, NO, SE
-* 2 countries where installed generation capacity data for 2019 were only available after the publication of [Applied Energy paper][APEN paper]: BG, SK
-
-<img src="doc/images/xef_country_map.svg" width="600" alt="xef_country_map">
 
 # Installation
 
@@ -173,7 +175,7 @@ import elmada
 
 ```py
 elmada.set_api_keys(entsoe="YOUR_ENTSOE_KEY", morph="YOUR_MORPH_KEY", quandl="YOUR_QUANDL_KEY")
-# NOTE: Api keys are stored in an OS-dependent config directory for later use.
+# NOTE: API keys are stored in an OS-dependent config directory for later use.
 
 elmada.set_mode("live")
 ```
