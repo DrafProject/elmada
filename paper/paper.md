@@ -33,7 +33,8 @@ Since specific carbon emissions of national electricity supply systems fluctuate
 `elmada` is an easy-to-use open-source Python package designed to provide dynamic electricity CEFs and prices for European countries.
 The target group includes modelers of distributed energy hubs who need electricity market data.
 This is where the name **elmada** comes from: **el**ectricity **ma**rket **da**ta.
-`elmada` is developed in the open on GitHub [@ElmadaGitHub] and each release is archived on Zenodo [@ElmadaZenodo].
+`elmada` is developed in the open on GitHub [@ElmadaGitHub].
+Each release is archived on Zenodo [@ElmadaZenodo].
 
 # Statement of Need
 
