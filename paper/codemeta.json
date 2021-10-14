@@ -15,7 +15,7 @@
       "affiliation": "Department of Process, Energy and Transport Engineering, Munster Technological University"
     }
   ],
-  "identifier": "http://doi.org/10.5281/zenodo.5126771",
+  "identifier": "http://doi.org/10.5281/zenodo.5566694",
   "codeRepository": "https://github.com/DrafProject/elmada",
   "datePublished": "2021-07-23",
   "dateModified": "2021-07-23",
@@ -24,5 +24,5 @@
   "keywords": "energy market data, energy systems, carbon emission factors, marginal emissions, demand response",
   "license": "LGPLv3",
   "title": "elmada",
-  "version": "v0.0.6"
+  "version": "v0.1.0"
 }
