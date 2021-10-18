@@ -313,6 +313,7 @@ In short:
 # Citing elmada
 
 If you use **elmada** for academic work please cite this paper published in the Journal for Open Source Software:
+
 [![status](https://joss.theoj.org/papers/10.21105/joss.03625/status.svg)][JOSS paper]
 
 ```bibtex
@@ -326,7 +327,6 @@ If you use **elmada** for academic work please cite this paper published in the 
   number = {66},
   pages = {3625},
   doi = {10.21105/joss.03625},
-  url = {https://doi.org/10.21105/joss.03625}
 }
 ```
 
@@ -343,8 +343,7 @@ If you use the PP or PWL method, please also cite the [original open-access meth
   volume = {295},
   issn = {0306-2619},
   pages = {117040},
-  doi = {https://doi.org/10.1016/j.apenergy.2021.117040},
-  url = {https://www.sciencedirect.com/science/article/pii/S0306261921004992}
+  doi = {10.1016/j.apenergy.2021.117040},
 }
 ```
 
