@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Fleschutz"
+  given-names: "Markus"
+  orcid: "https://orcid.org/0000-0002-8516-9635"
+- family-names: "Murphy"
+  given-names: "Michael D."
+  orcid: "https://orcid.org/0000-0002-4269-2581"
+title: "elmada: Dynamic electricity carbon emission factors and prices for Europe"
+version: 0.1.0
+doi: 10.5281/zenodo.5566694
+date-released: 2021-10-13
+url: "https://github.com/DrafProject/elmada"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Fleschutz"
+    given-names: "Markus"
+    orcid: "https://orcid.org/0000-0002-8516-9635"
+  - family-names: "Murphy"
+    given-names: "Michael D."
+    orcid: "https://orcid.org/0000-0002-4269-2581"
+  doi: "10.21105/joss.03625"
+  journal: "Journal of Open Source Software"
+  month: 10
+  start: 3625
+  title: "elmada: Dynamic electricity carbon emission factors and prices for Europe"
+  issue: 66
+  volume: 6
+  year: 2021
