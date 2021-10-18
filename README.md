@@ -4,18 +4,22 @@
 
 # elmada: Dynamic electricity carbon emission factors and prices for Europe
 
+**Status:**
 [![PyPI](https://img.shields.io/pypi/v/elmada?color=success&label=pypi%20package)](https://pypi.python.org/pypi/elmada)
 [![CI](https://github.com/DrafProject/elmada/actions/workflows/CI.yml/badge.svg)](https://github.com/DrafProject/elmada/actions/workflows/CI.yml)
 [![CI with conda](https://github.com/DrafProject/elmada/actions/workflows/CI_conda.yml/badge.svg)](https://github.com/DrafProject/elmada/actions/workflows/CI_conda.yml)
 [![codecov](https://codecov.io/gh/DrafProject/elmada/branch/main/graph/badge.svg?token=EOKKJG48A9)](https://codecov.io/gh/DrafProject/elmada)
 
-[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+**Usage:**
 [![python](https://img.shields.io/badge/python-3.7_|_3.8_|_3.9-blue?logo=python&logoColor=white)](https://github.com/DrafProject/elmada)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![status](https://joss.theoj.org/papers/10.21105/joss.03625/status.svg)][JOSS paper]
+
+**Contribution:**
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1)](https://pycqa.github.io/isort/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Gitter](https://badges.gitter.im/DrafProject/elmada.svg)](https://gitter.im/DrafProject/elmada)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
-[![status](https://joss.theoj.org/papers/9a6bf04b8a7bbc6b29b2ad79103acf42/status.svg)](https://joss.theoj.org/papers/9a6bf04b8a7bbc6b29b2ad79103acf42)
 
 The open-source Python package **elmada** provides electricity carbon emission factors and wholesale prices for European countries.
 The target group includes modelers of distributed energy hubs who need **el**ectricity **ma**rket **da**ta (short: **elmada**), e.g., to evaluate the environmental effect of demand response.
@@ -308,7 +312,41 @@ In short:
 
 # Citing elmada
 
-If you use **elmada** for academic work please cite [this open-access paper][APEN paper] published in Applied Energy in 2021.
+If you use **elmada** for academic work please cite this paper published in the Journal for Open Source Software:
+[![status](https://joss.theoj.org/papers/10.21105/joss.03625/status.svg)][JOSS paper]
+
+```bibtex
+@article{Fleschutz2021,
+  title = {elmada: Dynamic electricity carbon emission factors and prices for Europe},
+  author = {Markus Fleschutz and Michael D. Murphy},
+  journal = {Journal of Open Source Software},
+  publisher = {The Open Journal},
+  year = {2021},
+  volume = {6},
+  number = {66},
+  pages = {3625},
+  doi = {10.21105/joss.03625},
+  url = {https://doi.org/10.21105/joss.03625}
+}
+```
+
+If you use the PP or PWL method, please also cite the [original open-access method paper][APEN paper]:
+
+[![APEN](https://img.shields.io/badge/AppliedEnergy-10.1016/j.apenergy.2021.117040-brightgreen)][APEN paper]
+
+```bibtex
+@article{Fleschutz2021b,
+  title = {The effect of price-based demand response on carbon emissions in European electricity markets: The importance of adequate carbon prices},
+  author = {Markus Fleschutz and Markus Bohlayer and Marco Braun and Gregor Henze and Michael D. Murphy},
+  journal = {Applied Energy},
+  year = {2021},
+  volume = {295},
+  issn = {0306-2619},
+  pages = {117040},
+  doi = {https://doi.org/10.1016/j.apenergy.2021.117040},
+  url = {https://www.sciencedirect.com/science/article/pii/S0306261921004992}
+}
+```
 
 # License
 
@@ -336,6 +374,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [Europe30]: #geographic-scope
 [GEO]: http://globalenergyobservatory.org
 [ICE]: https://www.theice.com
+[JOSS paper]: https://doi.org/10.21105/joss.03625
 [Konstantin.2017]: https://doi.org/10.1007/978-3-662-49823-1
 [Morph API key]: https://morph.io/documentation/api
 [Morph]: https://morph.io
