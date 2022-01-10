@@ -29,16 +29,18 @@ The target group includes modelers of distributed energy hubs who need **el**ect
 
 ## Features
 
-* __Carbon emission factors (CEF)__ are calculated depending on country and year in up to quarter-hourly resolution.
-You can choose between
-  * grid mix emission factors (XEFs) from fuel type-specific [ENTSO-E] electricity generation data (`method="XEF_EP"`)
-  * and approximations using merit order based simulations which allow also for the calculation of marginal emission factors (MEFs).
-    The according Power Plant method (`PP`) and Piecewise Linear method (`PWL`) are described in [this open-access Applied Energy paper][APEN paper].
-    The data used depends on the method chosen, see [scheme below](#cef-scheme).
+* __Dynamic electricity Carbon Emission Factors (CEFs)__ are calculated depending on country and year in up to quarter-hourly resolution.
+There are two types of CEFs: __Grid Mix Emission Factors (XEFs)__ and __Marginal Emission Factors (MEFs)__.
+While XEFs reflect the carbon footprint of an electricity use (attributional approach), MEFs estimate the carbon impact (consequential approach) of a change in electricity demand (Learn more in the [white paper][CEFWhitepaper] from Tomorrow and WattTime).
+Choose between
+  * __XEFs__ from fuel type-specific [ENTSO-E] electricity generation data only for Germany (`XEF_EP`),
+  * and __XEFs__ & __MEFs__ from merit order based simulations for [30 European Countries][Europe30] (`XEF_PP`, `XEF_PWL`, `MEF_PP`, `MEF_PWL`).
+  The according Power Plant method (`PP`) and Piecewise Linear method (`PWL`) are described in the open-access [Applied Energy paper].
+  The data used depend on the method chosen, see [scheme below](#cef-scheme).
 
-* __Wholesale electricity prices__ are provided for European countries. You can choose between the real historical [ENTSO-E] data or the simulation results of the `PP` / `PWL` method.
+* __Wholesale electricity prices__ are provided for European countries. You can choose between the real historical [ENTSO-E] data (`hist_EP`) or the simulation results of the `PP` / `PWL` method.
 
-* Other interesting market data such as merit order lists, fuel-specific generation data, or power plant lists are provided as a by-product of the CEF calculations.
+* Other interesting market data such as merit order lists & plots, fuel-specific generation data, or power plant lists are provided as a by-product of the CEF calculations.
 
 ## Methodology
 
@@ -46,7 +48,7 @@ With the `XEF_EP` method, XEFs are calculated by multiplying the share matrix *S
 
 <img src="https://render.githubusercontent.com/render/math?math=\mathrm{XEF}^\mathrm{EP}_{t} = S_{t,f}\cdot\varepsilon_f">
 
-The methods `PP`, `PWL`, and `PWLv` are explained in [this Applied Energy paper][APEN paper]. Here is an overview:
+The methods `PP`, `PWL`, and `PWLv` are explained in the [Applied Energy paper]. Here is an overview:
  <!-- Converted from pptx via https://convertio.co/ -->
  <img src="https://github.com/DrafProject/elmada/raw/main/doc/images/scheme_CEF_calculation.svg" id='cef-scheme' width="900" alt="scheme_CEF_calculation">
 
@@ -63,16 +65,16 @@ The countries supported by `elmada` can be seen in the map below which is the ou
 In the [Usage section](#usage) they are referred to as Europe30.
 They include:
 
-* 20 countries analyzed in the [Applied Energy paper][APEN paper]: AT, BE, CZ, DE, DK, ES, FI, FR, GB, GR, HU, IE, IT, LT, NL, PL, PT, RO, RS, SI
+* 20 countries analyzed in the [Applied Energy paper]: AT, BE, CZ, DE, DK, ES, FI, FR, GB, GR, HU, IE, IT, LT, NL, PL, PT, RO, RS, SI
 * 8 countries with only [one reported fossil fuel type][APENsupplPage8]: BA, CH, EE, LV, ME, MK, NO, SE
-* 2 countries where installed generation capacity data for 2019 were only available after the publication of the [Applied Energy paper][APEN paper]: BG, SK
+* 2 countries where installed generation capacity data for 2019 were only available after the publication of the [Applied Energy paper]: BG, SK
 
 ## Data modes
 
 You can use **elmada** in two data modes which can be set with `elmada.set_mode(mode=<MODE>)`:
 
 * `mode="safe"` (default):
-  * Pre-cached data for 4 years and 20 countries are used. The data are described in the [Applied Energy paper][APEN paper].
+  * Pre-cached data for 4 years and 20 countries are used. The data are described in the [Applied Energy paper].
   * The years are 2017 to 2020 and the countries AT, BE, CZ, DE, DK, ES, FI, FR, GB, GR, HU, IE, IT, LT, NL, PL, PT, RO, RS, SI.
   * The data is available in the space-saving and quick-to-read [Parquet format] under [.../safe_cache].
 * `mode="live"`:
@@ -96,7 +98,7 @@ You can use **elmada** in two data modes which can be set with `elmada.set_mode(
 
 ## Time zones
 
-The data is in local time since the [Draf Project] focuses on the modeling of individual energy hubs.
+The data is in local time since the [Draf Project] focuses on the modeling of individual local energy hubs.
 Standard time is used i.e. daylight saving time is ignored.
 Also see [this table](https://github.com/DrafProject/marginal-emission-factors/blob/main/README.md#time-zones) of the time zones used.
 
@@ -330,9 +332,9 @@ If you use **elmada** for academic work please cite this paper published in the 
 }
 ```
 
-If you use the PP or PWL method, please also cite the [original open-access method paper][APEN paper]:
+If you use the PP or PWL method, please also cite the open-access [Applied Energy paper]:
 
-[![APEN](https://img.shields.io/badge/AppliedEnergy-10.1016/j.apenergy.2021.117040-brightgreen)][APEN paper]
+[![APEN](https://img.shields.io/badge/AppliedEnergy-10.1016/j.apenergy.2021.117040-brightgreen)][Applied Energy paper]
 
 ```bibtex
 @article{Fleschutz2021b,
@@ -361,8 +363,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [.../safe_cache]: elmada/data/safe_cache
 [.../tranberg]: elmada/data/raw/tranberg
 [.../worldbank]: elmada/data/raw/worldbank
-[APEN paper]: https://doi.org/10.1016/j.apenergy.2021.117040
 [APENsupplPage8]: https://ars.els-cdn.com/content/image/1-s2.0-S0306261921004992-mmc1.pdf#page=8
+[Applied Energy paper]: https://doi.org/10.1016/j.apenergy.2021.117040
 [BeautifulSoup4]: https://pypi.org/project/beautifulsoup4
 [destatis_download]: https://www.destatis.de/DE/Themen/Wirtschaft/Preise/Publikationen/Energiepreise/energiepreisentwicklung-xlsx-5619001.xlsx?__blob=publicationFile
 [DESTATIS]: https://www.destatis.de
@@ -387,4 +389,5 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [Smard]: https://www.smard.de/en
 [Tranberg.2019]: https://doi.org/10.1016/j.esr.2019.100367
 [wb]: https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS
+[CEFWhitepaper]: https://docplayer.net/217796110-A-vision-for-how-ambitious-organizations-can-accurately-measure-electricity-emissions-to-take-genuine-action.html
 [Worldbank]: https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS
