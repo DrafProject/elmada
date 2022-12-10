@@ -359,6 +359,7 @@ def prep_dayahead_prices(
     ensure_std_index: bool = True,
     fillna: bool = True,
     fill_outlier: bool = True,
+    drop_ducplicates: bool = True,
     resample: bool = True,
 ) -> pd.Series:
     assert year in range(2000, 2100), f"{year} is not a valid year"
@@ -376,6 +377,9 @@ def prep_dayahead_prices(
 
         if cache:
             hp.write(ser, fp)
+    
+    if drop_ducplicates:
+        ser = ser.groupby(ser.index).first()
 
     if ensure_std_index:
         idx = hp.make_datetimeindex(year, hp.estimate_freq(ser), tz=ser.index.tz)
