@@ -1,4 +1,4 @@
-<img src="https://github.com/DrafProject/elmada/raw/main/doc/images/elmada_logo.svg" width="450" alt="elmada logo">
+<img src="doc/images/elmada_logo.svg" width="450" alt="elmada logo">
 
 ---
 
