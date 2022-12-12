@@ -11,7 +11,7 @@
 [![codecov](https://codecov.io/gh/DrafProject/elmada/branch/main/graph/badge.svg?token=EOKKJG48A9)](https://codecov.io/gh/DrafProject/elmada)
 
 **Usage:**
-[![python](https://img.shields.io/badge/python-3.7_|_3.8_|_3.9|_3.10|_3.11-blue?logo=python&logoColor=white)](https://github.com/DrafProject/elmada)
+[![python](https://img.shields.io/badge/python-_3.9|_3.10|_3.11-blue?logo=python&logoColor=white)](https://github.com/DrafProject/elmada)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![status](https://joss.theoj.org/papers/10.21105/joss.03625/status.svg)][JOSS paper]
 [![Downloads](https://pepy.tech/badge/elmada)](https://pepy.tech/project/elmada)
