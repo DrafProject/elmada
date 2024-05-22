@@ -40,14 +40,7 @@ def get_CEFs_from_merit_order(
     total_load_T = from_entsoe.load_el_national_generation(
         year=year, freq=freq, country=country
     ).sum(axis=1)
-    cols = [
-        "cumsum_capa",
-        "marginal_emissions",
-        "capa",
-        "fuel_draf",
-        "used_eff",
-        "marginal_cost",
-    ]
+    cols = ["cumsum_capa", "marginal_emissions", "capa", "fuel_draf", "used_eff", "marginal_cost"]
     len_mo = len(mo_P)
     mo_P_arr = mo_P[cols].values
     transm_eff = from_other.get_transmission_efficiency(country=country)
@@ -132,8 +125,8 @@ def get_summary(year=2019) -> pd.DataFrame:
     grouper = ca.groupby(["fuel", "technology"])
     d = dict(
         counts=grouper.count().id,
-        efficiency=grouper.mean()["efficiency_estimate"],
-        sum_capa=grouper.sum()["capacity_net_bnetza"],
+        efficiency=grouper["efficiency_estimate"].mean(),
+        sum_capa=grouper["capacity_net_bnetza"].sum(),
     )
     return pd.concat(d.values(), axis=1, keys=d.keys())
 
@@ -224,8 +217,7 @@ def _preprocess_efficiencies(
     ensure_minimum_efficiency: bool = True,
     minimum_efficiency: float = 0.3,
 ) -> pd.DataFrame:
-
-    filler_dic = df.groupby(by="fuel_draf").mean()["efficiency_estimate"].to_dict()
+    filler_dic = df.groupby(by="fuel_draf")["efficiency_estimate"].mean().to_dict()
     df["filler"] = df["fuel_draf"].map(filler_dic)
 
     if fill_missing_efficiencies:
