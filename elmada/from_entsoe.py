@@ -164,7 +164,7 @@ def load_el_national_generation(
 
     if fillna:
         df = fill_special_missing_data_points_for_gen(df=df, country=country, year=year)
-        df = df.fillna().ffill().fillna().bfill()
+        df = df.ffill().bfill()
 
     if resample:
         df = hp.resample(df, year=year, start_freq=data_freq, target_freq=freq)
@@ -373,7 +373,7 @@ def prep_dayahead_prices(
 
     if ensure_std_index:
         idx = hp.make_datetimeindex(year, hp.estimate_freq(ser), tz=ser.index.tz)
-        ser = ser.reindex(idx).fillna(method="ffill").fillna(method="bfill")
+        ser = ser.reindex(idx).ffill().bfill()
         ser = ser.reset_index(drop=True)
 
     if fillna:

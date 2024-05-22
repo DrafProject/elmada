@@ -368,7 +368,7 @@ def fill_outlier_and_nan(
     if method == "linear":
         df = df.interpolate(method="linear")
     elif method == "fill":
-        df = df.fillna(method="bfill").fillna(method="ffill")
+        df = df.bfill().ffill()
 
     return df
 
