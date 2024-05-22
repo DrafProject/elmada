@@ -87,7 +87,8 @@ def add_row_for_steps(ser: pd.Series) -> pd.Series:
     """Adds an initial row in the Series for plotting steps. This way the first step does not
     disappear when choosing option `pre`.
     """
-    return ser.append(pd.Series({-1: 0})).sort_index()
+    ser = pd.concat([ser, pd.Series({-1: 0})])
+    return ser.sort_index()
 
 
 def sizeof_fmt(num: float, suffix: str = "B") -> str:
