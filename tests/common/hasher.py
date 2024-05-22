@@ -13,7 +13,7 @@ FILE_FMT = "{which}_hashes.csv"
 
 def read_expected_hashes(which: str) -> pd.Series:
     fp = HASH_DIR / FILE_FMT.format(which=which)
-    return pd.read_csv(fp, index_col=[0, 1], squeeze=True)
+    return pd.read_csv(fp, index_col=[0, 1]).squeeze()
 
 
 def save_expected_hashes(which: str) -> None:

@@ -68,7 +68,7 @@ def test_delete_cache(mocker, capsys):
     fp = paths.CACHE_DIR / "test_file_XXXX.parquet"
     tuplelist = [(True, "1 files deleted\n"), (False, "No files deleted\n")]
 
-    for (patch_value, msg) in tuplelist:
+    for patch_value, msg in tuplelist:
         fp.touch(exist_ok=True)
         assert fp.exists()
         mocker.patch("elmada.helper.confirm_deletion", return_value=patch_value)
@@ -141,9 +141,9 @@ def test_read(mocker):
     for suffix, func in zip(suffices, funcs):
         fp = Path(f"_.{suffix}")
         mock = mocker.patch(func, return_value=pd.DataFrame({0: [1, 2, 3]}))
-        result = hp.read(fp, squeeze=True)
+        result = hp.read(fp).squeeze()
         assert isinstance(result, pd.Series)
-        result = hp.read(fp, squeeze=False)
+        result = hp.read(fp)
         assert isinstance(result, pd.DataFrame)
         assert mock.called
 
