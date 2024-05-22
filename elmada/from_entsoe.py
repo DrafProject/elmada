@@ -273,7 +273,7 @@ def prep_residual_load(
 def get_subset_of(df, subset: Union[List, Set]) -> Tuple[pd.Series, Set]:
     wanted = set(subset)
     available = wanted.intersection(set(df.keys()))
-    return df[available].sum(axis=1), available
+    return df[list(available)].sum(axis=1), available
 
 
 def get_conventional_generation(year, freq, country) -> pd.Series:
