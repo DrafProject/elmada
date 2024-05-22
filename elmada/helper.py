@@ -316,7 +316,7 @@ def _append_rows(
 
     class_of_df = type(df)
     line = class_of_df(data=addon_data, index=new_index)  # new Series OR Dataframe.
-    df = df.append(line).sort_index().reset_index(drop=True)
+    df = pd.concat([df, line]).sort_index().reset_index(drop=True)
     return df
 
 
