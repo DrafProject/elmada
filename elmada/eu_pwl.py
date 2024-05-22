@@ -157,7 +157,6 @@ def get_clean_merit_order_for_min_max_approximation(sort_by_fuel=False) -> pd.Da
 
 @lru_cache(maxsize=3)
 def prep_installed_generation_capacity(year=2019, country="DE", source="entsoe") -> pd.Series:
-
     if source == "power_plant_list":
         ser = (
             from_opsd.merit_order(year=year)[["fuel_draf", "capa"]]
@@ -210,7 +209,6 @@ def get_share_cc(country: str) -> float:
 def discretize_merit_order_per_fuel(
     mo_f: pd.DataFrame, country: str, pp_size_method: str = "from_geo_scraped"
 ) -> pd.DataFrame:
-
     concat_list = []
     # if country=="DE":
     #     pp_size_method = "from_Germany"

@@ -4,8 +4,6 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Un
 import entsoe
 import numpy as np
 import pandas as pd
-from entsoe import EntsoePandasClient
-from entsoe import mappings as entsoe_mp
 
 from elmada import exceptions
 from elmada import helper as hp
@@ -14,12 +12,6 @@ from elmada import paths
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARN)
-
-# workaround for a bug in entsoe package v0.2.* see https://github.com/EnergieID/entsoe-py/issues/51
-entsoe_mp.TIMEZONE_MAPPINGS["IT-NORD-AT"] = "Europe/Rome"
-entsoe_mp.TIMEZONE_MAPPINGS["IT-NORD-FR"] = "Europe/Rome"
-entsoe_mp.TIMEZONE_MAPPINGS["IT-GR"] = "Europe/Rome"
-####################################################
 
 
 def prep_XEFs(year: int = 2019, freq: str = "60min", country: str = "DE") -> pd.DataFrame:
@@ -48,8 +40,8 @@ def prep_XEFs(year: int = 2019, freq: str = "60min", country: str = "DE") -> pd.
     return df
 
 
-def _get_client() -> EntsoePandasClient:
-    return EntsoePandasClient(api_key=hp.get_api_key("entsoe"))
+def _get_client() -> entsoe.EntsoePandasClient:
+    return entsoe.EntsoePandasClient(api_key=hp.get_api_key("entsoe"))
 
 
 def _get_timestamps(year: int, tz: str) -> Tuple:
@@ -138,7 +130,6 @@ def load_el_national_generation(
     fillna: bool = True,
     resample: bool = True,
 ) -> pd.DataFrame:
-
     assert year in range(2000, 2100), f"{year} is not a valid year"
     assert freq in [None, "15min", "30min", "60min"], f"{freq} is not a valid frequency"
     assert country in mp.EUROPE_COUNTRIES
@@ -173,7 +164,7 @@ def load_el_national_generation(
 
     if fillna:
         df = fill_special_missing_data_points_for_gen(df=df, country=country, year=year)
-        df = df.fillna(method="ffill").fillna(method="bfill")
+        df = df.fillna().ffill().fillna().bfill()
 
     if resample:
         df = hp.resample(df, year=year, start_freq=data_freq, target_freq=freq)
@@ -237,7 +228,6 @@ def _query_generation_monthly(year, country, client, tz) -> pd.DataFrame:
 
     d = {}
     for month in range(1, 13):
-
         start, end = _get_timestamps_for_month(year, tz, month)
 
         try:
@@ -363,21 +353,21 @@ def prep_dayahead_prices(
     resample: bool = True,
 ) -> pd.Series:
     assert year in range(2000, 2100), f"{year} is not a valid year"
-    assert country in entsoe_mp.BIDDING_ZONES
+    assert country in entsoe.Area.__dict__
 
     fp = paths.CACHE_DIR / f"{year}_{freq}_{country}_dayahead_c_el_entsoe.parquet"
 
-    bidding_zone = get_bidding_zone(country, year)
+    # bidding_zone = get_bidding_zone(country, year)
 
     if cache and fp.exists():
         ser = hp.read(fp)
 
     else:
-        ser = _query_day_ahead_prices(year, bidding_zone)
+        ser = _query_day_ahead_prices(year, country)
 
         if cache:
             hp.write(ser, fp)
-    
+
     if drop_ducplicates:
         ser = ser.groupby(ser.index).first()
 
@@ -428,18 +418,12 @@ def get_bidding_zone(country: str, year: int) -> str:
         else:
             country = "DE-AT-LU"
 
-    country_to_bidding = {
-        "NO": "NO-1",
-        "DK": "DK-2",
-        "IT": "IT-NORD",
-        "SE": "SE-1",
-        "IE": "IE-SEM",
-    }
+    country_to_bidding = {"NO": "NO-1", "DK": "DK-2", "IT": "IT-NORD", "SE": "SE-1", "IE": "IE-SEM"}
     return country_to_bidding.get(country, country)
 
 
 def get_timezone(country: str) -> str:
-    return entsoe_mp.TIMEZONE_MAPPINGS.get(country, "Europe/Brussels")
+    return entsoe.mappings.lookup_area(country).tz
 
 
 #############################

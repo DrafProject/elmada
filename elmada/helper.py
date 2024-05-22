@@ -224,7 +224,7 @@ def resample(
             func = downsample
 
         return func(
-            df=df, year=year, start_freq=start_freq, target_freq=target_freq, aggfunc=aggfunc,
+            df=df, year=year, start_freq=start_freq, target_freq=target_freq, aggfunc=aggfunc
         )
 
 
@@ -284,7 +284,7 @@ def upsample(
     """
     df = df.copy()
     df.index = make_datetimeindex(year, freq=start_freq)
-    df = df.resample(target_freq).pad()
+    df = df.resample(target_freq).ffill()
     convert_factor = int_from_freq(start_freq) / int_from_freq(target_freq)
     if aggfunc == "sum":
         df /= convert_factor
@@ -360,7 +360,7 @@ def remove_outlier(
 
 
 def fill_outlier_and_nan(
-    df: Union[pd.Series, pd.DataFrame], zscore_threshold: int = 3, method: str = "linear",
+    df: Union[pd.Series, pd.DataFrame], zscore_threshold: int = 3, method: str = "linear"
 ) -> Union[pd.Series, pd.DataFrame]:
 
     df = remove_outlier(df, zscore_threshold)

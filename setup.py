@@ -19,7 +19,7 @@ setup(
     install_requires=[
         "appdirs",
         "beautifulsoup4",
-        "entsoe-py==0.2.10",
+        "entsoe-py",
         "ipython",
         "lxml",
         "matplotlib",
