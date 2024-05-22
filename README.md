@@ -390,5 +390,5 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [Smard]: https://www.smard.de/en
 [Tranberg.2019]: https://doi.org/10.1016/j.esr.2019.100367
 [wb]: https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS
-[CEFWhitepaper]: https://docplayer.net/217796110-A-vision-for-how-ambitious-organizations-can-accurately-measure-electricity-emissions-to-take-genuine-action.html
+[CEFWhitepaper]: https://watttime.org/wp-content/uploads/2024/01/GHG-Frameworks-WhitePaper-Tomorrow-WattTime-202108.pdf
 [Worldbank]: https://databank.worldbank.org/reports.aspx?source=2&series=EG.ELC.LOSS.ZS
