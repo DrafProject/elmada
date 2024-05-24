@@ -81,7 +81,7 @@ def get_sandbag_eua_prices() -> Dict:
     df = pd.read_csv(io, sep=";", decimal=",", index_col=0, skiprows=2)
 
     df.index = pd.to_datetime(df.index)
-    df = df.resample("Y").mean()
+    df = df.resample("YE").mean()
     df = df.set_index(df.index.year, drop=True)
     return df.squeeze().to_dict()
 

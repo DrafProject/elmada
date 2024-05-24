@@ -32,7 +32,7 @@ def prep_XEFs(year: int = 2019, freq: str = "60min", country: str = "DE") -> pd.
         )
     ce_F = spec_emissions[used_country]
     x = set(shares_TF.keys()) & set(ce_F.keys())
-    ce_T = shares_TF[x] @ ce_F[x]
+    ce_T = shares_TF[list(x)] @ ce_F[list(x)]
     ce_T = ce_T.fillna(ce_T.mean())
 
     hp.warn_if_incorrect_index_length(ce_T, year, freq)
