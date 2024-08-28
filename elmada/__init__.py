@@ -2,7 +2,7 @@ __title__ = "elmada"
 __summary__ = "Dynamic electricity carbon emission factors and prices for Europe"
 __uri__ = "https://github.com/DrafProject/elmada"
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 __author__ = "Markus Fleschutz"
 __email__ = "mfleschutz@gmail.com"

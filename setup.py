@@ -6,7 +6,7 @@ long_description = Path("README.md").read_text().strip()
 
 setup(
     name="elmada",
-    version="0.1.0",
+    version="0.1.1",
     author="Markus Fleschutz",
     author_email="mfleschutz@gmail.com",
     description="Dynamic electricity carbon emission factors and prices for Europe",
